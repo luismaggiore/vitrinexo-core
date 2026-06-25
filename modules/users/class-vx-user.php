@@ -97,12 +97,12 @@ class VX_User
     public function get_pais_codigo(): string
     {
         $paises = [
-            'Argentina' => 'ARG', 'Bolivia' => 'BOL', 'Brasil' => 'BRA',
-            'Chile' => 'CHL', 'Colombia' => 'COL', 'Costa Rica' => 'CRI',
-            'Cuba' => 'CUB', 'Ecuador' => 'ECU', 'El Salvador' => 'SLV',
-            'España' => 'ESP', 'Guatemala' => 'GTM', 'Honduras' => 'HND',
-            'México' => 'MEX', 'Nicaragua' => 'NIC', 'Panamá' => 'PAN',
-            'Paraguay' => 'PRY', 'Perú' => 'PER', 'Puerto Rico' => 'PRI',
+            'Argentina' => 'ARG', 'Bolivia' => 'BOL', 'Chile' => 'CHL',
+            'Colombia' => 'COL', 'Costa Rica' => 'CRI', 'Cuba' => 'CUB',
+            'Ecuador' => 'ECU', 'El Salvador' => 'SLV', 'España' => 'ESP',
+            'Guatemala' => 'GTM', 'Honduras' => 'HND', 'México' => 'MEX',
+            'Nicaragua' => 'NIC', 'Panamá' => 'PAN', 'Paraguay' => 'PRY',
+            'Perú' => 'PER', 'Puerto Rico' => 'PRI',
             'República Dominicana' => 'DOM', 'Uruguay' => 'URY', 'Venezuela' => 'VEN',
         ];
         $pais = $this->get_pais();
@@ -168,9 +168,23 @@ class VX_User
         return (string) get_user_meta( $this->wp_user->ID, VX_User_Meta::PLAN_ESTADO, true );
     }
 
+    /**
+     * Badge de Fundador — PERMANENTE.
+     * Independiente del plan de facturación actual.
+     * Un fundador puede estar en plan 'mensual' o 'preferencial' y seguir teniendo el badge.
+     */
     public function is_founder(): bool
     {
-        return 'fundador' === $this->get_plan();
+        return (bool) get_user_meta( $this->wp_user->ID, VX_User_Meta::ES_FUNDADOR, true );
+    }
+
+    /**
+     * Si el plan actual tiene precio preferencial de fundador.
+     * (badge is_founder() = true + ha empezado a pagar = precio especial)
+     */
+    public function is_on_preferential_plan(): bool
+    {
+        return $this->is_founder() && 'preferencial' === $this->get_plan();
     }
 
     public function has_precio_preferente(): bool
@@ -222,6 +236,22 @@ class VX_User
     public function get_seek_texto(): string
     {
         return (string) get_user_meta( $this->wp_user->ID, VX_User_Meta::SEEK_TEXTO, true );
+    }
+
+    public function get_genero(): string
+    {
+        return (string) get_user_meta( $this->wp_user->ID, VX_User_Meta::GENERO, true );
+    }
+
+    public function get_profile_tags(): array
+    {
+        $tags = get_user_meta( $this->wp_user->ID, VX_User_Meta::PROFILE_TAGS, true );
+        return is_array( $tags ) ? $tags : [];
+    }
+
+    public function get_industria(): string
+    {
+        return (string) get_user_meta( $this->wp_user->ID, VX_User_Meta::INDUSTRIA, true );
     }
 
     // ── Empresas ─────────────────────────────────────────────────
@@ -288,6 +318,8 @@ class VX_User
             'pais_codigo'   => $this->get_pais_codigo(),
             'offer_tags'    => $this->get_offer_tags(),
             'seek_tags'     => $this->get_seek_tags(),
+            'profile_tags'  => $this->get_profile_tags(),
+            'industria'     => $this->get_industria(),
             'empresa'       => $empresa ? $empresa->post_title : '',
             'empresa_id'    => $empresa ? $empresa->ID : 0,
             'cargo'         => $empresa ? get_post_meta( $empresa->ID, 'vx_cargo', true ) : '',

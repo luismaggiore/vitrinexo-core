@@ -175,6 +175,9 @@ class VX_Verification
         $user = VX_User::get( $user_id );
         if ( ! $user ) return;
 
+        // Fix: no regenerar token si ya está activo (previene doble email por doble clic)
+        if ( 'activo' === $user->get_estado() ) return;
+
         $token = self::generate_token( $user_id, 72 ); // 72h para manual
         $link  = add_query_arg( [
             'uid'    => $user_id,
@@ -212,6 +215,13 @@ class VX_Verification
             return true;
         }
 
-        return false; // manual: el admin controla el reenvío
+        // Fix: si es manual y el token expiró, notificar al admin para que vuelva a aprobar
+        $token   = get_user_meta( $user_id, VX_User_Meta::TOKEN_CONFIRMACION, true );
+        $expiry  = (int) get_user_meta( $user_id, VX_User_Meta::TOKEN_EXPIRA, true );
+        $expired = $expiry > 0 && $expiry < time();
+        if ( ! $token || $expired ) {
+            self::notify_admin_pending( $user_id ); // pedir al admin que apruebe de nuevo
+        }
+        return false;
     }
 }

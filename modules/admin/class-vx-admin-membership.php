@@ -89,7 +89,7 @@ class VX_Admin_Membership
             $plan    = VX_Plans::get( $plan_id );
 
             if ( $plan ) {
-                $expiry    = time() + ( $plan['duracion_dias'] * DAY_IN_SECONDS );
+                $expiry    = VX_Plans::compute_expiry( $plan_id ); // Fix: 0 para planes sin vencimiento
                 $membresia = VX_Membership::get( $user_id );
                 $membresia->activate( $plan_id, $expiry );
             }

@@ -34,7 +34,8 @@ class VX_Dinner
             'post_status'    => 'publish',
             'posts_per_page' => -1,
             'meta_query'     => [
-                [ 'key' => VX_Dinner_Meta::ESTADO, 'value' => 'abierto' ],
+                'relation' => 'AND',
+                [ 'key' => VX_Dinner_Meta::ESTADO, 'value' => [ 'abierto', 'confirmado' ], 'compare' => 'IN' ],
                 [ 'key' => VX_Dinner_Meta::FECHA,  'value' => time(), 'compare' => '>=', 'type' => 'NUMERIC' ],
             ],
             'meta_key'       => VX_Dinner_Meta::FECHA,
@@ -124,9 +125,21 @@ class VX_Dinner
         return array_filter( array_map( [ 'VX_User', 'get' ], $this->get_interesados() ) );
     }
 
+    /**
+     * Siempre hay espacio — 4 es el MÍNIMO para confirmar la cena, no el máximo.
+     * El admin puede seguir añadiendo personas después de los primeros 4.
+     */
     public function has_space(): bool
     {
-        return count( $this->get_asignados() ) < 4;
+        return true;
+    }
+
+    /**
+     * La cena está confirmada cuando hay al menos 4 asistentes.
+     */
+    public function is_confirmed(): bool
+    {
+        return count( $this->get_asignados() ) >= 4;
     }
 
     public function is_user_interested( int $user_id ): bool
@@ -169,5 +182,82 @@ class VX_Dinner
     public function set_estado( string $estado ): void
     {
         update_post_meta( $this->post->ID, VX_Dinner_Meta::ESTADO, $estado );
+    }
+
+    // ── Deadline ─────────────────────────────────────────────────────────────
+
+    /** Timestamp Unix del cierre de inscripciones (0 = sin límite). */
+    public function get_deadline(): int
+    {
+        return (int) get_post_meta( $this->post->ID, VX_Dinner_Meta::DEADLINE, true );
+    }
+
+    /** True si el deadline ya pasó (hay uno configurado y es anterior a now). */
+    public function is_deadline_passed(): bool
+    {
+        $dl = $this->get_deadline();
+        return $dl > 0 && $dl < time();
+    }
+
+    /** True si las inscripciones están abiertas (estado abierto/confirmado y deadline no pasado). */
+    public function is_open_for_registration(): bool
+    {
+        return in_array( $this->get_estado(), [ 'abierto', 'confirmado' ], true )
+            && ! $this->is_deadline_passed();
+    }
+
+    // ── Mesas ─────────────────────────────────────────────────────────────────
+
+    /**
+     * Devuelve la estructura de mesas.
+     *
+     * @return array[]  Array de mesas: [['nombre'=>'Mesa 1','asignados'=>[uid,...]], ...]
+     */
+    public function get_mesas(): array
+    {
+        $raw = get_post_meta( $this->post->ID, VX_Dinner_Meta::MESAS, true );
+        if ( ! $raw ) return [];
+        $decoded = json_decode( $raw, true );
+        return is_array( $decoded ) ? $decoded : [];
+    }
+
+    /** Persiste la estructura de mesas. */
+    public function set_mesas( array $mesas ): void
+    {
+        update_post_meta( $this->post->ID, VX_Dinner_Meta::MESAS, wp_json_encode( $mesas ) );
+    }
+
+    /**
+     * Devuelve la mesa de un usuario (si está asignado a alguna).
+     * Retorna el índice (0-based) de la mesa, o null si no está en ninguna.
+     *
+     * @param int $user_id
+     * @return int|null  Índice de mesa (0-based), o null.
+     */
+    public function get_user_mesa_index( int $user_id ): ?int
+    {
+        foreach ( $this->get_mesas() as $idx => $mesa ) {
+            if ( in_array( $user_id, (array) ( $mesa['asignados'] ?? [] ), true ) ) {
+                return $idx;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Devuelve el array de la mesa de un usuario, o null.
+     *
+     * @param int $user_id
+     * @return array|null
+     */
+    public function get_user_mesa( int $user_id ): ?array
+    {
+        $mesas = $this->get_mesas();
+        foreach ( $mesas as $mesa ) {
+            if ( in_array( $user_id, (array) ( $mesa['asignados'] ?? [] ), true ) ) {
+                return $mesa;
+            }
+        }
+        return null;
     }
 }

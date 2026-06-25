@@ -18,6 +18,8 @@ class VX_Notification_Triggers
         add_action( 'vx_profile_visited',      [ self::class, 'on_profile_visited' ],      10, 2 );
         add_action( 'vx_user_favorited',       [ self::class, 'on_user_favorited' ],       10, 2 );
         add_action( 'vx_dinner_available',     [ self::class, 'on_dinner_available' ],     10, 1 );
+        add_action( 'vx_dinner_assigned',      [ self::class, 'on_dinner_assigned' ],      10, 2 );
+        add_action( 'vx_pub_comentario',       [ self::class, 'on_pub_comentario' ],       10, 2 );
     }
 
     /**
@@ -77,6 +79,25 @@ class VX_Notification_Triggers
     }
 
     /**
+     * Comentario en publicación → notif al autor.
+     */
+    public static function on_pub_comentario( int $post_id, int $comentador_id ): void
+    {
+        $post = get_post( $post_id );
+        if ( ! $post ) return;
+
+        $autor_id = (int) $post->post_author;
+        if ( $autor_id === $comentador_id ) return;
+
+        VX_Notification::create(
+            $autor_id,
+            'comentario_pub',
+            home_url( '/mis-publicaciones/' ),
+            $comentador_id
+        );
+    }
+
+    /**
      * Usuario guardado como favorito → notif al guardado.
      *
      * @param int $favorited_id  Usuario que fue guardado.
@@ -89,6 +110,27 @@ class VX_Notification_Triggers
             'favorito',
             home_url( '/notificaciones/' ),
             $saver_id
+        );
+    }
+
+    /**
+     * Asignado a 4Dinner → notif al usuario.
+     * Disparado desde VX_Dinner_Assignment::assign().
+     *
+     * @param int $user_id
+     * @param int $dinner_id
+     */
+    public static function on_dinner_assigned( int $user_id, int $dinner_id ): void
+    {
+        $dinner = class_exists( 'VX_Dinner' ) ? VX_Dinner::get( $dinner_id ) : null;
+        $ciudad = $dinner ? $dinner->get_ciudad() : '';
+
+        VX_Notification::create(
+            $user_id,
+            'dinner_asignado',
+            home_url( '/4dinner/' ),
+            0,
+            [ 'dinner_id' => $dinner_id, 'ciudad' => $ciudad ]
         );
     }
 
@@ -119,7 +161,7 @@ class VX_Notification_Triggers
             VX_Notification::create(
                 $uid,
                 'dinner_disponible',
-                home_url( '/events/4dinner/' ),
+                home_url( '/4dinner/' ),
                 0,
                 [ 'dinner_id' => $dinner_id, 'ciudad' => $ciudad ]
             );

@@ -6,7 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class VX_Onboarding
 {
-    const PASOS = [ 1, 2, 3, 4, 5, 6 ];
+    const PASOS        = [ 1, 2, 3, 4, 5, 6 ]; // Pasos reales del wizard
+    const PASO_COMPLETO = 7;                  // Estado virtual de "onboarding completado"
 
     /**
      * Devuelve el estado actual del onboarding del usuario.
@@ -85,27 +86,31 @@ class VX_Onboarding
     public static function complete( int $user_id ): void
     {
         update_user_meta( $user_id, VX_User_Meta::ONBOARDING_COMPLETO, true );
-        update_user_meta( $user_id, VX_User_Meta::ONBOARDING_PASO, 6 );
+        update_user_meta( $user_id, VX_User_Meta::ONBOARDING_PASO, self::PASO_COMPLETO );
 
-        // Si solicitó Senior, notificar admin
+        // Paso 5 = comunidades (paso 4 = tags)
         $state = self::get_state( $user_id );
-        if ( ! empty( $state['datos'][5]['senior'] ) ) {
-            VX_Senior_Verification::request( $user_id );
+        $coms  = $state['datos'][5] ?? [];
+        if ( ! empty( $coms['senior'] ) ) VX_Senior_Verification::request( $user_id );
+        if ( ! empty( $coms['out2b'] ) )  VX_Community::activate( $user_id, 'out2b' );
+        if ( ! empty( $coms['woman'] ) )  VX_Community::activate( $user_id, 'woman' );
+
+        // Auto-fundador: activo por defecto en fase beta, desactivable desde wp-admin → Vitrinexo → Ajustes.
+        if ( get_option( 'vx_auto_fundador', '1' ) === '1' ) {
+            // Asignar badge PERMANENTE de Fundador
+            update_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
+            // El plan sigue siendo 'gratuito' — sin vencimiento hasta que el admin lo defina.
+            // El admin controla CUÁNDO los fundadores pasan a pagar (precio preferencial).
+            $membresia = VX_Membership::get( $user_id );
+            if ( empty( $membresia->get_plan() ) || 'gratuito' === $membresia->get_plan() ) {
+                $membresia->activate( 'gratuito', 0 ); // 0 = sin vencimiento por ahora
+            }
+            // Marcar precio preferente para cuando empiece a cobrar
+            update_user_meta( $user_id, VX_User_Meta::PRECIO_PREFERENTE, true );
         }
 
-        // Activar comunidades
-        if ( ! empty( $state['datos'][5] ) ) {
-            $comunidades = $state['datos'][5];
-            if ( ! empty( $comunidades['out2b'] ) )  VX_Community::activate( $user_id, 'out2b' );
-            if ( ! empty( $comunidades['woman'] ) )  VX_Community::activate( $user_id, 'woman' );
-        }
-
-        // Activar plan Fundador por defecto (fase inicial)
-        $membresia = VX_Membership::get( $user_id );
-        if ( empty( $membresia->get_plan() ) ) {
-            $expiry = strtotime( '+180 days' );
-            $membresia->activate( 'fundador', $expiry );
-        }
+        // Limpiar meta temporal del registro
+        delete_user_meta( $user_id, 'vx_empresa_inicial' );
 
         do_action( 'vx_onboarding_completed', $user_id );
     }
@@ -123,18 +128,22 @@ class VX_Onboarding
 
         switch ( $paso ) {
             case 2:
-                if ( empty( trim( $datos['nombre'] ?? '' ) ) )   $errors[] = 'nombre_requerido';
-                if ( empty( trim( $datos['apellido'] ?? '' ) ) )  $errors[] = 'apellido_requerido';
-                if ( empty( trim( $datos['pais'] ?? '' ) ) )      $errors[] = 'pais_requerido';
+                if ( empty( trim( $datos['nombre']   ?? '' ) ) ) $errors[] = 'nombre_requerido';
+                if ( empty( trim( $datos['apellido'] ?? '' ) ) ) $errors[] = 'apellido_requerido';
+                if ( empty( trim( $datos['pais']     ?? '' ) ) ) $errors[] = 'pais_requerido';
                 break;
 
             case 3:
                 if ( empty( trim( $datos['empresa_nombre'] ?? '' ) ) ) $errors[] = 'empresa_nombre_requerido';
-                if ( empty( trim( $datos['empresa_cargo'] ?? '' ) ) )  $errors[] = 'empresa_cargo_requerido';
+                if ( empty( trim( $datos['empresa_cargo']  ?? '' ) ) ) $errors[] = 'empresa_cargo_requerido';
                 break;
 
             case 4:
-                // Tags son opcionales — el usuario puede completarlos después
+                // Tags offer/seek — opcionales, sin validación obligatoria
+                break;
+
+            case 5:
+                // Comunidades — opcionales
                 break;
         }
 
@@ -158,39 +167,47 @@ class VX_Onboarding
                 update_user_meta( $user_id, VX_User_Meta::CIUDAD,             sanitize_text_field( $datos['ciudad']             ?? '' ) );
                 update_user_meta( $user_id, VX_User_Meta::PAIS,               sanitize_text_field( $datos['pais']               ?? '' ) );
                 update_user_meta( $user_id, VX_User_Meta::CONTACTO_PREFERIDO, sanitize_text_field( $datos['contacto_preferido'] ?? 'email' ) );
-
+                $genero = sanitize_key( $datos['genero'] ?? '' );
+                if ( in_array( $genero, [ 'masculino', 'femenino', 'otro', 'no_contesta' ], true ) ) {
+                    update_user_meta( $user_id, VX_User_Meta::GENERO, $genero );
+                }
                 if ( ! empty( $datos['foto_id'] ) ) {
                     update_user_meta( $user_id, VX_User_Meta::FOTO, absint( $datos['foto_id'] ) );
                 }
-
-                // Generar slug de perfil
                 $nombre   = sanitize_text_field( $datos['nombre']   ?? '' );
                 $apellido = sanitize_text_field( $datos['apellido'] ?? '' );
                 if ( $nombre && $apellido ) {
-                    $slug = VX_Slug_Helper::generate( $nombre, $apellido, $user_id );
-                    update_user_meta( $user_id, VX_User_Meta::PERFIL_SLUG, $slug );
+                    update_user_meta( $user_id, VX_User_Meta::PERFIL_SLUG,
+                        VX_Slug_Helper::generate( $nombre, $apellido, $user_id ) );
                 }
                 break;
 
             case 3:
-                // Crear o actualizar la empresa del usuario
-                $empresa_activa = self::get_or_create_empresa( $user_id, $datos );
-                if ( $empresa_activa ) {
-                    update_post_meta( $empresa_activa, 'vx_empresa_activa', '1' );
+                // Crear/actualizar empresa + sincronizar industria al user meta
+                $empresa_id = self::get_or_create_empresa( $user_id, $datos );
+                if ( $empresa_id ) {
+                    update_post_meta( $empresa_id, 'vx_empresa_activa', '1' );
+                    // Sincronizar industria al user meta para facilitar filtros de directorio
+                    $industria = sanitize_text_field( $datos['empresa_industria'] ?? '' );
+                    update_post_meta( $empresa_id, 'vx_industria', $industria );
+                    update_user_meta( $user_id, VX_User_Meta::INDUSTRIA, $industria );
                 }
                 break;
 
             case 4:
-                $offer_tags = VX_Tag_Helper::normalize( (array) ( $datos['offer_tags'] ?? [] ) );
-                $seek_tags  = VX_Tag_Helper::normalize( (array) ( $datos['seek_tags']  ?? [] ) );
-                update_user_meta( $user_id, VX_User_Meta::OFFER_TAGS,  $offer_tags );
-                update_user_meta( $user_id, VX_User_Meta::SEEK_TAGS,   $seek_tags );
-                update_user_meta( $user_id, VX_User_Meta::OFFER_TEXTO, sanitize_textarea_field( $datos['offer_texto'] ?? '' ) );
-                update_user_meta( $user_id, VX_User_Meta::SEEK_TEXTO,  sanitize_textarea_field( $datos['seek_texto']  ?? '' ) );
+                // Tags offer/seek — guardar inmediatamente en user meta
+                $offer = array_map( 'sanitize_text_field', (array) ( $datos['offer_tags'] ?? [] ) );
+                $seek  = array_map( 'sanitize_text_field', (array) ( $datos['seek_tags']  ?? [] ) );
+                $offer_texto = sanitize_textarea_field( $datos['offer_texto'] ?? '' );
+                $seek_texto  = sanitize_textarea_field( $datos['seek_texto']  ?? '' );
+                update_user_meta( $user_id, VX_User_Meta::OFFER_TAGS,  array_values( array_filter( $offer ) ) );
+                update_user_meta( $user_id, VX_User_Meta::SEEK_TAGS,   array_values( array_filter( $seek ) ) );
+                if ( $offer_texto ) update_user_meta( $user_id, VX_User_Meta::OFFER_TEXTO, $offer_texto );
+                if ( $seek_texto )  update_user_meta( $user_id, VX_User_Meta::SEEK_TEXTO,  $seek_texto );
                 break;
 
             case 5:
-                // Las comunidades se activan en complete()
+                // Comunidades — se activan definitivamente en complete()
                 break;
         }
     }

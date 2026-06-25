@@ -31,8 +31,9 @@ add_action( 'rest_api_init', function () {
             'apellido' => [ 'required' => true, 'sanitize_callback' => 'sanitize_text_field' ],
             'email'    => [ 'required' => true, 'sanitize_callback' => 'sanitize_email' ],
             'password' => [ 'required' => true ],
-            'pais'     => [ 'required' => false, 'sanitize_callback' => 'sanitize_text_field' ],
-            'empresa'  => [ 'required' => false, 'sanitize_callback' => 'sanitize_text_field' ],
+            'pais'     => [ 'required' => true, 'sanitize_callback' => 'sanitize_text_field' ],
+            'empresa'  => [ 'required' => true, 'sanitize_callback' => 'sanitize_text_field' ],
+            'telefono' => [ 'required' => false, 'sanitize_callback' => 'sanitize_text_field' ],
         ],
     ] );
 
@@ -51,10 +52,17 @@ function vx_rest_activar_cuenta( WP_REST_Request $request ): void
     }
 
     if ( 'activo' === $user->get_estado() ) {
-        // Ya estaba activo → redirigir a onboarding o dashboard
         wp_safe_redirect( $user->is_onboarding_completo()
             ? home_url( '/dashboard/' )
             : home_url( '/onboarding/' ) );
+        exit;
+    }
+
+    // Fix: cuenta rechazada no puede reactivarse con token — invalidar token e informar
+    if ( 'rechazado' === $user->get_estado() ) {
+        delete_user_meta( $user_id, VX_User_Meta::TOKEN_CONFIRMACION );
+        delete_user_meta( $user_id, VX_User_Meta::TOKEN_EXPIRA );
+        wp_safe_redirect( home_url( '/login/?error=cuenta_rechazada' ) );
         exit;
     }
 
@@ -87,8 +95,21 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     $apellido = $request->get_param( 'apellido' );
     $email    = $request->get_param( 'email' );
     $password = $request->get_param( 'password' );
-    $pais     = $request->get_param( 'pais' ) ?? '';
-    $empresa  = $request->get_param( 'empresa' ) ?? '';
+    $pais     = $request->get_param( 'pais' )     ?? '';
+    $empresa  = $request->get_param( 'empresa' )  ?? '';
+    $telefono = $request->get_param( 'telefono' ) ?? '';
+
+    if ( empty( trim( $pais ) ) ) {
+        return new WP_REST_Response( [ 'success' => false, 'error' => 'pais_requerido', 'message' => 'El país es obligatorio.' ], 400 );
+    }
+
+    if ( empty( trim( $empresa ) ) ) {
+        return new WP_REST_Response( [ 'success' => false, 'error' => 'empresa_requerida', 'message' => 'El nombre de empresa es obligatorio.' ], 400 );
+    }
+
+    if ( empty( trim( $telefono ) ) ) {
+        return new WP_REST_Response( [ 'success' => false, 'error' => 'telefono_requerido', 'message' => 'El teléfono es obligatorio.' ], 400 );
+    }
 
     if ( ! is_email( $email ) ) {
         return new WP_REST_Response( [ 'success' => false, 'error' => 'email_invalido' ], 400 );
@@ -121,6 +142,16 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     update_user_meta( $user_id, VX_User_Meta::ONBOARDING_PASO,     1 );
     update_user_meta( $user_id, VX_User_Meta::PLAN,                'gratuito' );
     update_user_meta( $user_id, VX_User_Meta::PLAN_ESTADO,         'activo' );
+
+    // Guardar teléfono obligatorio
+    update_user_meta( $user_id, VX_User_Meta::TELEFONO, sanitize_text_field( $telefono ) );
+
+    // Fix Gap 3: generar slug desde el registro para que el perfil no quede huérfano
+    // si el usuario abandona el onboarding antes del paso 2.
+    if ( $nombre && $apellido && class_exists( 'VX_Slug_Helper' ) ) {
+        $slug = VX_Slug_Helper::generate( $nombre, $apellido, $user_id );
+        update_user_meta( $user_id, VX_User_Meta::PERFIL_SLUG, $slug );
+    }
 
     // Guardar empresa inicial en meta temporal (para el onboarding paso 3)
     if ( $empresa ) {

@@ -3,6 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Consultas del directorio de miembros.
+ * Soporta filtros por país, industria, fundador y búsqueda de texto libre.
  */
 class VX_Directory
 {
@@ -11,84 +12,155 @@ class VX_Directory
     /**
      * Consulta principal del directorio con filtros y paginación.
      *
-     * @param array $args  Filtros: pais, rubro, comunidad, fundador, page, per_page
+     * @param array $args  pais, industria, fundador, busqueda, page, per_page
      * @return array  ['users' => VX_User[], 'total' => int, 'pages' => int, 'pagination' => array]
      */
     public static function get_members( array $args = [] ): array
     {
         $pais      = sanitize_text_field( $args['pais']      ?? '' );
-        $comunidad = sanitize_text_field( $args['comunidad'] ?? '' );
+        $industria = sanitize_text_field( $args['industria'] ?? '' );
+        $busqueda  = sanitize_text_field( $args['busqueda']  ?? '' );
         $fundador  = ! empty( $args['fundador'] );
         $page      = max( 1, absint( $args['page'] ?? 1 ) );
         $per_page  = absint( $args['per_page'] ?? self::PER_PAGE );
 
-        $query_args = [
-            'role'   => 'subscriber',
-            'number' => -1,
-            'fields' => 'ids',
-        ];
-
-        // Solo usuarios activos con onboarding completo
+        // ── Query base ───────────────────────────────────────────────────────
         $meta_query = [
             'relation' => 'AND',
             [ 'key' => VX_User_Meta::ESTADO,              'value' => 'activo' ],
             [ 'key' => VX_User_Meta::ONBOARDING_COMPLETO, 'value' => '1' ],
         ];
 
-        if ( $pais ) {
+        // Post-beta: excluir usuarios gratuitos que no son fundadores
+        // (en beta auto_fundador=1 → todos son fundadores → no aplica este filtro)
+        if ( get_option( 'vx_auto_fundador', '1' ) !== '1' ) {
             $meta_query[] = [
-                'key'     => VX_User_Meta::PAIS,
-                'value'   => $pais,
-                'compare' => '=',
+                'relation' => 'OR',
+                [ 'key' => VX_User_Meta::ES_FUNDADOR, 'value' => '1' ],
+                [ 'key' => VX_User_Meta::PLAN,        'value' => [ 'mensual', 'anual', 'preferencial' ], 'compare' => 'IN' ],
             ];
         }
 
-        if ( $comunidad && in_array( $comunidad, [ 'out2b', 'woman', 'senior' ], true ) ) {
-            $key_map = [
-                'out2b'  => VX_User_Meta::COMUNIDAD_OUT2B,
-                'woman'  => VX_User_Meta::COMUNIDAD_WOMAN,
-                'senior' => VX_User_Meta::COMUNIDAD_SENIOR,
-            ];
-            $meta_query[] = [
-                'key'   => $key_map[ $comunidad ],
-                'value' => '1',
-            ];
+        if ( $pais ) {
+            $meta_query[] = [ 'key' => VX_User_Meta::PAIS, 'value' => $pais ];
+        }
+
+        if ( $industria ) {
+            $meta_query[] = [ 'key' => VX_User_Meta::INDUSTRIA, 'value' => $industria ];
         }
 
         if ( $fundador ) {
-            $meta_query[] = [
-                'key'   => VX_User_Meta::PLAN,
-                'value' => 'fundador',
-            ];
+            // Fix: los fundadores tienen vx_es_fundador='1', no vx_plan='fundador'
+            $meta_query[] = [ 'key' => VX_User_Meta::ES_FUNDADOR, 'value' => '1' ];
         }
 
-        $query_args['meta_query'] = $meta_query;
-        $query_args['meta_key']   = VX_User_Meta::APELLIDO;
-        $query_args['orderby']    = 'meta_value';
-        $query_args['order']      = 'ASC';
+        $all_ids = get_users( [
+            'role'       => 'subscriber',
+            'number'     => -1,
+            'fields'     => 'ids',
+            'meta_query' => $meta_query,
+            'meta_key'   => VX_User_Meta::APELLIDO,
+            'orderby'    => 'meta_value',
+            'order'      => 'ASC',
+        ] );
 
-        $all_ids = get_users( $query_args );
-        $total   = count( $all_ids );
+        // ── Búsqueda de texto libre ──────────────────────────────────────────
+        if ( $busqueda !== '' ) {
+            $all_ids = self::filter_by_search( $all_ids, $busqueda );
+        }
 
-        // Paginación manual
+        $total    = count( $all_ids );
         $offset   = ( $page - 1 ) * $per_page;
         $page_ids = array_slice( $all_ids, $offset, $per_page );
 
-        $users = array_filter( array_map( [ 'VX_User', 'get' ], $page_ids ) );
+        $users = array_values( array_filter( array_map( [ 'VX_User', 'get' ], $page_ids ) ) );
 
         return [
-            'users'      => array_values( $users ),
+            'users'      => $users,
             'total'      => $total,
-            'pages'      => (int) ceil( $total / $per_page ),
+            'pages'      => (int) ceil( $total / max( 1, $per_page ) ),
             'pagination' => VX_Pagination::build( $total, $per_page, $page ),
         ];
     }
 
     /**
-     * Formatea un usuario para renderizar como tarjeta de directorio.
+     * Filtra user_ids buscando el término en: nombre, apellido, ciudad, país,
+     * industria, bio, offer_tags, seek_tags, profile_tags, empresa, cargo, sector.
      *
-     * @param int $user_id
-     * @return array|null
+     * Estrategia eficiente:
+     * 1. Pre-carga todos los user meta de una vez con get_users(meta_key).
+     * 2. Pre-carga todas las empresas de los candidatos con una sola query.
+     * 3. Filtra en PHP sin hacer queries por usuario.
+     */
+    private static function filter_by_search( array $user_ids, string $busqueda ): array
+    {
+        $term = mb_strtolower( trim( $busqueda ) );
+        if ( $term === '' || empty( $user_ids ) ) return $user_ids;
+
+        // ── 1. Pre-cargar user meta (un get_user_meta por clave es cacheado por WP) ──
+        $user_data = [];
+        foreach ( $user_ids as $uid ) {
+            // get_user_meta con ID vacío carga todo el meta del usuario en el cache
+            $all_meta = get_user_meta( $uid );  // carga todo de una vez para este user
+            $get = function( string $key ) use ( $all_meta ): string {
+                $v = $all_meta[ $key ][0] ?? '';
+                return is_string( $v ) ? $v : '';
+            };
+            $get_arr = function( string $key ) use ( $all_meta ): string {
+                $v = $all_meta[ $key ][0] ?? [];
+                if ( is_string( $v ) ) {
+                    $decoded = maybe_unserialize( $v );
+                    $v = is_array( $decoded ) ? $decoded : [];
+                }
+                return is_array( $v ) ? implode( ' ', $v ) : '';
+            };
+
+            $user_data[ $uid ] = implode( ' ', array_filter( [
+                $get( VX_User_Meta::NOMBRE ),
+                $get( VX_User_Meta::APELLIDO ),
+                $get( VX_User_Meta::CIUDAD ),
+                $get( VX_User_Meta::PAIS ),
+                $get( VX_User_Meta::INDUSTRIA ),
+                $get( VX_User_Meta::BIO ),
+                $get_arr( VX_User_Meta::OFFER_TAGS ),
+                $get_arr( VX_User_Meta::SEEK_TAGS ),
+                $get_arr( VX_User_Meta::PROFILE_TAGS ),
+            ] ) );
+        }
+
+        // ── 2. Pre-cargar todas las empresas de estos usuarios en una sola query ──
+        $empresa_posts = get_posts( [
+            'post_type'      => 'vx_empresa',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'meta_query'     => [ [ 'key' => 'vx_user_id', 'value' => $user_ids, 'compare' => 'IN' ] ],
+        ] );
+
+        // Mapear user_id → texto de empresa
+        $empresa_text = [];
+        foreach ( $empresa_posts as $post ) {
+            $uid = (int) get_post_meta( $post->ID, 'vx_user_id', true );
+            $text = implode( ' ', array_filter( [
+                $post->post_title,
+                get_post_meta( $post->ID, 'vx_cargo',       true ),
+                get_post_meta( $post->ID, 'vx_sector',      true ),
+                get_post_meta( $post->ID, 'vx_industria',   true ),
+                get_post_meta( $post->ID, 'vx_descripcion', true ),
+            ] ) );
+            $empresa_text[ $uid ] = ( $empresa_text[ $uid ] ?? '' ) . ' ' . $text;
+        }
+
+        // ── 3. Filtrar ───────────────────────────────────────────────────────────
+        return array_values( array_filter( $user_ids, function ( int $uid ) use ( $term, $user_data, $empresa_text ) {
+            $haystack = mb_strtolower(
+                ( $user_data[ $uid ] ?? '' ) . ' ' . ( $empresa_text[ $uid ] ?? '' )
+            );
+            return str_contains( $haystack, $term );
+        } ) );
+    }
+
+    /**
+     * Formatea un usuario para renderizar como tarjeta de directorio.
      */
     public static function format_for_card( int $user_id ): ?array
     {
@@ -97,32 +169,35 @@ class VX_Directory
     }
 
     /**
-     * Devuelve las opciones disponibles de filtros (países y rubros únicos).
+     * Devuelve los valores únicos de país e industria de usuarios activos.
      *
-     * @return array  ['paises' => string[], 'rubros' => string[]]
+     * @return array  ['paises' => string[], 'industrias' => string[]]
      */
     public static function get_filters(): array
     {
-        $users = get_users( [
+        $ids = get_users( [
             'role'       => 'subscriber',
             'fields'     => 'ids',
+            'number'     => -1,
             'meta_query' => [
                 [ 'key' => VX_User_Meta::ESTADO,              'value' => 'activo' ],
                 [ 'key' => VX_User_Meta::ONBOARDING_COMPLETO, 'value' => '1' ],
             ],
         ] );
 
-        $paises = [];
-        foreach ( $users as $uid ) {
-            $pais = get_user_meta( $uid, VX_User_Meta::PAIS, true );
-            if ( $pais ) $paises[] = $pais;
+        $paises = $industrias = [];
+        foreach ( $ids as $uid ) {
+            $p = get_user_meta( $uid, VX_User_Meta::PAIS,      true );
+            $i = get_user_meta( $uid, VX_User_Meta::INDUSTRIA, true );
+            if ( $p ) $paises[]     = $p;
+            if ( $i ) $industrias[] = $i;
         }
 
-        $paises = array_values( array_unique( $paises ) );
+        $paises     = array_values( array_unique( $paises ) );
+        $industrias = array_values( array_unique( $industrias ) );
         sort( $paises );
+        sort( $industrias );
 
-        return [
-            'paises' => $paises,
-        ];
+        return compact( 'paises', 'industrias' );
     }
 }

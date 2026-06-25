@@ -68,9 +68,13 @@ class VX_Membership
         return true;
     }
 
+    /**
+     * Badge de Fundador — lee vx_es_fundador (permanente), NO el plan de facturación.
+     * @deprecated Usar VX_User::is_founder() directamente; este método está por compatibilidad.
+     */
     public function is_founder(): bool
     {
-        return 'fundador' === $this->get_plan();
+        return (bool) get_user_meta( $this->user_id, VX_User_Meta::ES_FUNDADOR, true );
     }
 
     public function has_lifetime_price(): bool
@@ -84,22 +88,53 @@ class VX_Membership
         return $expiry > 0 && $expiry < time();
     }
 
+    /**
+     * Devuelve los días que quedan hasta el vencimiento del plan (negativo = ya venció).
+     */
+    public function days_until_expiry(): ?int
+    {
+        $expiry = $this->get_expiry();
+        if ( 0 === $expiry ) return null; // sin vencimiento
+        return (int) floor( ( $expiry - time() ) / DAY_IN_SECONDS );
+    }
+
+    /**
+     * Devuelve true si el plan es de pago (mensual, anual, preferencial).
+     */
+    public function is_paid(): bool
+    {
+        return in_array( $this->get_plan(), [ 'mensual', 'anual', 'preferencial' ], true );
+    }
+
+    /**
+     * Devuelve true si el plan es gratuito (sin pago activo).
+     */
+    public function is_gratuito(): bool
+    {
+        return 'gratuito' === $this->get_plan();
+    }
+
     // ── Setters ──────────────────────────────────────────────────
 
     /**
-     * Activa un plan para el usuario.
+     * Activa un plan de facturación.
      *
-     * @param string $plan   Plan ID (fundador, mensual, anual)
-     * @param int    $expiry Timestamp de vencimiento (0 = sin vencimiento)
+     * Planes válidos: gratuito | mensual | anual | preferencial
+     * El badge de Fundador (vx_es_fundador) es INDEPENDIENTE — no se modifica aquí.
+     *
+     * @param string $plan    Identificador del plan de facturación
+     * @param int    $expiry  Timestamp de vencimiento (0 = sin vencimiento)
      */
     public function activate( string $plan, int $expiry = 0 ): void
     {
-        update_user_meta( $this->user_id, VX_Membership_Meta::PLAN,            $plan );
-        update_user_meta( $this->user_id, VX_Membership_Meta::PLAN_ESTADO,     'activo' );
-        update_user_meta( $this->user_id, VX_Membership_Meta::PLAN_INICIO,     time() );
+        update_user_meta( $this->user_id, VX_Membership_Meta::PLAN,             $plan );
+        update_user_meta( $this->user_id, VX_Membership_Meta::PLAN_ESTADO,      'activo' );
+        update_user_meta( $this->user_id, VX_Membership_Meta::PLAN_INICIO,      time() );
         update_user_meta( $this->user_id, VX_Membership_Meta::PLAN_VENCIMIENTO, $expiry );
 
-        if ( 'fundador' === $plan ) {
+        // El precio preferente se mantiene si el usuario ya era fundador.
+        // 'preferencial' es el plan de pago exclusivo para fundadores (precio con descuento).
+        if ( 'preferencial' === $plan ) {
             update_user_meta( $this->user_id, VX_Membership_Meta::PRECIO_PREFERENTE, true );
         }
 

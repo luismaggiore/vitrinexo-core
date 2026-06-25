@@ -30,7 +30,8 @@ class VX_Notification
 
         $tipos_validos = [
             'conexion_nueva', 'conexion_aceptada', 'match_nuevo',
-            'dinner_disponible', 'visita_perfil', 'favorito',
+            'dinner_disponible', 'dinner_asignado', 'dinner_invitacion',
+            'visita_perfil', 'favorito', 'comentario_pub',
         ];
 
         if ( ! in_array( $tipo, $tipos_validos, true ) ) {
@@ -42,8 +43,11 @@ class VX_Notification
             'conexion_aceptada' => 'Conexión aceptada',
             'match_nuevo'       => 'Nuevo match encontrado',
             'dinner_disponible' => '4Dinner disponible cerca de ti',
+            'dinner_asignado'   => 'Estás confirmado en un 4Dinner',
+            'dinner_invitacion' => 'Invitación a un 4Dinner',
             'visita_perfil'     => 'Alguien visitó tu perfil',
             'favorito'          => 'Alguien te guardó en favoritos',
+            'comentario_pub'    => 'Alguien comentó en tu publicación',
         ];
 
         $post_id = wp_insert_post( [
@@ -59,7 +63,7 @@ class VX_Notification
 
         update_post_meta( $post_id, 'vx_notif_user_id', $user_id );
         update_post_meta( $post_id, 'vx_notif_tipo',    $tipo );
-        update_post_meta( $post_id, 'vx_notif_leida',   false );
+        update_post_meta( $post_id, 'vx_notif_leida',   '0' ); // Fix: '0' string, no false, para que mark_all_read() lo encuentre
         update_post_meta( $post_id, 'vx_notif_fecha',   time() );
         update_post_meta( $post_id, 'vx_notif_link',    $link );
         update_post_meta( $post_id, 'vx_notif_actor_id', $actor_id );
@@ -75,20 +79,34 @@ class VX_Notification
      * @param int $limit   0 = sin límite
      * @return array[]  Cada elemento es un array con los datos de la notificación.
      */
-    public static function get_for_user( int $user_id, int $limit = 20 ): array
+    /**
+     * @param int $page     Página (1-indexed)
+     * @param int $per_page Notificaciones por página
+     * @return array  ['items' => array[], 'pagination' => array]
+     */
+    public static function get_for_user( int $user_id, int $page = 1, int $per_page = 20 ): array
     {
-        $posts = get_posts( [
+        $all_posts = get_posts( [
             'post_type'      => 'vx_notification',
             'post_status'    => 'publish',
-            'posts_per_page' => $limit > 0 ? $limit : -1,
+            'posts_per_page' => -1,
             'orderby'        => 'date',
             'order'          => 'DESC',
+            'fields'         => 'ids',
             'meta_query'     => [
                 [ 'key' => 'vx_notif_user_id', 'value' => $user_id ],
             ],
         ] );
 
-        return array_map( [ self::class, 'format_post' ], $posts );
+        $total     = count( $all_posts );
+        $offset    = ( max( 1, $page ) - 1 ) * $per_page;
+        $page_ids  = array_slice( $all_posts, $offset, $per_page );
+        $page_posts = array_filter( array_map( 'get_post', $page_ids ) );
+
+        return [
+            'items'      => array_map( [ self::class, 'format_post' ], array_values( $page_posts ) ),
+            'pagination' => VX_Pagination::build( $total, $per_page, $page ),
+        ];
     }
 
     /**
@@ -173,8 +191,9 @@ class VX_Notification
             'link'       => get_post_meta( $post->ID, 'vx_notif_link', true ),
             'titulo'     => $post->post_title,
             'actor'      => $actor ? [
-                'nombre'   => $actor->get_nombre_completo(),
-                'foto_url' => $actor->get_foto_url( 'thumbnail' ),
+                'nombre'     => $actor->get_nombre_completo(),
+                'foto_url'   => $actor->get_foto_url( 'thumbnail' ),
+                'perfil_url' => home_url( '/perfil/' . $actor->get_slug() . '/' ),
             ] : null,
             'data'       => $data,
         ];

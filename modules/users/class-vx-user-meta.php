@@ -27,14 +27,18 @@ class VX_User_Meta
     const ONBOARDING_COMPLETO   = 'vx_onboarding_completo';
     const ONBOARDING_PASO       = 'vx_onboarding_paso';
 
-    // Membresía
-    const PLAN                  = 'vx_plan';
-    const PLAN_ESTADO           = 'vx_plan_estado';
+    // Membresía — plan de facturación (independiente del badge de fundador)
+    const PLAN                  = 'vx_plan';           // gratuito | mensual | anual | preferencial
+    const PLAN_ESTADO           = 'vx_plan_estado';    // activo | vencido
     const PLAN_INICIO           = 'vx_plan_inicio';
-    const PLAN_VENCIMIENTO      = 'vx_plan_vencimiento';
-    const PRECIO_PREFERENTE     = 'vx_precio_preferente';
+    const PLAN_VENCIMIENTO      = 'vx_plan_vencimiento'; // timestamp; 0 = sin vencimiento
+    const PRECIO_PREFERENTE     = 'vx_precio_preferente'; // bool: tiene precio especial por ser fundador
     const GATEWAY_CUSTOMER_ID   = 'vx_gateway_customer_id';
     const GATEWAY_SUBSCRIPTION  = 'vx_gateway_subscription_id';
+
+    // Badge de Fundador — PERMANENTE, independiente del plan de facturación
+    // Se asigna al completar onboarding durante la fase beta y nunca se quita automáticamente.
+    const ES_FUNDADOR = 'vx_es_fundador';
 
     // Comunidades
     const COMUNIDAD_OUT2B    = 'vx_comunidad_out2b';
@@ -48,6 +52,15 @@ class VX_User_Meta
     const SEEK_TAGS   = 'vx_seek_tags';
     const OFFER_TEXTO = 'vx_offer_texto';
     const SEEK_TEXTO  = 'vx_seek_texto';
+
+    // Género (masculino | femenino | otro | no_contesta)
+    const GENERO = 'vx_genero';
+
+    // Tags de perfil independientes (aparecen bajo el nombre en la ficha pública)
+    const PROFILE_TAGS = 'vx_profile_tags';
+
+    // Industria principal (sincronizada desde la empresa activa, usada para filtros)
+    const INDUSTRIA = 'vx_industria';
 
     // 4Dinner
     const DINNERS_ASIGNADO   = 'vx_dinners_asignado';
@@ -70,7 +83,7 @@ class VX_User_Meta
             self::CIUDAD, self::PAIS, self::CONTACTO_PREFERIDO, self::TELEFONO,
             self::LINKEDIN, self::ESTADO, self::TIPO_VERIFICACION,
             self::TOKEN_CONFIRMACION, self::PLAN, self::PLAN_ESTADO,
-            self::OFFER_TEXTO, self::SEEK_TEXTO,
+            self::OFFER_TEXTO, self::SEEK_TEXTO, self::INDUSTRIA, self::GENERO,
         ];
 
         foreach ( $string_keys as $key ) {
@@ -95,7 +108,7 @@ class VX_User_Meta
         }
 
         $bool_keys = [
-            self::ONBOARDING_COMPLETO, self::PRECIO_PREFERENTE,
+            self::ONBOARDING_COMPLETO, self::PRECIO_PREFERENTE, self::ES_FUNDADOR,
             self::COMUNIDAD_OUT2B, self::COMUNIDAD_WOMAN, self::COMUNIDAD_SENIOR,
             self::SENIOR_SOLICITADO, self::SENIOR_VERIFICADO,
         ];
@@ -109,7 +122,7 @@ class VX_User_Meta
         }
 
         $array_keys = [
-            self::OFFER_TAGS, self::SEEK_TAGS,
+            self::OFFER_TAGS, self::SEEK_TAGS, self::PROFILE_TAGS,
             self::DINNERS_ASIGNADO, self::DINNERS_INTERESADO, self::FAVORITOS,
         ];
 

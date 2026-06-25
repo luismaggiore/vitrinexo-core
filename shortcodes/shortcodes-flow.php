@@ -55,8 +55,15 @@ add_shortcode( 'vx_login', function (): string {
                             </label>
                             <input type="password" id="login-password" name="password" class="vx-form__input" required autocomplete="current-password">
                         </div>
+                        <!-- Recordar + recuperar -->
+                        <div class="d-flex align-items-center justify-content-between mt-3 mb-1">
+                            <label class="d-flex align-items-center gap-2" style="cursor:pointer;font-size:14px;color:var(--color-text-secondary)">
+                                <input type="checkbox" id="login-remember" name="remember" value="1" style="accent-color:var(--color-primary)">
+                                Recordar en este dispositivo
+                            </label>
+                        </div>
                         <div id="vx-login-error" class="vx-alert vx-alert--error d-none"></div>
-                        <button type="submit" class="btn-vx btn-vx--primary w-100 mt-3">Iniciar sesión</button>
+                        <button type="submit" class="btn-vx btn-vx--primary w-100 mt-2">Iniciar sesión</button>
                     </form>
                 </div>
 
@@ -86,19 +93,106 @@ add_shortcode( 'vx_login', function (): string {
                             <input type="password" id="reg-password" name="password" class="vx-form__input" required minlength="8">
                         </div>
                         <div class="vx-form__group">
-                            <label class="vx-form__label" for="reg-pais">País <small class="text-muted">(opcional)</small></label>
-                            <input type="text" id="reg-pais" name="pais" class="vx-form__input">
+                            <label class="vx-form__label" for="reg-pais">País <span style="color:var(--color-pink-500)">*</span></label>
+                            <select id="reg-pais" name="pais" class="vx-form__input" required>
+                                <option value="">Selecciona tu país</option>
+                                <?php foreach ( vx_get_paises_latam() as $p ) : ?>
+                                <option value="<?php echo esc_attr( $p ); ?>"><?php echo esc_html( $p ); ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="vx-form__group">
-                            <label class="vx-form__label" for="reg-empresa">Empresa <small class="text-muted">(opcional)</small></label>
-                            <input type="text" id="reg-empresa" name="empresa" class="vx-form__input">
+                            <label class="vx-form__label" for="reg-telefono">
+                                Teléfono <span style="color:var(--color-pink-500)">*</span>
+                                <small class="text-muted">(necesario para coordinar eventos)</small>
+                            </label>
+                            <?php echo vx_phone_input_html( 'reg-telefono', 'telefono', '' ); ?>
+                        </div>
+                        <div class="vx-form__group">
+                            <label class="vx-form__label" for="reg-empresa">
+                                Empresa <span style="color:var(--color-pink-500)">*</span>
+                                <small class="text-muted">(ayuda a verificar tu identidad)</small>
+                            </label>
+                            <input type="text" id="reg-empresa" name="empresa" class="vx-form__input" required placeholder="Nombre de tu empresa o negocio">
+                        </div>
+                        <!-- Aceptación obligatoria de términos -->
+                        <div class="vx-form__group mt-3">
+                            <label class="d-flex align-items-start gap-2" style="cursor:pointer;font-size:14px;line-height:1.5">
+                                <input type="checkbox" id="reg-terminos" name="terminos" required
+                                       style="margin-top:3px;accent-color:var(--color-primary);flex-shrink:0">
+                                <span>
+                                    He leído y acepto los
+                                    <a href="#" class="link-primary-color fw-semibold"
+                                       data-bs-toggle="modal" data-bs-target="#modalTerminos"
+                                       onclick="return false;">Términos y Condiciones</a>
+                                    y la
+                                    <a href="#" class="link-primary-color fw-semibold"
+                                       data-bs-toggle="modal" data-bs-target="#modalTerminos"
+                                       onclick="return false;">Política de Privacidad</a>
+                                    de Vitrinexo.
+                                </span>
+                            </label>
                         </div>
                         <div id="vx-registro-error" class="vx-alert vx-alert--error d-none"></div>
                         <button type="submit" class="btn-vx btn-vx--primary w-100 mt-3">Crear cuenta</button>
-                        <p class="vx-form__terms mt-2 text-center">
-                            Al registrarte aceptas nuestros <a href="#">Términos de uso</a> y <a href="#">Política de privacidad</a>.
-                        </p>
                     </form>
+
+                    <!-- Modal Términos y Condiciones -->
+                    <div class="modal fade" id="modalTerminos" tabindex="-1" aria-labelledby="modalTerminosLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                        <div class="modal-content modal-vx">
+                          <div class="modal-header border-0">
+                            <h5 class="modal-title fw-semibold" id="modalTerminosLabel">Términos y Condiciones — Vitrinexo</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                          </div>
+                          <div class="modal-body" style="font-size:14px;line-height:1.7;color:var(--color-text-secondary)">
+
+                            <h6 class="fw-semibold text-body-label mb-2">1. Aceptación de los Términos</h6>
+                            <p>Al crear una cuenta en Vitrinexo, aceptas quedar vinculado por estos Términos y Condiciones de Uso. Si no estás de acuerdo con alguna de las condiciones aquí establecidas, te pedimos que no uses la plataforma. Vitrinexo se reserva el derecho de modificar estos términos en cualquier momento, notificando los cambios a través de la plataforma.</p>
+
+                            <h6 class="fw-semibold text-body-label mb-2 mt-4">2. Descripción del Servicio</h6>
+                            <p>Vitrinexo es una plataforma de networking B2B para profesionales y empresarios hispanohablantes. Facilita la conexión entre miembros a través de un directorio verificado, sistema de matches por afinidad de tags, y eventos presenciales como 4Dinner. El acceso completo está reservado para miembros verificados.</p>
+
+                            <h6 class="fw-semibold text-body-label mb-2 mt-4">3. Registro y Cuenta</h6>
+                            <p>Para usar Vitrinexo debes registrarte con datos verídicos y mantenerte como único responsable de la confidencialidad de tu contraseña. Vitrinexo puede rechazar o dar de baja cualquier cuenta que proporcione información falsa, incompleta o que infrinja estos términos. El registro implica la verificación de identidad profesional antes de acceder al directorio completo.</p>
+
+                            <h6 class="fw-semibold text-body-label mb-2 mt-4">4. Uso Aceptable</h6>
+                            <p>Los miembros se comprometen a usar Vitrinexo de forma ética y profesional. Está estrictamente prohibido:</p>
+                            <ul style="padding-left:1.2rem">
+                              <li>Publicar información falsa o engañosa sobre tu empresa o experiencia.</li>
+                              <li>Enviar mensajes no solicitados (spam) a otros miembros.</li>
+                              <li>Usar la plataforma para actividades ilegales o contrarias a la buena fe comercial.</li>
+                              <li>Compartir datos de contacto de otros miembros con terceros sin su consentimiento.</li>
+                              <li>Suplantar identidades o crear cuentas en nombre de otras personas.</li>
+                            </ul>
+
+                            <h6 class="fw-semibold text-body-label mb-2 mt-4">5. Privacidad y Datos Personales</h6>
+                            <p>Vitrinexo recopila y trata tus datos personales conforme a la legislación vigente en materia de protección de datos. Tu información de perfil es visible para otros miembros verificados de la plataforma. Los datos de contacto solo se revelan a conexiones mutuamente aceptadas. Puedes solicitar la eliminación de tus datos en cualquier momento escribiendo a <a href="mailto:hola@vitrinexo.com" class="link-primary-color">hola@vitrinexo.com</a>.</p>
+
+                            <h6 class="fw-semibold text-body-label mb-2 mt-4">6. Propiedad Intelectual</h6>
+                            <p>Todo el contenido de Vitrinexo (diseño, textos, código, marca) es propiedad de Maggiore Marketing o sus licenciantes. Los miembros conservan la propiedad de los contenidos que publican, pero otorgan a Vitrinexo una licencia no exclusiva para mostrarlos dentro de la plataforma.</p>
+
+                            <h6 class="fw-semibold text-body-label mb-2 mt-4">7. Limitación de Responsabilidad</h6>
+                            <p>Vitrinexo actúa como intermediario entre profesionales y no garantiza los resultados de las conexiones establecidas. No somos responsables de las relaciones comerciales que se deriven del uso de la plataforma, ni de la veracidad de la información publicada por terceros miembros.</p>
+
+                            <h6 class="fw-semibold text-body-label mb-2 mt-4">8. Cancelación y Baja</h6>
+                            <p>Puedes cancelar tu cuenta en cualquier momento desde la sección de Configuración o escribiendo a hola@vitrinexo.com. Vitrinexo puede suspender o eliminar cuentas que incumplan estos términos, sin previo aviso en casos de infracción grave.</p>
+
+                            <h6 class="fw-semibold text-body-label mb-2 mt-4">9. Ley Aplicable</h6>
+                            <p>Estos términos se rigen por las leyes de la República de Chile. Cualquier disputa será sometida a los tribunales competentes de Santiago de Chile, salvo acuerdo expreso entre las partes para someterse a otra jurisdicción.</p>
+
+                            <p class="mt-4" style="font-size:12px;color:var(--color-text-tertiary)">Última actualización: Junio 2026 · Vitrinexo SpA · hola@vitrinexo.com · Desarrollado por <a href="https://www.maggiore.cl" target="_blank" rel="noopener" style="color:inherit">Maggiore</a></p>
+
+                          </div>
+                          <div class="modal-footer border-0">
+                            <button type="button" class="btn-vx btn-primary-vx btn-vx-sm" data-bs-dismiss="modal"
+                                    onclick="document.getElementById('reg-terminos').checked=true">
+                              He leído y acepto
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                 </div>
 
             </div>

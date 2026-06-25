@@ -64,11 +64,9 @@ class VX_Community
             [ 'key' => VX_User_Meta::ONBOARDING_COMPLETO, 'value' => '1' ],
             [ 'key' => $key,                               'value' => '1' ],
         ];
-
-        // Senior: solo los verificados
-        if ( 'senior' === $community ) {
-            $meta_query[] = [ 'key' => VX_User_Meta::SENIOR_VERIFICADO, 'value' => '1' ];
-        }
+        // Nota: Senior no requiere vx_senior_verificado para aparecer en la comunidad.
+        // La verificación admin solo añade el indicador "Senior verificado" en el perfil.
+        // Cualquier miembro puede auto-declararse Senior y aparece aquí.
 
         $all_ids = get_users( [
             'role'       => 'subscriber',

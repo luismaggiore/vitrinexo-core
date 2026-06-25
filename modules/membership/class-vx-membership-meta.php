@@ -14,4 +14,7 @@ class VX_Membership_Meta
     const PRECIO_PREFERENTE    = 'vx_precio_preferente';
     const GATEWAY_CUSTOMER_ID  = 'vx_gateway_customer_id';
     const GATEWAY_SUBSCRIPTION = 'vx_gateway_subscription_id';
+
+    // Tracking de avisos de vencimiento enviados (JSON: {'30d':1,'7d':1,'1d':1})
+    const AVISOS_ENVIADOS      = 'vx_plan_avisos_enviados';
 }

@@ -23,4 +23,5 @@ class VX_Connection_Meta
     const TOKEN_ACEPTAR              = 'vx_token_aceptar';
     const TOKEN_RECHAZAR             = 'vx_token_rechazar';
     const RECORDATORIO_ENVIADO       = 'vx_recordatorio_enviado';
+    const MENSAJE_RECEPTOR           = 'vx_mensaje_receptor';
 }

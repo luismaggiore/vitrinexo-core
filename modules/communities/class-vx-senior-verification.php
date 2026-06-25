@@ -36,6 +36,17 @@ class VX_Senior_Verification
     {
         update_user_meta( $user_id, VX_User_Meta::SENIOR_VERIFICADO, true );
         VX_Community::activate( $user_id, 'senior' );
+
+        // Notificar al usuario que fue aprobado
+        $user = VX_User::get( $user_id );
+        if ( $user ) {
+            VX_Mailer::send(
+                $user->get_email(),
+                '¡Bienvenido a Vitrinexo Senior!',
+                'senior_aprobado',
+                [ 'nombre' => $user->get_nombre() ]
+            );
+        }
     }
 
     public static function reject( int $user_id ): void

@@ -16,4 +16,8 @@ class VX_Dinner_Meta
     const ASIGNADOS     = 'vx_dinner_asignados';
     const INTERESADOS   = 'vx_dinner_interesados';
     const NOTAS_ADMIN   = 'vx_dinner_notas_admin';
+
+    // Nuevos campos
+    const DEADLINE      = 'vx_dinner_deadline'; // Unix timestamp — cierre de inscripciones
+    const MESAS         = 'vx_dinner_mesas';    // JSON: [{"nombre":"Mesa 1","asignados":[uid,...]}]
 }

@@ -63,8 +63,10 @@ class VX_Auth
 
         // 3. Cuenta pendiente → página de espera
         if ( 'pendiente' === $estado ) {
-            $target = self::get_redirect_for_pending( $user_id );
-            if ( $pagename !== ltrim( parse_url( $target, PHP_URL_PATH ), '/' ) ) {
+            $target        = self::get_redirect_for_pending( $user_id );
+            // Fix: strip trailing slash de ambos lados para evitar bucle infinito
+            $target_path   = rtrim( ltrim( parse_url( $target, PHP_URL_PATH ), '/' ), '/' );
+            if ( $pagename !== $target_path ) {
                 wp_safe_redirect( $target );
                 exit;
             }
@@ -89,7 +91,17 @@ class VX_Auth
             return;
         }
 
-        // 6. Plan vencido → solo páginas de no-pago son accesibles
+        // 5b. Activo con onboarding completo + flow page → redirigir a dashboard
+        // Evita que usuarios completos accedan a /onboarding/, /confirmar-correo/, etc.
+        if ( $is_flow_page && 'activo' === $estado && $user->is_onboarding_completo() ) {
+            // Permitir conexion-aceptada y conexion-rechazada (páginas de confirmación)
+            if ( ! in_array( $pagename, [ 'conexion-aceptada', 'conexion-rechazada' ], true ) ) {
+                wp_safe_redirect( home_url( '/dashboard/' ) );
+                exit;
+            }
+        }
+
+        // 6. Plan vencido → solo configuración accesible
         $membresia = VX_Membership::get( $user_id );
         if ( 'vencido' === $membresia->get_plan_estado() && $is_auth_page ) {
             if ( 'configuracion' !== $pagename ) {
@@ -99,7 +111,33 @@ class VX_Auth
             return;
         }
 
-        // 7. Activo y onboarding completo → acceso normal
+        // 7. Post-beta: gratuito + no fundador → solo puede ir a /configuracion/
+        if ( get_option( 'vx_auto_fundador', '1' ) !== '1'
+             && $membresia->is_gratuito()
+             && ! $user->is_founder()
+             && ( $is_auth_page || ( $is_flow_page && 'onboarding' === $pagename ) )
+             && 'configuracion' !== $pagename
+        ) {
+            wp_safe_redirect( home_url( '/configuracion/?tab=plan&motivo=acceso' ) );
+            exit;
+        }
+
+        // 9. Páginas de comunidad — solo accesibles para miembros de esa comunidad
+        $community_pages = [
+            'comunidad-out2b'    => 'out2b',
+            'comunidad-woman'    => 'woman',
+            'comunidad-senior'   => 'senior',
+        ];
+
+        if ( isset( $community_pages[ $pagename ] ) ) {
+            $required_community = $community_pages[ $pagename ];
+            if ( ! $user->is_in_community( $required_community ) ) {
+                wp_safe_redirect( home_url( '/dashboard/?community_required=' . $required_community ) );
+                exit;
+            }
+        }
+
+        // 8. Activo y onboarding completo → acceso normal
     }
 
     /**
@@ -176,9 +214,9 @@ class VX_Auth
     private static function is_authenticated_page( string $pagename ): bool
     {
         $auth_pages = [
-            'dashboard', 'directorio', 'matches', 'perfil', 'editar-perfil',
+            'dashboard', 'directorio', 'matches', 'match-seeks', 'match-offers', 'perfil', 'editar-perfil',
             'favoritos', 'conexiones', 'notificaciones', 'configuracion',
-            '4dinner', 'comunidad-out2b', 'comunidad-woman', 'comunidad-senior',
+            '4dinner', 'mis-eventos', 'comunidad-out2b', 'comunidad-woman', 'comunidad-senior',
         ];
 
         foreach ( $auth_pages as $page ) {

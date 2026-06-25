@@ -21,9 +21,7 @@ class VX_Dinner_Assignment
             return new WP_Error( 'dinner_no_encontrado', 'Evento no encontrado.', [ 'status' => 404 ] );
         }
 
-        if ( ! $dinner->has_space() ) {
-            return new WP_Error( 'mesa_completa', 'La mesa ya tiene 4 personas asignadas.', [ 'status' => 409 ] );
-        }
+        // has_space() siempre es true ahora — 4 es mínimo, no máximo
 
         if ( $dinner->is_user_assigned( $user_id ) ) {
             return new WP_Error( 'ya_asignado', 'El usuario ya está asignado a esta mesa.', [ 'status' => 409 ] );
@@ -38,10 +36,27 @@ class VX_Dinner_Assignment
         $user_dinners[] = $dinner_id;
         update_user_meta( $user_id, VX_User_Meta::DINNERS_ASIGNADO, array_unique( $user_dinners ) );
 
-        // Si hay 4 asignados → enviar confirmaciones y cerrar la mesa
+        // Disparar hook → VX_Notification_Triggers::on_dinner_assigned() crea la notificación
+        do_action( 'vx_dinner_assigned', $user_id, $dinner_id );
+
+        // Email de confirmación
+        $user = VX_User::get( $user_id );
+        if ( $user ) {
+            VX_Mailer::send(
+                $user->get_email(),
+                '¡Estás confirmado en el 4Dinner de ' . $dinner->get_ciudad() . '!',
+                'dinner_confirmacion',
+                array_merge(
+                    VX_Dinner_Assignment::build_confirmation_data( $dinner_id ),
+                    [ 'usuario_nombre' => $user->get_nombre() ]
+                )
+            );
+        }
+
+        // Al llegar a 4 asistentes → la cena queda CONFIRMADA (se realizará).
+        // Más personas pueden seguir uniéndose después del mínimo de 4.
         if ( 4 === count( $asignados ) ) {
-            $dinner->set_estado( 'completo' );
-            self::send_confirmations( $dinner_id );
+            $dinner->set_estado( 'confirmado' );
         }
 
         return true;
@@ -61,7 +76,7 @@ class VX_Dinner_Assignment
         $asignados = array_diff( $dinner->get_asignados(), [ $user_id ] );
         update_post_meta( $dinner_id, VX_Dinner_Meta::ASIGNADOS, array_values( $asignados ) );
 
-        $dinner->set_estado( 'abierto' );
+        $dinner->set_estado( count( $asignados ) >= 4 ? 'confirmado' : 'abierto' );
 
         $user_dinners = array_diff( (array) get_user_meta( $user_id, VX_User_Meta::DINNERS_ASIGNADO, true ), [ $dinner_id ] );
         update_user_meta( $user_id, VX_User_Meta::DINNERS_ASIGNADO, array_values( $user_dinners ) );

@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'VX_VERSION',        '1.0.1' );
+define( 'VX_VERSION',        '1.0.3' );
 define( 'VX_PLUGIN_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'VX_PLUGIN_URL',     plugin_dir_url( __FILE__ ) );
 define( 'VX_REST_NAMESPACE', 'vitrinexo/v1' );
@@ -40,6 +40,7 @@ $vx_modules = [
     'cpts/cpt-conexion.php',
     'cpts/cpt-dinner.php',
     'cpts/cpt-notification.php',
+    'cpts/cpt-publicacion.php',
 
     // Modelos
     'modules/users/class-vx-user.php',
@@ -65,6 +66,10 @@ $vx_modules = [
     'modules/communities/class-vx-community.php',
     'modules/communities/class-vx-senior-verification.php',
     'modules/dinner/class-vx-dinner-assignment.php',
+    'modules/dinner/class-vx-dinner-invite.php',
+
+    // Stats (contadores permanentes e independientes de cuentas)
+    'modules/stats/class-vx-stats.php',
 
     // Cron
     'modules/email/class-vx-cron.php',
@@ -82,7 +87,9 @@ $vx_modules = [
     'rest/rest-notifications.php',
     'rest/rest-dinner.php',
     'rest/rest-communities.php',
+    'rest/rest-stripe.php',
     'rest/rest-upload.php',
+    'rest/rest-feed.php',
 
     // Admin
     'modules/admin/class-vx-admin-users.php',
@@ -93,6 +100,7 @@ $vx_modules = [
     // Shortcodes
     'shortcodes/shortcodes-public.php',
     'shortcodes/shortcodes-auth.php',
+    'shortcodes/shortcodes-feed.php',
     'shortcodes/shortcodes-flow.php',
     'shortcodes/shortcodes-fragments.php',
 ];
@@ -108,11 +116,25 @@ add_action( 'init', function () {
     if ( class_exists( 'VX_User_Meta' ) ) {
         VX_User_Meta::register();
     }
+    if ( class_exists( 'VX_Dinner_Invite' ) ) {
+        VX_Dinner_Invite::register_cpt();
+    }
     if ( class_exists( 'VX_Auth' ) ) {
         VX_Auth::init();
     }
     if ( class_exists( 'VX_Notification_Triggers' ) ) {
         VX_Notification_Triggers::init();
+    }
+    if ( class_exists( 'VX_Stats' ) ) {
+        VX_Stats::init();
+    }
+
+    // Registrar los callbacks de cron en cada carga de página (WP Cron los necesita
+    // disponibles cuando dispara el hook). También programa cualquier hook faltante,
+    // lo que cubre el caso de plugins ya activos cuando se agrega un nuevo hook.
+    if ( class_exists( 'VX_Cron' ) ) {
+        VX_Cron::register_hooks();
+        VX_Cron::schedule_missing();
     }
 
     // ── Rewrite rule para perfiles dinámicos: /perfil/{slug}/ ─────────────────
@@ -135,19 +157,1037 @@ add_filter( 'query_vars', function ( array $vars ): array {
     return $vars;
 } );
 
+// ── Manual de activación Stripe (página oculta del admin, imprimible como PDF) ─
+
+add_action( 'admin_menu', function () {
+    add_submenu_page(
+        null,                        // sin padre → no aparece en el menú lateral
+        'Manual de activación Stripe — Vitrinexo',
+        'Manual Stripe',
+        'manage_options',
+        'vx-stripe-manual',
+        'vx_admin_stripe_manual_page'
+    );
+} );
+
+function vx_admin_stripe_manual_page(): void {
+    if ( ! current_user_can( 'manage_options' ) ) return;
+
+    $webhook_url  = esc_url( get_rest_url( null, 'vitrinexo/v1/stripe/webhook' ) );
+    $site_url     = esc_url( get_site_url() );
+    $admin_url    = esc_url( admin_url( 'admin.php?page=vitrinexo-core' ) );
+    $precio_m     = esc_html( get_option( 'vx_precio_mensual', 29 ) );
+    $precio_a     = esc_html( get_option( 'vx_precio_anual', 249 ) );
+    $precio_f     = esc_html( get_option( 'vx_precio_preferencial', 19 ) );
+    $moneda       = esc_html( get_option( 'vx_moneda', 'USD' ) );
+
+    ?><!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manual de activación Stripe — Vitrinexo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.7; color: #1a2335; background: #f8fafc; }
+  .doc { max-width: 860px; margin: 0 auto; background: #fff; padding: 48px 56px; }
+  .doc-header { border-bottom: 3px solid #2cced6; padding-bottom: 24px; margin-bottom: 32px; }
+  .doc-header h1 { font-size: 26px; font-weight: 700; color: #1a2335; }
+  .doc-header p { color: #5e6b7a; margin-top: 6px; }
+  .doc-header .badge { display:inline-block;background:#e0faf8;color:#0e8f98;font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;margin-top:8px; }
+  h2 { font-size: 17px; font-weight: 700; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #e2ecf3; color: #1a2335; display:flex;align-items:center;gap:8px; }
+  h2 .step-num { display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#2cced6;color:#fff;font-size:13px;font-weight:700;flex-shrink:0; }
+  h3 { font-size: 14px; font-weight: 700; margin: 20px 0 8px; color: #334155; }
+  p { margin-bottom: 12px; color: #374151; }
+  ul, ol { padding-left: 20px; margin-bottom: 14px; }
+  li { margin-bottom: 6px; }
+  code { background: #f1f5f9; border: 1px solid #e2ecf3; border-radius: 4px; padding: 1px 6px; font-family: 'Consolas', monospace; font-size: 12px; color: #0f172a; word-break: break-all; }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 16px 20px; margin: 12px 0; font-family: 'Consolas', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; }
+  .code-block .comment { color: #64748b; }
+  .info-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #22c55e; border-radius: 4px; padding: 12px 16px; margin: 14px 0; }
+  .warn-box { background: #fff8e5; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 4px; padding: 12px 16px; margin: 14px 0; }
+  .danger-box { background: #fff5f5; border: 1px solid #fecaca; border-left: 4px solid #ef4444; border-radius: 4px; padding: 12px 16px; margin: 14px 0; }
+  .field-table { width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; }
+  .field-table th { background:#f8fafc; padding:8px 12px; text-align:left; font-weight:700; border:1px solid #e2ecf3; }
+  .field-table td { padding:8px 12px; border:1px solid #e2ecf3; vertical-align:top; }
+  .field-table td:first-child { font-weight:600; white-space:nowrap; }
+  .field-table .url-cell { font-family:monospace; font-size:12px; word-break:break-all; background:#f8fafc; }
+  .checklist { list-style:none; padding-left:0; }
+  .checklist li { padding: 5px 0; padding-left: 28px; position: relative; }
+  .checklist li::before { content: '☐'; position: absolute; left: 4px; font-size: 15px; color: #94a3b8; }
+  .print-btn { position:fixed; top:20px; right:20px; background:#2cced6; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.15); z-index:999; }
+  .print-btn:hover { background:#22a1a7; }
+  .toc { background:#f8fafc; border:1px solid #e2ecf3; border-radius:6px; padding:16px 20px; margin:20px 0 32px; }
+  .toc h3 { margin:0 0 10px; font-size:13px; color:#64748b; text-transform:uppercase; letter-spacing:.06em; }
+  .toc ol { margin:0; padding-left:18px; }
+  .toc li { margin-bottom:4px; }
+  .toc a { color:#0e8f98; text-decoration:none; }
+  .toc a:hover { text-decoration:underline; }
+  .footer-doc { margin-top:48px; padding-top:20px; border-top:1px solid #e2ecf3; text-align:center; color:#94a3b8; font-size:12px; }
+  @media print {
+    body { background:#fff; }
+    .print-btn { display:none; }
+    .doc { padding: 24px; max-width:100%; }
+    h2 { break-before: avoid; }
+    .code-block { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">🖨 Imprimir / Guardar PDF</button>
+
+<div class="doc">
+
+  <div class="doc-header">
+    <h1>Manual de activación — Integración Stripe</h1>
+    <p>Plataforma Vitrinexo · <?php echo esc_html( get_site_url() ); ?></p>
+    <span class="badge">Generado <?php echo date_i18n( 'j \d\e F \d\e Y' ); ?></span>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="toc">
+    <h3>Contenido</h3>
+    <ol>
+      <li><a href="#paso1">Crear cuenta y proyecto en Stripe</a></li>
+      <li><a href="#paso2">Crear los 3 productos y precios</a></li>
+      <li><a href="#paso3">Configurar el webhook</a></li>
+      <li><a href="#paso4">Instalar el SDK de Stripe en el servidor</a></li>
+      <li><a href="#paso5">Activar el código en Vitrinexo</a></li>
+      <li><a href="#paso6">Llenar las claves en el admin</a></li>
+      <li><a href="#paso7">Probar con modo Test</a></li>
+      <li><a href="#paso8">Pasar a producción (live)</a></li>
+      <li><a href="#checklist">Checklist final</a></li>
+    </ol>
+  </div>
+
+  <div class="info-box">
+    <strong>Estado actual:</strong> La integración está <strong>preparada pero no activa</strong>. El código de los endpoints existe y está documentado en <code>rest/rest-stripe.php</code>. Solo hay que instalar el SDK, descomentar el código y configurar las claves.
+  </div>
+
+  <!-- PASO 1 -->
+  <h2 id="paso1"><span class="step-num">1</span> Crear cuenta y proyecto en Stripe</h2>
+  <ol>
+    <li>Ir a <code>https://dashboard.stripe.com</code> y crear cuenta (o iniciar sesión).</li>
+    <li>Verificar la cuenta con datos bancarios del negocio para poder recibir pagos reales.</li>
+    <li>En el dashboard, activar el modo <strong>Test</strong> para las primeras pruebas (toggle en la barra superior derecha).</li>
+  </ol>
+  <div class="warn-box">
+    <strong>Importante:</strong> Stripe tiene dos conjuntos de claves: <em>Test</em> (pk_test_..., sk_test_...) y <em>Live</em> (pk_live_..., sk_live_...). Usa las de Test para probar, las de Live solo cuando estés listo para cobrar real.
+  </div>
+
+  <!-- PASO 2 -->
+  <h2 id="paso2"><span class="step-num">2</span> Crear los 3 productos y precios en Stripe</h2>
+  <p>Ir a <strong>Catalog → Products → Add product</strong> y crear los siguientes tres:</p>
+
+  <table class="field-table">
+    <thead><tr><th>Producto</th><th>Precio</th><th>Tipo</th><th>Moneda</th></tr></thead>
+    <tbody>
+      <tr><td>Vitrinexo Mensual</td><td><?php echo $precio_m; ?> <?php echo $moneda; ?></td><td>Recurrente / mes</td><td><?php echo $moneda; ?></td></tr>
+      <tr><td>Vitrinexo Anual</td><td><?php echo $precio_a; ?> <?php echo $moneda; ?></td><td>Recurrente / año</td><td><?php echo $moneda; ?></td></tr>
+      <tr><td>Vitrinexo Fundador</td><td><?php echo $precio_f; ?> <?php echo $moneda; ?></td><td>Recurrente / mes</td><td><?php echo $moneda; ?></td></tr>
+    </tbody>
+  </table>
+
+  <p>Tras crear cada producto, <strong>copiar el Price ID</strong> (formato <code>price_1ABC...</code>) — se necesita en el paso 6.</p>
+  <div class="info-box">
+    En modo Test, los Price IDs empiezan con <code>price_</code> pero usan el mismo formato que en Live. Puedes crear los productos una vez y usar el mismo ID para test y live si los montos son iguales.
+  </div>
+
+  <!-- PASO 3 -->
+  <h2 id="paso3"><span class="step-num">3</span> Configurar el webhook</h2>
+  <p>Stripe necesita una URL para notificar a Vitrinexo cuando ocurre un pago.</p>
+  <ol>
+    <li>Ir a <strong>Developers → Webhooks → Add endpoint</strong>.</li>
+    <li>Pegar esta URL como Endpoint URL:</li>
+  </ol>
+  <div class="code-block"><?php echo $webhook_url; ?></div>
+  <ol start="3">
+    <li>En "Select events", seleccionar estos 4 eventos:</li>
+  </ol>
+  <ul>
+    <li><code>checkout.session.completed</code> — activa el plan al pagar</li>
+    <li><code>invoice.payment_succeeded</code> — renueva el vencimiento mensual/anual</li>
+    <li><code>invoice.payment_failed</code> — notifica al usuario de pago fallido</li>
+    <li><code>customer.subscription.deleted</code> — cancela el plan</li>
+  </ul>
+  <ol start="4">
+    <li>Hacer click en <strong>Add endpoint</strong>.</li>
+    <li>En la página del webhook creado, hacer click en <strong>"Reveal" junto a Signing secret</strong> y copiar el valor <code>whsec_...</code>.</li>
+  </ol>
+
+  <!-- PASO 4 -->
+  <h2 id="paso4"><span class="step-num">4</span> Instalar el SDK de Stripe en el servidor</h2>
+  <p>Conectarse al servidor vía SSH y ejecutar desde la raíz del plugin:</p>
+  <div class="code-block"><span class="comment"># Navegar al directorio del plugin</span>
+cd <?php echo esc_html( WP_PLUGIN_DIR . '/vitrinexo-core' ); ?>
+
+<span class="comment"># Instalar el SDK de Stripe (requiere Composer instalado)</span>
+composer require stripe/stripe-php</div>
+
+  <p>Si no hay Composer en el servidor:</p>
+  <div class="code-block"><span class="comment"># Instalar Composer primero</span>
+curl -sS https://getcomposer.org/installer | php
+php composer.phar require stripe/stripe-php</div>
+
+  <div class="info-box">
+    Esto crea la carpeta <code>vendor/</code> dentro del plugin con el SDK de Stripe. El archivo <code>vendor/autoload.php</code> se referencia en el código del paso siguiente.
+  </div>
+  <div class="warn-box">
+    <strong>Hostinger:</strong> En Hostinger puedes usar el terminal SSH desde hPanel → Advanced → SSH Access. Si no hay Composer, contacta al soporte de Hostinger para que lo habiliten, o sube manualmente la carpeta <code>vendor/</code> generada localmente.
+  </div>
+
+  <!-- PASO 5 -->
+  <h2 id="paso5"><span class="step-num">5</span> Activar el código en Vitrinexo</h2>
+  <p>Abrir el archivo <code><?php echo esc_html( WP_PLUGIN_DIR . '/vitrinexo-core/rest/rest-stripe.php' ); ?></code> y buscar los 3 bloques marcados con:</p>
+  <div class="code-block"><span class="comment">// ── STRIPE TODO ────────────────────────────────────────────</span></div>
+  <p>En cada bloque hay que:</p>
+  <ol>
+    <li><strong>Eliminar</strong> los <code>//</code> al inicio de cada línea dentro del bloque (descomentar).</li>
+    <li><strong>Eliminar</strong> el bloque STUB que empieza con <code>// STUB:</code> justo después.</li>
+  </ol>
+  <p>Los 3 bloques a activar son:</p>
+  <ul>
+    <li><code>vx_rest_stripe_checkout()</code> — crea sesiones de pago</li>
+    <li><code>vx_rest_stripe_webhook()</code> — procesa eventos de Stripe</li>
+    <li><code>vx_rest_stripe_portal()</code> — acceso al portal de facturación</li>
+  </ul>
+  <div class="info-box">
+    Todo el código ya está escrito y documentado. Solo hay que descomentar — no hay que escribir nada nuevo.
+  </div>
+
+  <!-- PASO 6 -->
+  <h2 id="paso6"><span class="step-num">6</span> Llenar las claves en el admin de WordPress</h2>
+  <p>Ir a <strong><?php echo $admin_url; ?></strong> → sección "Precios y Stripe" y completar:</p>
+
+  <table class="field-table">
+    <thead><tr><th>Campo</th><th>Valor</th><th>Dónde encontrarlo en Stripe</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Stripe Publishable Key</td>
+        <td><code>pk_test_...</code> o <code>pk_live_...</code></td>
+        <td>Developers → API Keys → Publishable key</td>
+      </tr>
+      <tr>
+        <td>Stripe Secret Key</td>
+        <td><code>sk_test_...</code> o <code>sk_live_...</code></td>
+        <td>Developers → API Keys → Secret key (click "Reveal")</td>
+      </tr>
+      <tr>
+        <td>Stripe Webhook Secret</td>
+        <td><code>whsec_...</code></td>
+        <td>Developers → Webhooks → tu endpoint → Signing secret</td>
+      </tr>
+      <tr>
+        <td>Price ID Mensual</td>
+        <td><code>price_...</code></td>
+        <td>Catalog → Products → Vitrinexo Mensual → Price ID</td>
+      </tr>
+      <tr>
+        <td>Price ID Anual</td>
+        <td><code>price_...</code></td>
+        <td>Catalog → Products → Vitrinexo Anual → Price ID</td>
+      </tr>
+      <tr>
+        <td>Price ID Fundador</td>
+        <td><code>price_...</code></td>
+        <td>Catalog → Products → Vitrinexo Fundador → Price ID</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- PASO 7 -->
+  <h2 id="paso7"><span class="step-num">7</span> Probar con modo Test</h2>
+  <p>Stripe provee tarjetas de prueba que puedes usar en el checkout sin cobrar dinero real:</p>
+
+  <table class="field-table">
+    <thead><tr><th>Tarjeta</th><th>Número</th><th>Resultado</th></tr></thead>
+    <tbody>
+      <tr><td>Visa exitosa</td><td><code>4242 4242 4242 4242</code></td><td>Pago aprobado</td></tr>
+      <tr><td>Pago declinado</td><td><code>4000 0000 0000 0002</code></td><td>Error de pago</td></tr>
+      <tr><td>Requiere autenticación</td><td><code>4000 0025 0000 3155</code></td><td>Solicita 3D Secure</td></tr>
+    </tbody>
+  </table>
+  <p>Para todas: fecha de expiración cualquiera futura, CVV cualquier 3 dígitos, código postal cualquiera.</p>
+
+  <p>Flujo de prueba completo:</p>
+  <ol>
+    <li>Iniciar sesión como usuario de prueba en Vitrinexo.</li>
+    <li>Ir a <code>/configuracion/?tab=plan</code> y hacer click en "Suscribirse".</li>
+    <li>Completar el checkout con la tarjeta <code>4242 4242 4242 4242</code>.</li>
+    <li>Verificar que el plan se actualizó en la columna "Plan" de Usuarios en el admin.</li>
+    <li>Verificar que el usuario recibió el email de confirmación de plan activo.</li>
+    <li>En Stripe Dashboard → Events verificar que se recibió el evento <code>checkout.session.completed</code>.</li>
+  </ol>
+
+  <!-- PASO 8 -->
+  <h2 id="paso8"><span class="step-num">8</span> Pasar a producción (live)</h2>
+  <div class="danger-box">
+    <strong>Solo hacer esto cuando las pruebas con modo Test estén 100% verificadas.</strong>
+  </div>
+  <ol>
+    <li>En Stripe Dashboard, cambiar el toggle de <strong>Test → Live</strong>.</li>
+    <li>Repetir los pasos 2 y 3 en modo Live (crear productos, configurar webhook).</li>
+    <li>Actualizar las claves en el admin de Vitrinexo con las versiones <code>pk_live_</code> / <code>sk_live_</code>.</li>
+    <li>Actualizar el Webhook Secret con el del webhook Live.</li>
+    <li>Actualizar los Price IDs con los del modo Live.</li>
+    <li>Hacer un pago real de prueba de <code>$1</code> y reembolsarlo inmediatamente para verificar.</li>
+  </ol>
+
+  <!-- CHECKLIST -->
+  <h2 id="checklist"><span class="step-num">✓</span> Checklist final</h2>
+  <ul class="checklist">
+    <li>Cuenta de Stripe creada y verificada con datos bancarios</li>
+    <li>3 productos creados en Stripe (Mensual, Anual, Fundador) con sus Price IDs</li>
+    <li>Webhook configurado en Stripe con la URL correcta y los 4 eventos</li>
+    <li>Webhook Secret copiado</li>
+    <li>SDK de Stripe instalado en el servidor (<code>vendor/autoload.php</code> existe)</li>
+    <li>Código en <code>rest-stripe.php</code> descomentado (3 bloques STRIPE TODO)</li>
+    <li>Publishable Key configurada en el admin</li>
+    <li>Secret Key configurada en el admin</li>
+    <li>Webhook Secret configurado en el admin</li>
+    <li>3 Price IDs configurados en el admin</li>
+    <li>Prueba exitosa con tarjeta de test <code>4242 4242 4242 4242</code></li>
+    <li>Email de confirmación de plan recibido correctamente</li>
+    <li>Claves cambiadas a Live (cuando esté listo para cobrar real)</li>
+  </ul>
+
+  <div class="footer-doc">
+    <p>Vitrinexo · Desarrollado por <a href="https://www.maggiore.cl" style="color:#0e8f98">Maggiore</a> · <?php echo esc_html( get_site_url() ); ?></p>
+    <p style="margin-top:4px">Manual generado automáticamente — siempre refleja la configuración actual del sitio</p>
+  </div>
+
+</div>
+</body>
+</html><?php
+}
+
 add_action( 'admin_menu', function () {
     add_menu_page(
         'Vitrinexo',
         'Vitrinexo',
         'manage_options',
         'vitrinexo-core',
-        function () {
-            echo '<div class="wrap"><h1>Vitrinexo Core</h1><p>Administra los CPTs del directorio desde los submenús.</p></div>';
-        },
+        'vx_admin_ajustes_page',
         'dashicons-networking',
         30
     );
+
+    add_submenu_page(
+        'vitrinexo-core',
+        'Ajustes Vitrinexo',
+        'Ajustes',
+        'manage_options',
+        'vitrinexo-core',
+        'vx_admin_ajustes_page'
+    );
+
+    // Contar validaciones pendientes para mostrar badge en el menú
+    $pendientes_count = count( get_users( [
+        'role'       => 'subscriber',
+        'fields'     => 'ids',
+        'number'     => -1,
+        'meta_query' => [
+            'relation' => 'AND',
+            [ 'key' => VX_User_Meta::ESTADO,              'value' => 'pendiente' ],
+            [ 'key' => VX_User_Meta::TIPO_VERIFICACION,   'value' => 'manual' ],
+        ],
+    ] ) );
+
+    $senior_count = count( get_users( [
+        'role'       => 'subscriber',
+        'fields'     => 'ids',
+        'number'     => -1,
+        'meta_query' => [
+            'relation' => 'AND',
+            [ 'key' => VX_User_Meta::SENIOR_SOLICITADO, 'value' => '1' ],
+            [ 'key' => VX_User_Meta::SENIOR_VERIFICADO, 'compare' => 'NOT EXISTS' ],
+        ],
+    ] ) );
+
+    $total_badge = $pendientes_count + $senior_count;
+    $badge_html  = $total_badge > 0
+        ? ' <span class="awaiting-mod count-' . $total_badge . '"><span class="pending-count">' . $total_badge . '</span></span>'
+        : '';
+
+    add_submenu_page(
+        'vitrinexo-core',
+        'Validaciones — Vitrinexo',
+        'Validaciones' . $badge_html,
+        'manage_options',
+        'vx-validaciones',
+        'vx_admin_validaciones_page'
+    );
+
+    add_submenu_page(
+        'vitrinexo-core',
+        'Tags sugeridos — Vitrinexo',
+        'Tags sugeridos',
+        'manage_options',
+        'vx-tags',
+        'vx_admin_tags_page'
+    );
 } );
+
+// ── Tags sugeridos — guardar ──────────────────────────────────────────────────
+
+add_action( 'admin_post_vx_save_tags', function () {
+    if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+    check_admin_referer( 'vx_save_tags' );
+
+    $raw = json_decode( wp_unslash( $_POST['vx_tags_json'] ?? '[]' ), true );
+    if ( ! is_array( $raw ) ) $raw = [];
+
+    $tags = array_values( array_unique( array_filter( array_map( 'sanitize_text_field', $raw ) ) ) );
+    update_option( 'vx_tags_preset', $tags );
+
+    wp_safe_redirect( admin_url( 'admin.php?page=vx-tags&vx_ok=1' ) );
+    exit;
+} );
+
+function vx_admin_tags_page(): void {
+    if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+
+    $default = [
+        'Marketing digital','Diseño y branding','Desarrollo web','Consultoría',
+        'Ventas B2B','CRM','Automatización','Legal','Finanzas','RRHH',
+        'Data e inteligencia','Logística','Producción audiovisual','Real estate',
+        'Partners tecnológicos','Alianzas comerciales','E-commerce','SaaS',
+        'Transformación digital','Startups','Venture capital','Exportaciones',
+    ];
+    $saved = get_option( 'vx_tags_preset', null );
+    $tags  = is_array( $saved ) && ! empty( $saved ) ? $saved : $default;
+    ?>
+    <div class="wrap">
+    <h1>Tags sugeridos</h1>
+    <p style="color:#646970">Estos tags aparecen como sugerencias cuando un miembro edita su perfil (sección Ofrece / Busca). Los miembros también pueden escribir tags propios.</p>
+
+    <?php if ( ! empty( $_GET['vx_ok'] ) ) : ?>
+    <div class="notice notice-success is-dismissible"><p>✓ Tags guardados correctamente.</p></div>
+    <?php endif; ?>
+
+    <div style="max-width:720px;margin-top:20px">
+      <div id="vx-tags-wrap" style="display:flex;flex-wrap:wrap;gap:8px;padding:16px;border:1px solid #c3c4c7;border-radius:4px;background:#fff;min-height:60px;margin-bottom:16px">
+        <?php foreach ( $tags as $tag ) : ?>
+        <span class="vx-tag-chip" style="display:inline-flex;align-items:center;gap:6px;background:#f0f6fc;border:1px solid #c3ddf8;border-radius:99px;padding:5px 12px;font-size:13px">
+          <?php echo esc_html( $tag ); ?>
+          <button type="button" onclick="vxRemoveTag(this)" style="border:none;background:none;cursor:pointer;color:#9ca3af;font-size:14px;line-height:1;padding:0" title="Eliminar">×</button>
+        </span>
+        <?php endforeach; ?>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <input type="text" id="vx-new-tag" placeholder="Nuevo tag…" class="regular-text" style="flex:1"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();vxAddTag();}">
+        <button type="button" class="button" onclick="vxAddTag()">+ Agregar</button>
+      </div>
+
+      <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+        <?php wp_nonce_field( 'vx_save_tags' ); ?>
+        <input type="hidden" name="action" value="vx_save_tags">
+        <input type="hidden" name="vx_tags_json" id="vx-tags-json" value="<?php echo esc_attr( wp_json_encode( $tags ) ); ?>">
+        <button type="button" class="button button-primary" onclick="vxGuardarTags()">Guardar tags</button>
+        <span style="margin-left:12px;font-size:13px;color:#646970" id="vx-tag-count"><?php echo count( $tags ); ?> tags</span>
+      </form>
+    </div>
+    </div>
+
+    <script>
+    (function () {
+      var tags = <?php echo wp_json_encode( $tags ); ?>;
+
+      function render() {
+        var wrap = document.getElementById('vx-tags-wrap');
+        wrap.innerHTML = '';
+        tags.forEach(function (t, i) {
+          var s = document.createElement('span');
+          s.className = 'vx-tag-chip';
+          s.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:#f0f6fc;border:1px solid #c3ddf8;border-radius:99px;padding:5px 12px;font-size:13px';
+          s.innerHTML = escHtml(t) + '<button type="button" onclick="vxRemoveTag(this)" data-idx="'+i+'" style="border:none;background:none;cursor:pointer;color:#9ca3af;font-size:14px;line-height:1;padding:0" title="Eliminar">×</button>';
+          wrap.appendChild(s);
+        });
+        document.getElementById('vx-tag-count').textContent = tags.length + ' tags';
+        document.getElementById('vx-tags-json').value = JSON.stringify(tags);
+      }
+
+      window.vxAddTag = function () {
+        var input = document.getElementById('vx-new-tag');
+        var val   = input.value.trim();
+        if ( ! val ) return;
+        if ( tags.some(function(t){ return t.toLowerCase() === val.toLowerCase(); }) ) {
+          input.focus(); input.select(); return;
+        }
+        tags.push(val);
+        input.value = '';
+        render();
+        input.focus();
+      };
+
+      window.vxRemoveTag = function (btn) {
+        var idx = parseInt(btn.dataset.idx, 10);
+        tags.splice(idx, 1);
+        render();
+      };
+
+      window.vxGuardarTags = function () {
+        document.getElementById('vx-tags-json').value = JSON.stringify(tags);
+        btn = document.querySelector('.button-primary');
+        btn.disabled = true;
+        btn.closest('form').submit();
+      };
+
+      function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+    })();
+    </script>
+    <?php
+}
+
+// ── Handlers de acción para la página de validaciones ─────────────────────────
+
+add_action( 'admin_action_vx_val_aprobar_cuenta', function () {
+    if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+    $user_id = absint( $_GET['user_id'] ?? 0 );
+    check_admin_referer( 'vx_val_aprobar_cuenta_' . $user_id );
+    VX_Verification::approve_manual( $user_id );
+    wp_safe_redirect( admin_url( 'admin.php?page=vx-validaciones&vx_ok=cuenta_aprobada' ) );
+    exit;
+} );
+
+add_action( 'admin_action_vx_val_rechazar_cuenta', function () {
+    if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+    $user_id = absint( $_GET['user_id'] ?? 0 );
+    check_admin_referer( 'vx_val_rechazar_cuenta_' . $user_id );
+    update_user_meta( $user_id, VX_User_Meta::ESTADO, 'rechazado' );
+    delete_user_meta( $user_id, 'vx_token_confirmacion' );
+    delete_user_meta( $user_id, 'vx_token_expira' );
+    wp_safe_redirect( admin_url( 'admin.php?page=vx-validaciones&vx_ok=cuenta_rechazada' ) );
+    exit;
+} );
+
+add_action( 'admin_action_vx_val_aprobar_senior', function () {
+    if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+    $user_id = absint( $_GET['user_id'] ?? 0 );
+    check_admin_referer( 'vx_val_aprobar_senior_' . $user_id );
+    VX_Senior_Verification::approve( $user_id );
+    wp_safe_redirect( admin_url( 'admin.php?page=vx-validaciones&vx_ok=senior_aprobado' ) );
+    exit;
+} );
+
+add_action( 'admin_action_vx_val_rechazar_senior', function () {
+    if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+    $user_id = absint( $_GET['user_id'] ?? 0 );
+    check_admin_referer( 'vx_val_rechazar_senior_' . $user_id );
+    VX_Senior_Verification::reject( $user_id );
+    wp_safe_redirect( admin_url( 'admin.php?page=vx-validaciones&vx_ok=senior_rechazado' ) );
+    exit;
+} );
+
+// ── Página de Validaciones ─────────────────────────────────────────────────────
+
+function vx_admin_validaciones_page(): void {
+    if ( ! current_user_can( 'manage_options' ) ) return;
+
+    // Mensajes de feedback
+    $mensajes = [
+        'cuenta_aprobada'  => [ 'success', '✅ Cuenta aprobada. El usuario recibirá un email para activarla.' ],
+        'cuenta_rechazada' => [ 'warning', '⛔ Cuenta rechazada.' ],
+        'senior_aprobado'  => [ 'success', '✅ Badge Senior activado. El usuario recibió un email de confirmación.' ],
+        'senior_rechazado' => [ 'warning', '⛔ Solicitud Senior rechazada.' ],
+    ];
+    $ok = sanitize_key( $_GET['vx_ok'] ?? '' );
+
+    // ── Pendientes de verificación (correo genérico) ──────────────────────────
+    $pendientes = get_users( [
+        'role'       => 'subscriber',
+        'number'     => -1,
+        'orderby'    => 'registered',
+        'order'      => 'ASC',
+        'meta_query' => [
+            'relation' => 'AND',
+            [ 'key' => VX_User_Meta::ESTADO,            'value' => 'pendiente' ],
+            [ 'key' => VX_User_Meta::TIPO_VERIFICACION, 'value' => 'manual' ],
+        ],
+    ] );
+
+    // ── Solicitudes Senior ────────────────────────────────────────────────────
+    $senior_reqs = get_users( [
+        'role'       => 'subscriber',
+        'number'     => -1,
+        'orderby'    => 'registered',
+        'order'      => 'ASC',
+        'meta_query' => [
+            'relation' => 'AND',
+            [ 'key' => VX_User_Meta::SENIOR_SOLICITADO, 'value' => '1' ],
+            [ 'key' => VX_User_Meta::SENIOR_VERIFICADO, 'compare' => 'NOT EXISTS' ],
+        ],
+    ] );
+
+    ?>
+    <div class="wrap">
+    <h1 style="display:flex;align-items:center;gap:10px">
+        <span>Validaciones</span>
+        <?php if ( $pendientes || $senior_reqs ) : ?>
+        <span class="awaiting-mod"><span class="pending-count"><?php echo count( $pendientes ) + count( $senior_reqs ); ?></span></span>
+        <?php endif; ?>
+    </h1>
+
+    <?php if ( $ok && isset( $mensajes[ $ok ] ) ) : ?>
+    <div class="notice notice-<?php echo $mensajes[ $ok ][0]; ?> is-dismissible" style="margin:16px 0">
+        <p><?php echo esc_html( $mensajes[ $ok ][1] ); ?></p>
+    </div>
+    <?php endif; ?>
+
+    <style>
+    .vx-val-section { background:#fff; border:1px solid #c3c4c7; border-radius:4px; margin-bottom:24px; }
+    .vx-val-section-head { padding:14px 18px; border-bottom:1px solid #f0f0f1; display:flex; align-items:center; gap:10px; }
+    .vx-val-section-head h2 { margin:0; font-size:14px; font-weight:600; }
+    .vx-val-badge { display:inline-flex; align-items:center; justify-content:center; background:#d63638; color:#fff; border-radius:10px; min-width:20px; height:20px; font-size:11px; font-weight:700; padding:0 6px; line-height:1; }
+    .vx-val-badge--ok { background:#00a32a; }
+    .vx-val-empty { padding:24px 18px; color:#646970; font-style:italic; font-size:13px; }
+    .vx-val-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .vx-val-table th { background:#f6f7f7; padding:10px 14px; text-align:left; font-weight:600; color:#1d2327; border-bottom:1px solid #c3c4c7; white-space:nowrap; }
+    .vx-val-table td { padding:12px 14px; border-bottom:1px solid #f0f0f1; vertical-align:middle; }
+    .vx-val-table tr:last-child td { border-bottom:none; }
+    .vx-val-table tr:hover td { background:#f6f7f7; }
+    .vx-val-name { font-weight:600; color:#1d2327; }
+    .vx-val-email { color:#646970; font-size:12px; margin-top:2px; }
+    .vx-val-date { color:#646970; white-space:nowrap; }
+    .vx-val-actions { display:flex; gap:6px; flex-wrap:wrap; }
+    .vx-val-btn-approve { background:#00a32a; color:#fff; border:none; padding:5px 12px; border-radius:3px; font-size:12px; font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; }
+    .vx-val-btn-approve:hover { background:#007521; color:#fff; }
+    .vx-val-btn-reject { background:#fff; color:#d63638; border:1px solid #d63638; padding:5px 12px; border-radius:3px; font-size:12px; font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; }
+    .vx-val-btn-reject:hover { background:#fcf0f1; }
+    .vx-val-btn-view { background:#f6f7f7; color:#1d2327; border:1px solid #c3c4c7; padding:5px 10px; border-radius:3px; font-size:12px; cursor:pointer; text-decoration:none; display:inline-block; }
+    .vx-val-btn-view:hover { background:#ececec; }
+    .vx-val-tipo { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:2px 7px; border-radius:3px; }
+    .vx-val-tipo--manual { background:#fff8e5; color:#996800; }
+    .vx-val-tipo--senior { background:#f0ebff; color:#4c1d95; }
+    .vx-val-onboarding { font-size:11px; color:#646970; }
+    </style>
+
+    <?php
+
+    // ── SECCIÓN 1: Cuentas pendientes de aprobación ───────────────────────────
+    ?>
+    <div class="vx-val-section">
+        <div class="vx-val-section-head">
+            <h2>Cuentas pendientes de aprobación</h2>
+            <?php if ( $pendientes ) : ?>
+            <span class="vx-val-badge"><?php echo count( $pendientes ); ?></span>
+            <?php else : ?>
+            <span class="vx-val-badge vx-val-badge--ok">✓</span>
+            <?php endif; ?>
+            <span style="color:#646970;font-size:12px;margin-left:auto">Usuarios con correo genérico (@gmail, @hotmail…) que requieren aprobación manual</span>
+        </div>
+
+        <?php if ( empty( $pendientes ) ) : ?>
+        <p class="vx-val-empty">🎉 No hay cuentas pendientes de aprobación.</p>
+        <?php else : ?>
+        <table class="vx-val-table">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Empresa</th>
+                    <th>Ubicación</th>
+                    <th>Registro</th>
+                    <th>Onboarding</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ( $pendientes as $wp_user ) :
+                $vx          = VX_User::get( $wp_user->ID );
+                $nombre      = $vx ? $vx->get_nombre_completo() : $wp_user->display_name;
+                $onb_paso    = (int) get_user_meta( $wp_user->ID, VX_User_Meta::ONBOARDING_PASO, true );
+                $onb_txt     = $onb_paso <= 1 ? 'Sin iniciar' : 'Paso ' . $onb_paso . '/6';
+                $reg_date    = date_i18n( 'd/m/Y H:i', strtotime( $wp_user->user_registered ) );
+                $edit_url    = get_edit_user_link( $wp_user->ID );
+
+                // Datos para verificar identidad
+                $empresa_obj  = $vx ? $vx->get_empresa_principal() : null;
+                $empresa_nombre = $empresa_obj ? $empresa_obj->get_nombre() : '';
+                $industria    = $vx ? $vx->get_industria() : '';
+                $cargo        = $vx ? (string) get_user_meta( $wp_user->ID, VX_User_Meta::CARGO, true ) : '';
+                $ciudad       = $vx ? $vx->get_ciudad() : '';
+                $pais         = $vx ? $vx->get_pais() : '';
+
+                // Link de búsqueda rápida en LinkedIn
+                $linkedin_search = 'https://www.linkedin.com/search/results/people/?keywords=' . urlencode( trim( $nombre . ' ' . $empresa_nombre ) );
+
+                $url_aprobar = wp_nonce_url(
+                    admin_url( 'admin.php?action=vx_val_aprobar_cuenta&user_id=' . $wp_user->ID ),
+                    'vx_val_aprobar_cuenta_' . $wp_user->ID
+                );
+                $url_rechazar = wp_nonce_url(
+                    admin_url( 'admin.php?action=vx_val_rechazar_cuenta&user_id=' . $wp_user->ID ),
+                    'vx_val_rechazar_cuenta_' . $wp_user->ID
+                );
+            ?>
+            <tr>
+                <td>
+                    <div class="vx-val-name"><?php echo esc_html( $nombre ?: '(sin nombre)' ); ?></div>
+                    <div class="vx-val-email"><?php echo esc_html( $wp_user->user_email ); ?></div>
+                </td>
+                <td>
+                    <?php if ( $empresa_nombre ) : ?>
+                        <div style="font-weight:600;color:#1d2327"><?php echo esc_html( $empresa_nombre ); ?></div>
+                    <?php else : ?>
+                        <span style="color:#bbb;font-style:italic;font-size:12px">Sin completar</span>
+                    <?php endif; ?>
+                    <?php if ( $cargo ) : ?>
+                        <div style="font-size:12px;color:#646970"><?php echo esc_html( $cargo ); ?></div>
+                    <?php endif; ?>
+                    <?php if ( $industria ) : ?>
+                        <div style="margin-top:4px"><span class="vx-val-tipo vx-val-tipo--manual"><?php echo esc_html( $industria ); ?></span></div>
+                    <?php endif; ?>
+                </td>
+                <td style="font-size:12px;color:#646970;white-space:nowrap">
+                    <?php
+                    $ubicacion_parts = array_filter( [ $ciudad, $pais ] );
+                    echo $ubicacion_parts ? esc_html( implode( ', ', $ubicacion_parts ) ) : '<span style="color:#bbb;font-style:italic">—</span>';
+                    ?>
+                </td>
+                <td class="vx-val-date"><?php echo esc_html( $reg_date ); ?></td>
+                <td class="vx-val-onboarding"><?php echo esc_html( $onb_txt ); ?></td>
+                <td>
+                    <div class="vx-val-actions">
+                        <a href="<?php echo esc_url( $url_aprobar ); ?>"
+                           class="vx-val-btn-approve"
+                           onclick="return confirm('¿Aprobar la cuenta de <?php echo esc_js( $nombre ?: $wp_user->user_email ); ?>?')">
+                            ✓ Aprobar
+                        </a>
+                        <a href="<?php echo esc_url( $url_rechazar ); ?>"
+                           class="vx-val-btn-reject"
+                           onclick="return confirm('¿Rechazar la cuenta de <?php echo esc_js( $nombre ?: $wp_user->user_email ); ?>? El usuario no podrá activarla.')">
+                            ✕ Rechazar
+                        </a>
+                        <a href="<?php echo esc_url( $linkedin_search ); ?>" class="vx-val-btn-view" target="_blank" title="Buscar en LinkedIn">
+                            🔍 LinkedIn
+                        </a>
+                        <a href="<?php echo esc_url( $edit_url ); ?>" class="vx-val-btn-view" target="_blank">
+                            Admin
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+    </div>
+
+    <?php
+    // ── SECCIÓN 2: Solicitudes de badge Senior ────────────────────────────────
+    ?>
+    <div class="vx-val-section">
+        <div class="vx-val-section-head">
+            <h2>Solicitudes de verificación Senior</h2>
+            <?php if ( $senior_reqs ) : ?>
+            <span class="vx-val-badge"><?php echo count( $senior_reqs ); ?></span>
+            <?php else : ?>
+            <span class="vx-val-badge vx-val-badge--ok">✓</span>
+            <?php endif; ?>
+            <span style="color:#646970;font-size:12px;margin-left:auto">Miembros que solicitaron verificación de su trayectoria Senior (ya aparecen en la comunidad; la verificación agrega el badge ✓)</span>
+        </div>
+
+        <?php if ( empty( $senior_reqs ) ) : ?>
+        <p class="vx-val-empty">🎉 No hay solicitudes Senior pendientes.</p>
+        <?php else : ?>
+        <table class="vx-val-table">
+            <thead>
+                <tr>
+                    <th>Miembro</th>
+                    <th>Email</th>
+                    <th>Industria</th>
+                    <th>Plan</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ( $senior_reqs as $wp_user ) :
+                $vx        = VX_User::get( $wp_user->ID );
+                $nombre    = $vx ? $vx->get_nombre_completo() : $wp_user->display_name;
+                $industria = $vx ? $vx->get_industria() : '';
+                $plan      = (string) get_user_meta( $wp_user->ID, VX_User_Meta::PLAN, true );
+                $edit_url  = get_edit_user_link( $wp_user->ID );
+                $slug      = $vx ? $vx->get_slug() : '';
+                $perfil_url = $slug ? home_url( '/perfil/' . $slug . '/' ) : '';
+
+                $url_aprobar = wp_nonce_url(
+                    admin_url( 'admin.php?action=vx_val_aprobar_senior&user_id=' . $wp_user->ID ),
+                    'vx_val_aprobar_senior_' . $wp_user->ID
+                );
+                $url_rechazar = wp_nonce_url(
+                    admin_url( 'admin.php?action=vx_val_rechazar_senior&user_id=' . $wp_user->ID ),
+                    'vx_val_rechazar_senior_' . $wp_user->ID
+                );
+            ?>
+            <tr>
+                <td>
+                    <div class="vx-val-name"><?php echo esc_html( $nombre ?: '(sin nombre)' ); ?></div>
+                    <span class="vx-val-tipo vx-val-tipo--senior" style="margin-top:4px;display:inline-block">Senior</span>
+                </td>
+                <td>
+                    <div><?php echo esc_html( $wp_user->user_email ); ?></div>
+                </td>
+                <td><?php echo esc_html( $industria ?: '—' ); ?></td>
+                <td><?php echo esc_html( ucfirst( $plan ?: 'gratuito' ) ); ?></td>
+                <td>
+                    <div class="vx-val-actions">
+                        <a href="<?php echo esc_url( $url_aprobar ); ?>"
+                           class="vx-val-btn-approve"
+                           onclick="return confirm('¿Aprobar badge Senior para <?php echo esc_js( $nombre ?: $wp_user->user_email ); ?>?')">
+                            🏆 Aprobar Senior
+                        </a>
+                        <a href="<?php echo esc_url( $url_rechazar ); ?>"
+                           class="vx-val-btn-reject"
+                           onclick="return confirm('¿Rechazar la solicitud Senior de <?php echo esc_js( $nombre ?: $wp_user->user_email ); ?>?')">
+                            ✕ Rechazar
+                        </a>
+                        <?php if ( $perfil_url ) : ?>
+                        <a href="<?php echo esc_url( $perfil_url ); ?>" class="vx-val-btn-view" target="_blank">
+                            Ver perfil público
+                        </a>
+                        <?php endif; ?>
+                        <a href="<?php echo esc_url( $edit_url ); ?>" class="vx-val-btn-view" target="_blank">
+                            Admin
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+    </div>
+
+    <?php if ( empty( $pendientes ) && empty( $senior_reqs ) ) : ?>
+    <div style="text-align:center;padding:40px 20px;color:#646970">
+        <p style="font-size:48px;margin:0">🎉</p>
+        <p style="font-size:16px;font-weight:600;margin:8px 0 4px">Todo al día</p>
+        <p style="margin:0">No hay validaciones pendientes en este momento.</p>
+    </div>
+    <?php endif; ?>
+
+    </div><!-- /.wrap -->
+    <?php
+}
+
+function vx_admin_ajustes_page(): void {
+    if ( ! current_user_can( 'manage_options' ) ) return;
+
+    $saved = false;
+
+    if ( isset( $_POST['vx_ajustes_nonce'] ) && wp_verify_nonce( $_POST['vx_ajustes_nonce'], 'vx_ajustes_save' ) ) {
+        update_option( 'vx_auto_fundador', isset( $_POST['vx_auto_fundador'] ) ? '1' : '0' );
+        // Precios
+        foreach ( [ 'vx_precio_mensual', 'vx_precio_anual', 'vx_precio_preferencial' ] as $k ) {
+            if ( isset( $_POST[ $k ] ) ) update_option( $k, (float) $_POST[ $k ] );
+        }
+        update_option( 'vx_moneda', sanitize_key( $_POST['vx_moneda'] ?? 'USD' ) );
+        // Stripe keys (escritura segura — no mostrar en pantalla)
+        foreach ( [ 'vx_stripe_publishable_key', 'vx_stripe_secret_key', 'vx_stripe_webhook_secret',
+                    'vx_stripe_price_mensual', 'vx_stripe_price_anual', 'vx_stripe_price_preferencial' ] as $k ) {
+            if ( isset( $_POST[ $k ] ) && $_POST[ $k ] !== '' ) {
+                update_option( $k, sanitize_text_field( $_POST[ $k ] ) );
+            }
+        }
+
+        // Vencimiento global del plan gratuito para fundadores (fecha en que dejan de ser gratis)
+        $fecha_fin = sanitize_text_field( $_POST['vx_fundador_gratuito_fin'] ?? '' );
+        update_option( 'vx_fundador_gratuito_fin', $fecha_fin ? strtotime( $fecha_fin . ' 23:59:59' ) : 0 );
+
+        // Si se marca "Aplicar vencimiento ahora" → actualizar todos los fundadores en plan gratuito
+        if ( ! empty( $_POST['vx_aplicar_vencimiento'] ) && $fecha_fin ) {
+            $timestamp = strtotime( $fecha_fin . ' 23:59:59' );
+            $fundadores = get_users( [
+                'role'       => 'subscriber',
+                'number'     => -1,
+                'meta_query' => [
+                    [ 'key' => VX_User_Meta::ES_FUNDADOR, 'value' => '1' ],
+                    [ 'key' => VX_User_Meta::PLAN,        'value' => 'gratuito' ],
+                ],
+            ] );
+            foreach ( $fundadores as $u ) {
+                update_user_meta( $u->ID, VX_User_Meta::PLAN_VENCIMIENTO, $timestamp );
+            }
+            $saved = count( $fundadores ) . ' fundadores actualizados.';
+        }
+
+        echo '<div class="notice notice-success"><p>✓ Ajustes guardados.' . ( $saved ? ' ' . esc_html( $saved ) : '' ) . '</p></div>';
+    }
+
+    $auto_fundador       = get_option( 'vx_auto_fundador', '1' );
+    $fin_ts              = (int) get_option( 'vx_fundador_gratuito_fin', 0 );
+    $fin_date            = $fin_ts ? date( 'Y-m-d', $fin_ts ) : '';
+
+    // Conteos
+    $total_fundadores = count( get_users( [
+        'role' => 'subscriber', 'number' => -1,
+        'meta_query' => [ [ 'key' => VX_User_Meta::ES_FUNDADOR, 'value' => '1' ] ],
+    ] ) );
+    $fundadores_gratis = count( get_users( [
+        'role' => 'subscriber', 'number' => -1,
+        'meta_query' => [
+            [ 'key' => VX_User_Meta::ES_FUNDADOR, 'value' => '1' ],
+            [ 'key' => VX_User_Meta::PLAN,        'value' => 'gratuito' ],
+        ],
+    ] ) );
+    ?>
+    <div class="wrap">
+        <h1>⚙️ Ajustes Vitrinexo</h1>
+
+        <!-- Resumen -->
+        <div style="display:flex;gap:16px;margin:16px 0;flex-wrap:wrap">
+            <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px 24px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:#16a34a"><?php echo $total_fundadores; ?></div>
+                <div style="color:#6b7280;font-size:13px">Socios Fundadores en total</div>
+            </div>
+            <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px 24px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:#2563eb"><?php echo $fundadores_gratis; ?></div>
+                <div style="color:#6b7280;font-size:13px">En plan gratuito activo</div>
+            </div>
+            <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px 24px;text-align:center">
+                <div style="font-size:28px;font-weight:700;color:#9333ea"><?php echo $total_fundadores - $fundadores_gratis; ?></div>
+                <div style="color:#6b7280;font-size:13px">En plan de pago</div>
+            </div>
+        </div>
+
+        <form method="post">
+            <?php wp_nonce_field( 'vx_ajustes_save', 'vx_ajustes_nonce' ); ?>
+            <table class="form-table">
+
+                <tr>
+                    <th>Badge Fundador automático</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="vx_auto_fundador" value="1" <?php checked( $auto_fundador, '1' ); ?>>
+                            Asignar badge de <strong>Socio Fundador</strong> a cada usuario que completa el onboarding
+                        </label>
+                        <p class="description">
+                            El badge es <strong>permanente</strong> — una vez asignado, no se quita aunque cambien de plan.<br>
+                            Desactívalo cuando quieras cerrar la fase fundador (nuevos miembros = usuarios regulares).
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Fin del plan gratuito para Fundadores</th>
+                    <td>
+                        <input type="date" name="vx_fundador_gratuito_fin"
+                               value="<?php echo esc_attr( $fin_date ); ?>"
+                               style="margin-right:12px">
+                        <?php if ( $fin_ts ) : ?>
+                            <span style="color:#f59e0b;font-weight:600">
+                                📅 Los Fundadores en plan gratuito vencen el <?php echo date_i18n( 'd/m/Y', $fin_ts ); ?>
+                            </span>
+                        <?php else : ?>
+                            <span style="color:#6b7280">Sin fecha definida — acceso gratuito indefinido</span>
+                        <?php endif; ?>
+                        <p class="description">
+                            Cuando llegue esta fecha, los Fundadores en plan gratuito quedarán con <em>plan_estado = vencido</em>
+                            y se les pedirá que se suscriban al <strong>precio preferencial</strong> para seguir accediendo.
+                        </p>
+                        <label style="margin-top:8px;display:block">
+                            <input type="checkbox" name="vx_aplicar_vencimiento" value="1">
+                            Aplicar esta fecha a todos los Fundadores en plan gratuito ahora mismo
+                            <span style="color:#6b7280">(actualiza <?php echo $fundadores_gratis; ?> usuarios)</span>
+                        </label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <hr>
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:8px 0">
+                            <h3 style="margin:0">💳 Precios y Stripe</h3>
+                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=vx-stripe-manual' ) ); ?>"
+                               target="_blank"
+                               class="button"
+                               style="display:inline-flex;align-items:center;gap:5px">
+                                📄 Ver manual de activación Stripe
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Moneda</th>
+                    <td>
+                        <select name="vx_moneda">
+                            <?php foreach ( [ 'USD', 'CLP', 'COP', 'MXN', 'PEN', 'UYU', 'EUR' ] as $cur ) : ?>
+                            <option value="<?php echo esc_attr($cur); ?>" <?php selected(get_option('vx_moneda','USD'),$cur); ?>><?php echo esc_html($cur); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+
+                <?php
+                $price_fields = [
+                    'vx_precio_mensual'      => [ 'Plan Mensual',       29  ],
+                    'vx_precio_anual'        => [ 'Plan Anual',        249  ],
+                    'vx_precio_preferencial' => [ 'Plan Fundador (preferencial)', 19 ],
+                ];
+                foreach ( $price_fields as $opt => [ $label, $default ] ) : ?>
+                <tr>
+                    <th><?php echo esc_html( $label ); ?></th>
+                    <td>
+                        <input type="number" name="<?php echo esc_attr($opt); ?>"
+                               value="<?php echo esc_attr( get_option($opt, $default) ); ?>"
+                               step="0.01" min="0" style="width:100px">
+                        <span style="color:#6b7280"><?php echo esc_html( get_option('vx_moneda','USD') ); ?>/mes o año</span>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+
+                <tr><td colspan="2"><p class="description" style="margin:0">Los siguientes campos se completan cuando Stripe esté configurado. No son obligatorios ahora.</p></td></tr>
+
+                <?php
+                $stripe_fields = [
+                    'vx_stripe_publishable_key'    => 'Stripe Publishable Key (pk_live_...)',
+                    'vx_stripe_secret_key'          => 'Stripe Secret Key (sk_live_...)',
+                    'vx_stripe_webhook_secret'      => 'Stripe Webhook Secret (whsec_...)',
+                    'vx_stripe_price_mensual'       => 'Stripe Price ID — Mensual',
+                    'vx_stripe_price_anual'         => 'Stripe Price ID — Anual',
+                    'vx_stripe_price_preferencial'  => 'Stripe Price ID — Fundador',
+                ];
+                foreach ( $stripe_fields as $opt => $label ) :
+                    $val = get_option( $opt, '' );
+                    $is_secret = str_contains( $opt, 'secret' );
+                ?>
+                <tr>
+                    <th><?php echo esc_html( $label ); ?></th>
+                    <td>
+                        <input type="<?php echo $is_secret ? 'password' : 'text'; ?>"
+                               name="<?php echo esc_attr($opt); ?>"
+                               value="<?php echo $val ? esc_attr( $val ) : ''; ?>"
+                               placeholder="<?php echo $val ? '(guardada — escribe para cambiar)' : 'Sin configurar'; ?>"
+                               class="regular-text"
+                               autocomplete="off">
+                        <?php if ( $val ) : ?>
+                        <span style="color:#16a34a;font-size:12px">✓ Configurada</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+
+            </table>
+            <p><button type="submit" class="button button-primary button-large">Guardar ajustes</button></p>
+        </form>
+
+        <hr>
+        <h2>Flujo de pagos</h2>
+        <ol style="max-width:640px;line-height:1.8">
+            <li><strong>Ahora (beta)</strong>: los usuarios completan el onboarding → reciben badge Fundador permanente → plan gratuito sin fecha de vencimiento.</li>
+            <li><strong>Cuando decidas cobrar</strong>: fija una fecha de fin del plan gratuito y marca "Aplicar a todos". Los Fundadores reciben aviso y pueden suscribirse al precio preferencial desde su configuración.</li>
+            <li><strong>Usuarios nuevos post-fundador</strong>: no reciben badge (auto-fundador desactivado) → plan gratuito con acceso limitado → para acceso completo deben suscribirse al plan mensual o anual.</li>
+        </ol>
+        <p>Para modificar el plan o badge de un miembro individual → <a href="<?php echo esc_url( admin_url( 'users.php' ) ); ?>">Usuarios</a> → columna <em>Plan</em>.</p>
+    </div>
+    <?php
+}
 
 add_action( 'admin_init', function () {
     // Auto-create pages (runs once per version change or on first install)
@@ -200,6 +1240,8 @@ function vx_create_pages(): void {
         'dashboard'                => [ 'title' => 'Dashboard',                  'shortcode' => '[vx_dashboard]' ],
         'directorio'               => [ 'title' => 'Directorio',                 'shortcode' => '[vx_directorio]' ],
         'matches'                  => [ 'title' => 'Mis matches',                'shortcode' => '[vx_matches]' ],
+        'match-seeks'              => [ 'title' => 'Ofrecen lo que buscas',      'shortcode' => '[vx_match_seeks]' ],
+        'match-offers'             => [ 'title' => 'Buscan lo que ofreces',      'shortcode' => '[vx_match_offers]' ],
         'perfil'                   => [ 'title' => 'Perfil',                     'shortcode' => '[vx_perfil]' ],
         'editar-perfil'            => [ 'title' => 'Editar perfil',              'shortcode' => '[vx_editor_perfil]' ],
         'favoritos'                => [ 'title' => 'Mis favoritos',              'shortcode' => '[vx_favoritos]' ],
@@ -213,6 +1255,7 @@ function vx_create_pages(): void {
         'comunidad-out2b'          => [ 'title' => 'Comunidad Out2B',            'shortcode' => '[vx_comunidad slug="out2b"]' ],
         'comunidad-woman'          => [ 'title' => 'Comunidad Woman',            'shortcode' => '[vx_comunidad slug="woman"]' ],
         'comunidad-senior'         => [ 'title' => 'Comunidad Senior',           'shortcode' => '[vx_comunidad slug="senior"]' ],
+        'mis-eventos'              => [ 'title' => 'Mis eventos',                'shortcode' => '[vx_mis_eventos]' ],
     ];
 
     // Eliminar la página mi-4dinner si existe (fue renombrada a 4dinner)

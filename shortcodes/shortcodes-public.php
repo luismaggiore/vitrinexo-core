@@ -3,8 +3,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 // [vx_landing] — página de inicio pública
 add_shortcode( 'vx_landing', function (): string {
-    $logo_url    = get_template_directory_uri() . '/assets/img/vitrinexo.svg';
-    $registro_url = home_url( '/login/?tab=registro' );
+    $logo_url     = get_template_directory_uri() . '/assets/img/vitrinexo.svg';
+    $is_logged    = is_user_logged_in();
+    $registro_url = $is_logged ? home_url( '/dashboard/' ) : home_url( '/login/?tab=registro' );
+    $cta_label    = $is_logged ? 'Ir a mi dashboard' : 'Quiero ser socio fundador';
     ob_start();
     ?>
 
@@ -24,7 +26,7 @@ add_shortcode( 'vx_landing', function (): string {
                 <span class="badge-vx badge-verified"><i class="ti ti-shield-check"></i> Empresas verificadas</span>
                 <span class="badge-vx badge-verified ms-2"><i class="ti ti-star"></i> Colaboración Real</span>
             </div>
-            <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill mt-4" href="<?php echo esc_url( $registro_url ); ?>">Quiero ser socio fundador</a>
+            <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill mt-4" href="<?php echo esc_url( $registro_url ); ?>"><?php echo esc_html( $cta_label ); ?></a>
         </div>
     </section>
 
@@ -187,6 +189,7 @@ add_shortcode( 'vx_landing', function (): string {
     </section>
 
     <!-- ── Socio Fundador ── -->
+    <?php if ( ! $is_logged ) : ?>
     <section class="section-landing" id="socio-fundador">
         <div class="container">
             <div class="founder-block">
@@ -215,11 +218,11 @@ add_shortcode( 'vx_landing', function (): string {
                             <div class="row g-2 mb-2">
                                 <div class="col-6">
                                     <label class="form-label-vx">Nombre *</label>
-                                    <input class="form-control-vx" name="nombre" required placeholder="João-Franco" />
+                                    <input class="form-control-vx" name="nombre" required placeholder="Tu nombre" />
                                 </div>
                                 <div class="col-6">
                                     <label class="form-label-vx">Apellido *</label>
-                                    <input class="form-control-vx" name="apellido" required placeholder="Maggi" />
+                                    <input class="form-control-vx" name="apellido" required placeholder="Tu apellido" />
                                 </div>
                             </div>
                             <div class="mb-2">
@@ -287,6 +290,7 @@ add_shortcode( 'vx_landing', function (): string {
         });
     })();
     </script>
+    <?php endif; /* !$is_logged */ ?>
 
     <?php
     return ob_get_clean();
@@ -304,19 +308,16 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
     ?>
     <!-- HERO 4DINNER -->
     <div class="hero-4dinner">
-      <div style="position:absolute;right:-80px;top:-80px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none"></div>
-      <div style="position:absolute;left:-60px;bottom:-60px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none"></div>
-
-      <div class="container py-5 position-relative" style="z-index:1">
+      <div class="container py-5">
         <div class="row align-items-center g-5">
           <div class="col-12 col-lg-6">
             <div class="d-flex align-items-center gap-2 mb-3">
               <span class="badge-hero-4dinner">Evento presencial</span>
             </div>
-            <h1 style="font-size:clamp(2.2rem,5vw,3.5rem);font-weight:400;letter-spacing:-0.04em;color:#fff;line-height:1.1;margin-bottom:1rem">
+            <h1 style="font-size:clamp(2.2rem,5vw,3.5rem);font-weight:400;letter-spacing:-0.04em;color:#78350f;line-height:1.1;margin-bottom:1rem">
               4 personas.<br>1 mesa.<br><em style="font-style:italic">1 conversación real.</em>
             </h1>
-            <p style="font-size:1rem;color:rgba(255,255,255,.85);line-height:1.7;max-width:480px;margin-bottom:2rem">
+            <p style="font-size:1rem;color:#92400e;line-height:1.7;max-width:480px;margin-bottom:2rem">
               Cada miércoles a las 8pm, cuatro miembros de Vitrinexo se sientan a cenar en una ciudad de Hispanoamérica. Sin agenda formal, sin pitches. Solo personas que ya se conocen por sus fichas y quieren dar el paso a lo presencial.
             </p>
             <div class="d-flex gap-3 flex-wrap">
@@ -330,7 +331,7 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
           </div>
           <div class="col-12 col-lg-6">
             <div class="stats-card-hero">
-              <div class="row g-3 text-center text-white">
+              <div class="row g-3 text-center">
                 <div class="col-4">
                   <div class="stat-num-hero">4</div>
                   <div class="stat-label-hero">personas por mesa</div>
@@ -344,7 +345,7 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
                   <div class="stat-label-hero">ciudades activas</div>
                 </div>
               </div>
-              <hr style="border-color:rgba(255,255,255,.2);margin:1.25rem 0">
+              <hr style="border-color:#fde68a;margin:1.25rem 0">
               <div class="d-flex flex-column gap-2">
                 <div class="d-flex align-items-center gap-2 checklist-item-hero"><i class="ti ti-circle-check checklist-icon-hero"></i> Cada quien paga su consumo — sin costo de acceso</div>
                 <div class="d-flex align-items-center gap-2 checklist-item-hero"><i class="ti ti-circle-check checklist-icon-hero"></i> Perfiles mixtos de industria — nada de silos</div>
@@ -433,7 +434,7 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
         </div>
         <div class="row g-3">
           <?php foreach ( array_slice( $dinners, 0, 3 ) as $dinner ) :
-            $fecha_ts  = strtotime( $dinner->get_fecha() );
+            $fecha_ts  = $dinner->get_fecha();
             $asignados = $dinner->get_asignados();
             $cupos     = max( 0, 4 - count( $asignados ) );
           ?>

@@ -53,7 +53,32 @@ add_action( 'rest_api_init', function () {
         'args' => [
             'conexion_id' => [ 'required' => true,  'sanitize_callback' => 'absint' ],
             'accion'      => [ 'required' => true,  'sanitize_callback' => 'sanitize_text_field' ],
+            'mensaje'     => [ 'required' => false, 'sanitize_callback' => 'sanitize_textarea_field' ],
         ],
+    ] );
+
+    // POST /conexiones/bloquear — bloquear un usuario
+    register_rest_route( VX_REST_NAMESPACE, '/conexiones/bloquear', [
+        'methods'             => 'POST',
+        'callback'            => 'vx_rest_conexion_bloquear',
+        'permission_callback' => 'is_user_logged_in',
+        'args' => [
+            'usuario_id' => [ 'required' => true, 'sanitize_callback' => 'absint' ],
+        ],
+    ] );
+
+    // DELETE /conexiones/bloquear/{id} — desbloquear un usuario
+    register_rest_route( VX_REST_NAMESPACE, '/conexiones/bloquear/(?P<id>\d+)', [
+        'methods'             => 'DELETE',
+        'callback'            => 'vx_rest_conexion_desbloquear',
+        'permission_callback' => 'is_user_logged_in',
+    ] );
+
+    // GET /conexiones/bloqueados — lista de usuarios bloqueados
+    register_rest_route( VX_REST_NAMESPACE, '/conexiones/bloqueados', [
+        'methods'             => 'GET',
+        'callback'            => 'vx_rest_conexion_bloqueados_listar',
+        'permission_callback' => 'is_user_logged_in',
     ] );
 
 } );
@@ -69,8 +94,10 @@ function vx_rest_conexiones_crear( WP_REST_Request $request ): WP_REST_Response
         return new WP_REST_Response( [ 'success' => false, 'error' => 'no_autoconexion' ], 400 );
     }
 
-    if ( strlen( $pitch ) < 20 ) {
-        return new WP_REST_Response( [ 'success' => false, 'error' => 'pitch_muy_corto' ], 400 );
+    $bloqueados_emisor   = (array) ( get_user_meta( $emisor_id,   'vx_bloqueados', true ) ?: [] );
+    $bloqueados_receptor = (array) ( get_user_meta( $receptor_id, 'vx_bloqueados', true ) ?: [] );
+    if ( in_array( $receptor_id, $bloqueados_emisor, true ) || in_array( $emisor_id, $bloqueados_receptor, true ) ) {
+        return new WP_REST_Response( [ 'success' => false, 'error' => 'usuario_bloqueado' ], 403 );
     }
 
     $empresas_ids = is_array( $empresas ) ? array_map( 'sanitize_text_field', $empresas ) : [];
@@ -184,6 +211,7 @@ function vx_rest_conexion_responder( WP_REST_Request $request ): WP_REST_Respons
     $user_id     = get_current_user_id();
     $conexion_id = (int) $request->get_param( 'conexion_id' );
     $accion      = $request->get_param( 'accion' );
+    $mensaje     = trim( (string) ( $request->get_param( 'mensaje' ) ?? '' ) );
 
     if ( ! in_array( $accion, [ 'aceptado', 'rechazado' ], true ) ) {
         return new WP_REST_Response( [ 'success' => false, 'error' => 'accion_invalida' ], 400 );
@@ -208,6 +236,9 @@ function vx_rest_conexion_responder( WP_REST_Request $request ): WP_REST_Respons
     delete_post_meta( $conexion_id, VX_Connection_Meta::TOKEN_RECHAZAR );
 
     if ( 'aceptado' === $accion ) {
+        if ( $mensaje ) {
+            update_post_meta( $conexion_id, VX_Connection_Meta::MENSAJE_RECEPTOR, $mensaje );
+        }
         $receptor = VX_User::get( $user_id );
         $emisor   = VX_User::get( $conexion->get_emisor_id() );
         if ( $receptor && $emisor ) {
@@ -218,6 +249,7 @@ function vx_rest_conexion_responder( WP_REST_Request $request ): WP_REST_Respons
                 [
                     'emisor_nombre'   => $emisor->get_nombre_completo(),
                     'receptor_nombre' => $receptor->get_nombre_completo(),
+                    'mensaje'         => $mensaje,
                     'contacto'        => [
                         'nombre'             => $receptor->get_nombre_completo(),
                         'email'              => $receptor->get_email(),
@@ -232,4 +264,59 @@ function vx_rest_conexion_responder( WP_REST_Request $request ): WP_REST_Respons
     }
 
     return new WP_REST_Response( [ 'success' => true ], 200 );
+}
+
+function vx_rest_conexion_bloquear( WP_REST_Request $request ): WP_REST_Response
+{
+    $user_id    = get_current_user_id();
+    $usuario_id = (int) $request->get_param( 'usuario_id' );
+
+    if ( $user_id === $usuario_id ) {
+        return new WP_REST_Response( [ 'success' => false, 'error' => 'no_autobloqueo' ], 400 );
+    }
+
+    $bloqueados = (array) ( get_user_meta( $user_id, 'vx_bloqueados', true ) ?: [] );
+    if ( ! in_array( $usuario_id, $bloqueados, true ) ) {
+        $bloqueados[] = $usuario_id;
+        update_user_meta( $user_id, 'vx_bloqueados', array_values( $bloqueados ) );
+    }
+
+    // Cancelar conexiones existentes entre ambos usuarios
+    $todas = array_merge(
+        VX_Connection::get_sent_by( $user_id ),
+        VX_Connection::get_received_by( $user_id )
+    );
+    foreach ( $todas as $conn ) {
+        if ( $conn->get_other_user_id( $user_id ) === $usuario_id ) {
+            update_post_meta( $conn->get_id(), VX_Connection_Meta::ESTADO, 'rechazado' );
+        }
+    }
+
+    return new WP_REST_Response( [ 'success' => true ], 200 );
+}
+
+function vx_rest_conexion_desbloquear( WP_REST_Request $request ): WP_REST_Response
+{
+    $user_id    = get_current_user_id();
+    $usuario_id = (int) $request->get_param( 'id' );
+
+    $bloqueados = (array) ( get_user_meta( $user_id, 'vx_bloqueados', true ) ?: [] );
+    $bloqueados = array_values( array_filter( $bloqueados, fn( $id ) => (int) $id !== $usuario_id ) );
+    update_user_meta( $user_id, 'vx_bloqueados', $bloqueados );
+
+    return new WP_REST_Response( [ 'success' => true ], 200 );
+}
+
+function vx_rest_conexion_bloqueados_listar( WP_REST_Request $request ): WP_REST_Response
+{
+    $user_id    = get_current_user_id();
+    $bloqueados = (array) ( get_user_meta( $user_id, 'vx_bloqueados', true ) ?: [] );
+    $data = [];
+    foreach ( $bloqueados as $bid ) {
+        $u = VX_User::get( (int) $bid );
+        if ( $u ) {
+            $data[] = $u->to_card_array();
+        }
+    }
+    return new WP_REST_Response( [ 'success' => true, 'data' => $data ], 200 );
 }

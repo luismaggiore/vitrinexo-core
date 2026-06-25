@@ -75,8 +75,8 @@ function vx_rest_notificacion_leer( WP_REST_Request $request ): WP_REST_Response
         return new WP_REST_Response( [ 'success' => false, 'error' => 'notificacion_no_encontrada' ], 404 );
     }
 
-    // Verificar que pertenece al usuario actual
-    if ( (int) get_post_meta( $notif_id, 'vx_user_id', true ) !== $user_id ) {
+    // Fix: meta key correcta es 'vx_notif_user_id', no 'vx_user_id'
+    if ( (int) get_post_meta( $notif_id, 'vx_notif_user_id', true ) !== $user_id ) {
         return new WP_REST_Response( [ 'success' => false, 'error' => 'no_autorizado' ], 403 );
     }
 
