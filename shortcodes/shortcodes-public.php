@@ -6,7 +6,7 @@ add_shortcode( 'vx_landing', function (): string {
     $logo_url     = get_template_directory_uri() . '/assets/img/vitrinexo.svg';
     $is_logged    = is_user_logged_in();
     $registro_url = $is_logged ? home_url( '/dashboard/' ) : home_url( '/login/?tab=registro' );
-    $cta_label    = $is_logged ? 'Ir a mi dashboard' : 'Quiero ser socio fundador';
+    $cta_label    = $is_logged ? 'Ir a mi dashboard' : 'Quiero ser Afiliado Original';
     ob_start();
     ?>
 
@@ -188,18 +188,18 @@ add_shortcode( 'vx_landing', function (): string {
         </div>
     </section>
 
-    <!-- ── Socio Fundador ── -->
+    <!-- ── Afiliado Original ── -->
     <?php if ( ! $is_logged ) : ?>
     <section class="section-landing" id="socio-fundador">
         <div class="container">
             <div class="founder-block">
                 <div>
-                    <span class="badge-vx badge-founder mb-3 d-inline-flex"><i class="ti ti-star"></i> Socio Fundador · Gratis 6 meses</span>
+                    <span class="badge-vx badge-founder mb-3 d-inline-flex"><i class="ti ti-star"></i> Afiliado Original · Gratis 6 meses</span>
                     <h2 class="section-landing-title mb-3">Sé parte desde<br><strong>el primer día.</strong></h2>
                     <p class="section-landing-lead mb-4">Los primeros 100 Socios Fundadores acceden gratis durante 6 meses al lanzamiento y quedan inmortalizados en el "Salón de Fundadores". Cupos estrictamente limitados.</p>
                     <ul class="founder-benefits">
                         <li><i class="ti ti-circle-check"></i><span><strong>6 meses gratis</strong> desde el lanzamiento.</span></li>
-                        <li><i class="ti ti-circle-check"></i><span>Distintivo <strong>"Socio Fundador"</strong> visible en tu ficha para siempre.</span></li>
+                        <li><i class="ti ti-circle-check"></i><span>Distintivo <strong>"Afiliado Original"</strong> visible en tu ficha para siempre.</span></li>
                         <li><i class="ti ti-circle-check"></i><span>Acceso anticipado a <strong>Out2B, Woman, Senior</strong> y 4Dinner.</span></li>
                         <li><i class="ti ti-circle-check"></i><span><strong>Precio preferente de por vida</strong> al finalizar el período gratuito.</span></li>
                         <li><i class="ti ti-circle-check"></i><span><strong>Onboarding uno a uno</strong> con el equipo de Maggiore.</span></li>
@@ -257,7 +257,7 @@ add_shortcode( 'vx_landing', function (): string {
                                 </div>
                             </div>
                             <button type="submit" class="btn-vx btn-primary-vx btn-vx-md w-100 justify-content-center">
-                                <i class="ti ti-star"></i> Reservar mi lugar como Socio Fundador
+                                <i class="ti ti-star"></i> Reservar mi lugar como Afiliado Original
                             </button>
                         </form>
                     </div>

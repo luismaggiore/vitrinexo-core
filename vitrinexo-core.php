@@ -1064,7 +1064,7 @@ function vx_admin_ajustes_page(): void {
                     <td>
                         <label>
                             <input type="checkbox" name="vx_auto_fundador" value="1" <?php checked( $auto_fundador, '1' ); ?>>
-                            Asignar badge de <strong>Socio Fundador</strong> a cada usuario que completa el onboarding
+                            Asignar badge de <strong>Afiliado Original</strong> a cada usuario que completa el onboarding
                         </label>
                         <p class="description">
                             El badge es <strong>permanente</strong> — una vez asignado, no se quita aunque cambien de plan.<br>

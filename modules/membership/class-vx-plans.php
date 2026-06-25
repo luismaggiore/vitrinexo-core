@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Planes de FACTURACIÓN de Vitrinexo.
  *
- * El badge "Socio Fundador" (vx_es_fundador) es INDEPENDIENTE del plan.
+ * El badge "Afiliado Original" (vx_es_fundador) es INDEPENDIENTE del plan.
  * duracion_dias=0 → sin vencimiento automático (plan gratuito indefinido).
  */
 class VX_Plans

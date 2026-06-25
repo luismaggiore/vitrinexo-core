@@ -2621,7 +2621,7 @@ add_shortcode( 'vx_configuracion', function (): string {
                 <strong>Tu acceso gratuito ha vencido.</strong><br>
                 Elige un plan para seguir conectando con la red Vitrinexo.
                 <?php if ( $es_fundador ) : ?>
-                Como Socio Fundador tienes acceso al <strong>precio preferencial</strong>.
+                Como Afiliado Original tienes acceso al <strong>precio preferencial</strong>.
                 <?php endif; ?>
               </div>
             </div>
@@ -2643,7 +2643,7 @@ add_shortcode( 'vx_configuracion', function (): string {
               <h2 class="section-title-sm mb-3">Tu membresía actual</h2>
               <div class="d-flex align-items-center gap-3 flex-wrap mb-3">
                 <?php if ( $es_fundador ) : ?>
-                <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:4px 12px;font-weight:700;font-size:14px">⭐ Socio Fundador</span>
+                <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:4px 12px;font-weight:700;font-size:14px">⭐ Afiliado Original</span>
                 <?php endif; ?>
                 <span class="badge-vx <?php echo $is_vencido ? 'badge-neutral' : 'badge-primary'; ?>" style="font-size:13px">
                   <?php echo esc_html( ucfirst( $plan_actual ) ); ?>
