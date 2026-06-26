@@ -18,9 +18,26 @@ jobs:
 
       - name: Test SSH connection
         run: |
+          echo "Checking SSH variables..."
+          test -n "$SSH_HOST" || (echo "SSH_HOST is empty" && exit 1)
+          test -n "$SSH_PORT" || (echo "SSH_PORT is empty" && exit 1)
+          test -n "$SSH_USERNAME" || (echo "SSH_USERNAME is empty" && exit 1)
+          test -n "$SSH_PASSWORD" || (echo "SSH_PASSWORD is empty" && exit 1)
+
+          echo "SSH_HOST length: ${#SSH_HOST}"
+          echo "SSH_PORT: $SSH_PORT"
+          echo "SSH_USERNAME: $SSH_USERNAME"
+
           sudo apt-get update
           sudo apt-get install -y sshpass
-          sshpass -p "${SSH_PASSWORD}" ssh -o StrictHostKeyChecking=no -p "${SSH_PORT}" "${SSH_USERNAME}@${SSH_HOST}" "pwd && ls -la"
+
+          sshpass -p "$SSH_PASSWORD" ssh \
+            -o StrictHostKeyChecking=no \
+            -o PreferredAuthentications=password \
+            -o PubkeyAuthentication=no \
+            -p "$SSH_PORT" \
+            "$SSH_USERNAME@$SSH_HOST" \
+            "pwd && ls -la"
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
