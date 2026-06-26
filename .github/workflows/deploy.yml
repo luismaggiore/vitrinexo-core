@@ -9,11 +9,25 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Deploy via SFTP
+      - name: Test SSH connection
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+          sshpass -p "${SSH_PASSWORD}" ssh -o StrictHostKeyChecking=no -p "${SSH_PORT}" "${SSH_USERNAME}@${SSH_HOST}" "pwd && ls -la"
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+
+      - name: Deploy via SSH/SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
