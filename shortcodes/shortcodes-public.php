@@ -28,7 +28,7 @@ add_shortcode( 'vx_landing', function (): string {
         <div class="container">
             <div class="section-landing-head">
                 <span class="section-landing-label">El problema</span>
-                <h2 class="section-landing-title">El networking<br><strong>está roto.</strong></h2>
+                <h2 class="section-landing-title">Mucho evento,<br><strong>poco nexo.</strong></h2>
                 <p class="section-landing-lead">Inscribirse en asociaciones, ir a diplomados, tomar cafés que nunca se concretan. Caro, lento y siempre con esa incómoda barrera de parecer fuera de lugar al ofrecer servicios de inmediato.</p>
             </div>
             <div class="problem-grid">
