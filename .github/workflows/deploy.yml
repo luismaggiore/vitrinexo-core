@@ -16,70 +16,42 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Test SSH connection
+      - name: Deploy y purge de caché
         run: |
           echo "Checking SSH variables..."
           test -n "$SSH_HOST" || (echo "SSH_HOST is empty" && exit 1)
           test -n "$SSH_PORT" || (echo "SSH_PORT is empty" && exit 1)
           test -n "$SSH_USERNAME" || (echo "SSH_USERNAME is empty" && exit 1)
           test -n "$SSH_PASSWORD" || (echo "SSH_PASSWORD is empty" && exit 1)
+          test -n "$SSH_TARGET" || (echo "SSH_TARGET is empty" && exit 1)
 
-          echo "SSH_HOST length: ${#SSH_HOST}"
-          echo "SSH_PORT: $SSH_PORT"
-          echo "SSH_USERNAME: $SSH_USERNAME"
+          sudo apt-get update -qq
+          sudo apt-get install -y sshpass rsync
 
-          sudo apt-get update
-          sudo apt-get install -y sshpass
+          echo "=== Desplegando archivos via rsync ==="
+          sshpass -p "$SSH_PASSWORD" rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -p $SSH_PORT" \
+            ./ \
+            "$SSH_USERNAME@$SSH_HOST:$SSH_TARGET/"
 
-          sshpass -p "$SSH_PASSWORD" ssh \
-            -o StrictHostKeyChecking=no \
-            -o PreferredAuthentications=password \
-            -o PubkeyAuthentication=no \
-            -p "$SSH_PORT" \
-            "$SSH_USERNAME@$SSH_HOST" \
-            "pwd && ls -la"
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
-
-      - name: Deploy via SSH/SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          source: "."
-          target: ${{ secrets.SSH_TARGET }}
-          rm: true
-          debug: true
-
-      - name: Purge WordPress cache via WP-CLI
-        run: |
-          sudo apt-get install -y sshpass
+          echo "=== Purgando caché de WordPress ==="
+          # WP root está 3 niveles arriba de .../wp-content/plugins/vitrinexo-core
+          WP_PATH="${SSH_TARGET%/wp-content/*}"
 
           sshpass -p "$SSH_PASSWORD" ssh \
             -o StrictHostKeyChecking=no \
             -o PreferredAuthentications=password \
             -o PubkeyAuthentication=no \
+            -o ConnectTimeout=30 \
             -p "$SSH_PORT" \
             "$SSH_USERNAME@$SSH_HOST" \
-            "
-              WP_PATH=\$(find ~ -maxdepth 5 -name 'wp-config.php' 2>/dev/null | head -1 | xargs -I{} dirname {})
-              if [ -z \"\$WP_PATH\" ]; then
-                echo 'wp-config.php not found, skipping cache purge'
-                exit 0
-              fi
-              echo \"WordPress encontrado en: \$WP_PATH\"
-              cd \"\$WP_PATH\"
-              wp cache flush --allow-root && echo 'Object cache flushed.' || true
-              wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed cache purged.' || true
-              echo 'Done.'
-            "
+            "cd '$WP_PATH' && \
+             wp cache flush --allow-root && echo 'Object cache flushed.' || true && \
+             wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed cache purged.' || true && \
+             echo 'Caché purgado correctamente.'"
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_TARGET: ${{ secrets.SSH_TARGET }}
