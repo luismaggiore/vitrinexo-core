@@ -17,38 +17,9 @@ add_shortcode( 'vx_landing', function (): string {
             <img width="200" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
             <h1 class="my-4">Tu <strong>vitrina</strong> para construir <strong>nexos</strong> de negocio.</h1>
             <div class="mt-5">
-                <p>Muestra lo que haces y encuentra lo que necesitas. Vitrinexo es la vitrina de servicios profesionales donde tu empresa gana visibilidad de forma inmediata y oportunidades de negocio, sin publicidad y entre pares.</p>
+                <p>Muestra lo que haces y encuentra lo que necesitas. Vitrinexo es la vitrina de servicios profesionales donde tu empresa gana visibilidad y oportunidades de negocio, sin publicidad y entre pares.</p>
             </div>
             <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill mt-4" href="<?php echo esc_url( $registro_url ); ?>"><?php echo esc_html( $cta_label ); ?></a>
-        </div>
-    </section>
-
-    <!-- ── Qué es Vitrinexo ── -->
-    <section class="section-landing" id="que-es">
-        <div class="container">
-            <div class="section-landing-head">
-                <span class="section-landing-label">Qué es Vitrinexo</span>
-                <h2 class="section-landing-title">Una <strong>vitrina</strong> para tu empresa.<br>Un <strong>nexo</strong> para el continente.</h2>
-            </div>
-            <div class="landing-split landing-split--reverse">
-                <div class="landing-split__copy">
-                    <p class="section-landing-lead mb-3">Vitrinexo es el directorio B2B de Hispanoamérica donde las personas detrás de las empresas se muestran, se encuentran y hacen negocios reales. Tu vitrina es tu empresa. Tu nexo eres tú.</p>
-                    <p class="section-landing-lead mb-3">No un marketplace genérico. No otro LinkedIn. La capa comercial que el continente necesitaba.</p>
-                    <p class="section-landing-lead"><strong>Vitrinea, Conecta y Colabora.</strong></p>
-                </div>
-                <div class="landing-split__cards">
-                    <div class="concept-card concept-card--primary">
-                        <span class="concept-card__icon"><i class="ti ti-layout-grid"></i></span>
-                        <h3 class="concept-card__title">Vitrina</h3>
-                        <p class="concept-card__desc">El espacio donde cada empresa se exhibe con detalle: quién es, qué hace, a quién atiende y en qué es experta.</p>
-                    </div>
-                    <div class="concept-card concept-card--secondary">
-                        <span class="concept-card__icon"><i class="ti ti-arrows-exchange"></i></span>
-                        <h3 class="concept-card__title">Nexo</h3>
-                        <p class="concept-card__desc">La persona detrás de la empresa. El vínculo humano que hace posible descubrir aliados, clientes y oportunidades en todo el continente.</p>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
