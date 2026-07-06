@@ -17,14 +17,7 @@ add_shortcode( 'vx_landing', function (): string {
             <img width="200" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
             <h1 class="my-4">Tu <strong>vitrina</strong> para construir <strong>nexos</strong> de negocio.</h1>
             <div class="mt-5">
-                <p>Una red densa, viva y conectada en Hispanoamérica donde las proyecciones se convierten en proyectos reales.</p>
-            </div>
-            <div class="card p-3 mt-4">
-                Aquí las empresas de servicios B2B construyen su reputación digital, se encuentran entre pares y hacen negocios en 18+ países. Un perfil. Un continente.
-            </div>
-            <div class="mt-4">
-                <span class="badge-vx badge-verified"><i class="ti ti-shield-check"></i> Empresas verificadas</span>
-                <span class="badge-vx badge-verified ms-2"><i class="ti ti-star"></i> Colaboración Real</span>
+                <p>Muestra lo que haces y encuentra lo que necesitas. Vitrinexo es la vitrina de servicios profesionales donde tu empresa gana visibilidad de forma inmediata y oportunidades de negocio, sin publicidad y entre pares.</p>
             </div>
             <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill mt-4" href="<?php echo esc_url( $registro_url ); ?>"><?php echo esc_html( $cta_label ); ?></a>
         </div>
