@@ -15,7 +15,7 @@ add_shortcode( 'vx_landing', function (): string {
         <canvas id="networkCanvas"></canvas>
         <div class="hero-content">
             <img width="200" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
-            <h1 class="my-4">Tu vitrina para construir nexos de negocio.</h1>
+            <h1 class="my-4">Tu <strong>vitrina</strong> para construir <strong>nexos</strong> de negocio.</h1>
             <div class="mt-5">
                 <p>Una red densa, viva y conectada en Hispanoamérica donde las proyecciones se convierten en proyectos reales.</p>
             </div>
