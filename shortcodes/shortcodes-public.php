@@ -23,6 +23,37 @@ add_shortcode( 'vx_landing', function (): string {
         </div>
     </section>
 
+    <!-- ── El problema ── -->
+    <section class="section-landing" id="el-problema">
+        <div class="container">
+            <div class="section-landing-head">
+                <span class="section-landing-label">El problema</span>
+                <h2 class="section-landing-title">El networking<br><strong>está roto.</strong></h2>
+                <p class="section-landing-lead">Inscribirse en asociaciones, ir a diplomados, tomar cafés que nunca se concretan. Caro, lento y siempre con esa incómoda barrera de parecer fuera de lugar al ofrecer servicios de inmediato.</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-card__icon"><i class="ti ti-cash-off"></i></div>
+                    <h3 class="step-card__title">Caro e ineficiente</h3>
+                    <p class="step-card__desc">Membresías, eventos, viajes. El retorno sobre el tiempo invertido en el networking tradicional es bajo y casi imposible de medir.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-card__icon"><i class="ti ti-mood-empty"></i></div>
+                    <h3 class="step-card__title">A veces incómodo</h3>
+                    <p class="step-card__desc">No todo el mundo tiene una personalidad extrovertida y vendedora. El formato tradicional penaliza a quienes prefieren que su trabajo hable por ellos.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-card__icon"><i class="ti ti-brand-linkedin"></i></div>
+                    <h3 class="step-card__title">LinkedIn no convierte</h3>
+                    <p class="step-card__desc">Ya nadie responde mensajes de desconocidos porque sabe que le van a querer vender algo. El medio mató al mensaje.</p>
+                </div>
+            </div>
+            <div class="card p-4 mt-4">
+                <p class="mb-0">VitriNexo cambia el contexto. Aquí todos están para hacer negocios — eso lo hace legítimo desde el inicio. No hay que disculparse por ofrecer lo que haces.</p>
+            </div>
+        </div>
+    </section>
+
     <!-- ── Cómo funciona ── -->
     <section class="section-landing section-landing--alt" id="como-funciona">
         <div class="container">
