@@ -31,7 +31,7 @@ add_shortcode( 'vx_landing', function (): string {
                 <h2 class="section-landing-title">El networking<br><strong>está roto.</strong></h2>
                 <p class="section-landing-lead">Inscribirse en asociaciones, ir a diplomados, tomar cafés que nunca se concretan. Caro, lento y siempre con esa incómoda barrera de parecer fuera de lugar al ofrecer servicios de inmediato.</p>
             </div>
-            <div class="steps-grid">
+            <div class="problem-grid">
                 <div class="step-card">
                     <div class="step-card__icon"><i class="ti ti-cash-off"></i></div>
                     <h3 class="step-card__title">Caro e ineficiente</h3>
@@ -49,7 +49,7 @@ add_shortcode( 'vx_landing', function (): string {
                 </div>
             </div>
             <div class="card p-4 mt-4">
-                <p class="mb-0">VitriNexo cambia el contexto. Aquí todos están para hacer negocios — eso lo hace legítimo desde el inicio. No hay que disculparse por ofrecer lo que haces.</p>
+                <p class="mb-0">VitriNexo cambia el contexto. Aquí todos están para hacer negocios, eso lo hace legítimo desde el inicio. No hay que disculparse por ofrecer lo que haces.</p>
             </div>
         </div>
     </section>
