@@ -68,19 +68,25 @@ add_shortcode( 'vx_landing', function (): string {
                     <div class="step-card__num">01</div>
                     <div class="step-card__icon"><i class="ti ti-id-badge-2"></i></div>
                     <h3 class="step-card__title">Crea tu ficha</h3>
-                    <p class="step-card__desc">Publicas quién eres, qué haces y qué buscas. En 15 minutos estás visible en el directorio B2B de Hispanoamérica.</p>
+                    <p class="step-card__desc">Publicas quién eres, qué haces y qué buscas.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-card__num">02</div>
-                    <div class="step-card__icon"><i class="ti ti-search"></i></div>
-                    <h3 class="step-card__title">Vitrinea el continente</h3>
-                    <p class="step-card__desc">Alguien ve tu perfil, o tú ves el de otra empresa, y se conecta la oportunidad. Filtros por país, rubro, tamaño y más.</p>
+                    <div class="step-card__icon"><i class="ti ti-shield-check"></i></div>
+                    <h3 class="step-card__title">Verificamos tus datos</h3>
+                    <p class="step-card__desc">En menos de un día hábil tu perfil estará visible para todos los miembros.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-card__num">03</div>
-                    <div class="step-card__icon"><i class="ti ti-send"></i></div>
-                    <h3 class="step-card__title">Haz negocios reales</h3>
-                    <p class="step-card__desc">Lo que era una idea se vuelve real. Contacto directo, sin intermediarios. Solo empresas con ficha completa ven a otras.</p>
+                    <div class="step-card__icon"><i class="ti ti-search"></i></div>
+                    <h3 class="step-card__title">Vitrinea el directorio</h3>
+                    <p class="step-card__desc">Identifica oportunidades y comienza a conectar.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-card__num">04</div>
+                    <div class="step-card__icon"><i class="ti ti-handshake"></i></div>
+                    <h3 class="step-card__title">Haz negocios</h3>
+                    <p class="step-card__desc">Contacto directo, sin intermediarios ni comisiones.</p>
                 </div>
             </div>
 
