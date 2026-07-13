@@ -90,46 +90,6 @@ add_shortcode( 'vx_landing', function (): string {
                 </div>
             </div>
 
-            <div class="match-visual">
-                <div class="match-visual__card">
-                    <div class="card">
-                        <div class="card-img-container" style="background:linear-gradient(135deg,var(--color-cyan-700),var(--color-green-500));height:100px;border-radius:8px;"></div>
-                        <div class="card-body">
-                            <div class="info mb-2">
-                                <h5 class="h6 py-0 my-0">Li</h5>
-                                <p class="member-company">OK Studio</p>
-                            </div>
-                            <p class="p-offers mb-1">Ofrece</p>
-                            <div class="d-flex flex-wrap gap-1">
-                                <span class="tag-vx tag-offers">desarrollo web</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="match-visual__arrow" aria-hidden="true">
-                    <svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" fill="none">
-                        <circle cx="6" cy="6" r="3" fill="var(--color-success)" />
-                        <line x1="6" y1="6" x2="114" y2="6" stroke="var(--color-success)" stroke-width="1" />
-                        <circle cx="114" cy="6" r="3" fill="var(--color-success)" />
-                    </svg>
-                    <span class="match-visual__label">Vitrinexo conecta</span>
-                </div>
-                <div class="match-visual__card">
-                    <div class="card">
-                        <div class="card-img-container" style="background:linear-gradient(135deg,var(--color-purple-600),var(--color-purple-400));height:100px;border-radius:8px;"></div>
-                        <div class="card-body">
-                            <div class="info mb-2">
-                                <h5 class="h6 py-0 my-0">Felipe</h5>
-                                <p class="member-company">Growth Partners</p>
-                            </div>
-                            <p class="p-seeks mb-1">Busca</p>
-                            <div class="d-flex flex-wrap gap-1">
-                                <span class="tag-vx tag-seeks">desarrollo web</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
