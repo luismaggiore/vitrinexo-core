@@ -50,7 +50,7 @@ add_shortcode( 'vx_landing', function (): string {
                 </div>
             </div>
             <div class="card p-4 mt-4">
-                <p class="mb-0">VitriNexo cambia el contexto. Aquí todos están para hacer negocios, eso lo hace legítimo desde el inicio. No hay que disculparse por ofrecer lo que haces.</p>
+                <p class="mb-0">Vitrinexo cambia el contexto. Aquí todos están para hacer negocios, eso lo hace legítimo desde el inicio. No hay que disculparse por ofrecer lo que haces.</p>
             </div>
         </div>
     </section>
