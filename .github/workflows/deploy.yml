@@ -18,23 +18,16 @@ jobs:
 
       - name: Deploy y purge de caché
         run: |
-          echo "Checking SSH variables..."
-          test -n "$SSH_HOST" || (echo "SSH_HOST is empty" && exit 1)
-          test -n "$SSH_PORT" || (echo "SSH_PORT is empty" && exit 1)
-          test -n "$SSH_USERNAME" || (echo "SSH_USERNAME is empty" && exit 1)
-          test -n "$SSH_PASSWORD" || (echo "SSH_PASSWORD is empty" && exit 1)
-          test -n "$SSH_TARGET" || (echo "SSH_TARGET is empty" && exit 1)
-
           sudo apt-get update -qq
           sudo apt-get install -y sshpass rsync
 
-          echo "=== Desplegando archivos via rsync ==="
+          echo "=== Desplegando archivos ==="
           sshpass -p "$SSH_PASSWORD" rsync -az --checksum --delete \
             -e "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -p $SSH_PORT" \
             ./ \
             "$SSH_USERNAME@$SSH_HOST:$SSH_TARGET/"
 
-          echo "=== Verificando archivo en servidor ==="
+          echo "=== Purgando caché ==="
           WP_PATH="${SSH_TARGET%/wp-content/*}"
 
           sshpass -p "$SSH_PASSWORD" ssh \
@@ -44,18 +37,10 @@ jobs:
             -o ConnectTimeout=30 \
             -p "$SSH_PORT" \
             "$SSH_USERNAME@$SSH_HOST" \
-            "echo 'SSH_TARGET apunta a:' && ls '$SSH_TARGET/shortcodes/' 2>/dev/null || echo 'directorio no encontrado' && \
-             grep -n 'Dices\|Dinos\|conecta los puntos' '$SSH_TARGET/shortcodes/shortcodes-public.php' 2>/dev/null || echo 'archivo no legible en SSH_TARGET' && \
-             echo '--- Purgando caché ---' && \
-             cd '$WP_PATH' && \
-             printf '<?php opcache_reset(); echo "ok"; @unlink(__FILE__);' > opcache-reset.php && \
-             chmod 644 opcache-reset.php && \
-             curl -sf --max-time 5 "http://127.0.0.1/opcache-reset.php" -H "Host: vitrinexo.com" 2>/dev/null && echo 'OPcache reset OK' || \
-             curl -sf --max-time 5 "https://vitrinexo.com/opcache-reset.php" --insecure 2>/dev/null && echo 'OPcache reset OK (ext)' || \
-             echo 'OPcache no disponible, continuando...' && \
-             rm -f opcache-reset.php && \
+            "cd '$WP_PATH' && \
              wp cache flush --allow-root 2>/dev/null && echo 'Object cache OK' || true && \
-             wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed OK' || true"
+             wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed OK' || true && \
+             echo 'Listo.'"
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}

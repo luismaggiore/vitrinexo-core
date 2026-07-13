@@ -1,4 +1,5 @@
 <?php
+// v2
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 // [vx_landing] — página de inicio pública
