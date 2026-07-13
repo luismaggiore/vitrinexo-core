@@ -16,7 +16,7 @@ add_shortcode( 'vx_landing', function (): string {
         <canvas id="networkCanvas"></canvas>
         <div class="hero-content">
             <img width="200" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
-            <h1 class="my-4">Tu <strong>vitrina</strong> para construir <strong>nexos</strong> de negocio.</h1>
+            <h1 class="my-4">Tu <strong>vitrina</strong> para construir<br><strong>nexos</strong> de negocio.</h1>
             <div class="mt-5">
                 <p>Muestra lo que haces y encuentra lo que necesitas. Vitrinexo es la vitrina de servicios profesionales donde tu empresa gana visibilidad y oportunidades de negocio, sin publicidad y entre pares.</p>
             </div>
@@ -29,7 +29,7 @@ add_shortcode( 'vx_landing', function (): string {
         <div class="container">
             <div class="section-landing-head">
                 <span class="section-landing-label">El problema</span>
-                <h2 class="section-landing-title">Mucho evento,<br><strong>poco nexo.</strong></h2>
+                <h2 class="section-landing-title">Mucho evento, <strong>poco nexo.</strong></h2>
                 <p class="section-landing-lead">Inscribirse en asociaciones, ir a diplomados, tomar cafés que nunca se concretan. Caro, lento y siempre con esa incómoda barrera de parecer fuera de lugar al ofrecer servicios de inmediato.</p>
             </div>
             <div class="problem-grid">
@@ -62,7 +62,7 @@ add_shortcode( 'vx_landing', function (): string {
         <div class="container">
             <div class="section-landing-head">
                 <span class="section-landing-label">Cómo funciona</span>
-                <h2 class="section-landing-title">Dinos qué ofreces.<br>Dinos qué buscas.<br><strong>Vitrinexo conecta los puntos para ti.</strong></h2>
+                <h2 class="section-landing-title">Dinos qué ofreces. Dinos qué buscas.<br><strong>Vitrinexo conecta los puntos para ti.</strong></h2>
                 <p class="section-landing-lead">Cada empresa y persona tiene un perfil con información verificada.</p>
             </div>
             <div class="problem-grid">
@@ -101,7 +101,7 @@ add_shortcode( 'vx_landing', function (): string {
             <div class="audience-block">
                 <div class="section-landing-head">
                     <span class="section-landing-label">Para quién es</span>
-                    <h2 class="section-landing-title">Hecho para empresas de servicios B2B<br>en <strong>expansión</strong></h2>
+                    <h2 class="section-landing-title">Hecho para empresas de servicios B2B en <strong>expansión</strong></h2>
                     <p class="section-landing-lead">¿Quieres crecer más allá de tus fronteras? Vitrinexo es para ti.</p>
                 </div>
                 <div class="audience-chips">
@@ -165,7 +165,7 @@ add_shortcode( 'vx_landing', function (): string {
             <div class="founder-block">
                 <div>
                     <span class="badge-vx badge-founder mb-3 d-inline-flex"><i class="ti ti-star"></i> Miembro Pionero · Gratis 3 meses</span>
-                    <h2 class="section-landing-title mb-3">Sé parte desde<br><strong>el primer día.</strong></h2>
+                    <h2 class="section-landing-title mb-3">Sé parte desde <strong>el primer día.</strong></h2>
                     <p class="section-landing-lead mb-4">Los primeros 100 Miembros Pioneros acceden gratis durante 3 meses al lanzamiento.</p>
                     <ul class="founder-benefits">
                         <li><i class="ti ti-circle-check"></i><span><strong>3 meses gratis</strong> desde el lanzamiento.</span></li>
