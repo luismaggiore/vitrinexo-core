@@ -38,9 +38,14 @@ jobs:
             -p "$SSH_PORT" \
             "$SSH_USERNAME@$SSH_HOST" \
             "cd '$WP_PATH' && \
+             echo '=== Ruta real del plugin según WP ===' && \
+             wp plugin list --fields=name,file --allow-root 2>/dev/null | grep vitrinexo && \
+             echo '=== SSH_TARGET apunta a ===' && \
+             ls '$SSH_TARGET/shortcodes/' 2>/dev/null | head -5 && \
+             echo '=== Línea 62 en SSH_TARGET ===' && \
+             sed -n '62p' '$SSH_TARGET/shortcodes/shortcodes-public.php' 2>/dev/null && \
              wp cache flush --allow-root 2>/dev/null && echo 'Object cache OK' || true && \
-             wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed OK' || true && \
-             echo 'Listo.'"
+             wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed OK' || true"
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
