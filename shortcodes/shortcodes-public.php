@@ -99,7 +99,7 @@ add_shortcode( 'vx_landing', function (): string {
     <section class="section-landing" id="para-quien">
         <div class="container">
             <div class="audience-block">
-                <div class="section-landing-head" style="margin-bottom:2rem">
+                <div class="section-landing-head">
                     <span class="section-landing-label">Para quién es</span>
                     <h2 class="section-landing-title">Hecho para empresas de servicios B2B<br>en <strong>expansión</strong></h2>
                     <p class="section-landing-lead">¿Quieres crecer más allá de tus fronteras? Vitrinexo es para ti.</p>
@@ -148,7 +148,7 @@ add_shortcode( 'vx_landing', function (): string {
     </section>
 
     <!-- ── 4Dinner ── -->
-    <section class="section-landing section-landing--alt" id="4dinner">
+    <section class="section-landing section-landing--alt section-landing--simple" id="4dinner">
         <div class="container">
             <div class="section-landing-head">
                 <span class="section-landing-label">Experiencia presencial</span>
