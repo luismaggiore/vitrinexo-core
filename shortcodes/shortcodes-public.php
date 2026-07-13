@@ -104,7 +104,7 @@ add_shortcode( 'vx_landing', function (): string {
                 </div>
                 <div class="audience-chips">
                     <?php
-                    $rubros = [ 'Marketing y publicidad','Tecnología y software','Consultoría y estrategia','Diseño y creatividad','Legal y compliance','Contabilidad y finanzas','Recursos humanos','Logística y supply chain','Salud y bienestar','Educación y capacitación','Construcción e ingeniería','Producción audiovisual','Traducción y localización' ];
+                    $rubros = [ 'Marketing y publicidad','Tecnología y software','Consultoría y estrategia','Diseño y creatividad','Legal y ética','Contabilidad y finanzas','Recursos humanos','Logística','Salud y bienestar','Educación y capacitación','Construcción e ingeniería','Producción audiovisual','Traducción y localización' ];
                     foreach ( $rubros as $rubro ) :
                     ?><span class="audience-chip"><?php echo esc_html( $rubro ); ?></span><?php endforeach; ?>
                 </div>
@@ -212,7 +212,7 @@ add_shortcode( 'vx_landing', function (): string {
                                     <label class="form-label-vx">Rubro *</label>
                                     <select class="form-control-vx" name="rubro" required>
                                         <option value="">Selecciona</option>
-                                        <?php foreach ( [ 'Marketing y publicidad','Tecnología y software','Consultoría y estrategia','Diseño y creatividad','Legal y compliance','Contabilidad y finanzas','Recursos humanos','Logística y supply chain','Salud y bienestar','Educación y capacitación','Construcción e ingeniería','Otro' ] as $r ) : ?>
+                                        <?php foreach ( [ 'Marketing y publicidad','Tecnología y software','Consultoría y estrategia','Diseño y creatividad','Legal y ética','Contabilidad y finanzas','Recursos humanos','Logística','Salud y bienestar','Educación y capacitación','Construcción e ingeniería','Otro' ] as $r ) : ?>
                                         <option><?php echo esc_html( $r ); ?></option>
                                         <?php endforeach; ?>
                                     </select>
