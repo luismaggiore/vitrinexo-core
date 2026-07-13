@@ -141,11 +141,17 @@ add_shortcode( 'vx_landing', function (): string {
                     <h3 class="multiverse-card__title">Vitrinexo <em>Senior</em></h3>
                     <p class="multiverse-card__desc">Ejecutivos con trayectoria consolidada: experiencia como ventaja competitiva.</p>
                 </div>
-                <div class="multiverse-card multiverse-card--dinner">
-                    <span class="multiverse-card__label">Experiencia presencial</span>
-                    <h3 class="multiverse-card__title">Vitrinexo <em>4Dinner</em></h3>
-                    <p class="multiverse-card__desc">Cenas de networking en formato íntimo: 4 personas, 1 mesa, 1 conversación real. Miércoles 8pm hora local, simultáneamente en múltiples ciudades.</p>
-                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── 4Dinner ── -->
+    <section class="section-landing section-landing--alt" id="4dinner">
+        <div class="container">
+            <div class="section-landing-head">
+                <span class="section-landing-label">Experiencia presencial</span>
+                <h2 class="section-landing-title">Vitrinexo <strong style="color:var(--color-green-500)">4Dinner</strong></h2>
+                <p class="section-landing-lead">Cenas de networking en formato íntimo: 4 personas, 1 mesa, 1 conversación real. Miércoles 8pm hora local, simultáneamente en múltiples ciudades.</p>
             </div>
         </div>
     </section>
