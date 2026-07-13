@@ -48,14 +48,14 @@ jobs:
              grep -n 'Dices\|Dinos\|conecta los puntos' '$SSH_TARGET/shortcodes/shortcodes-public.php' 2>/dev/null || echo 'archivo no legible en SSH_TARGET' && \
              echo '--- Purgando caché ---' && \
              cd '$WP_PATH' && \
-             echo '<?php opcache_reset(); echo "ok"; @unlink(__FILE__);' > opcache-reset.php && \
+             printf '<?php opcache_reset(); echo "ok"; @unlink(__FILE__);' > opcache-reset.php && \
+             chmod 644 opcache-reset.php && \
+             curl -sf --max-time 5 "http://127.0.0.1/opcache-reset.php" -H "Host: vitrinexo.com" 2>/dev/null && echo 'OPcache reset OK' || \
+             curl -sf --max-time 5 "https://vitrinexo.com/opcache-reset.php" --insecure 2>/dev/null && echo 'OPcache reset OK (ext)' || \
+             echo 'OPcache no disponible, continuando...' && \
+             rm -f opcache-reset.php && \
              wp cache flush --allow-root 2>/dev/null && echo 'Object cache OK' || true && \
              wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed OK' || true"
-
-          echo "=== Reseteando PHP OPcache via HTTP ==="
-          sleep 2
-          RESULT=$(curl -sf "https://vitrinexo.com/opcache-reset.php" 2>/dev/null || echo "no-opcache")
-          echo "OPcache reset result: $RESULT"
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
