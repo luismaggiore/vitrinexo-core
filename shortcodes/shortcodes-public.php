@@ -166,7 +166,7 @@ add_shortcode( 'vx_landing', function (): string {
                 <div>
                     <span class="badge-vx badge-founder mb-3 d-inline-flex"><i class="ti ti-star"></i> Miembro Pionero · Gratis 3 meses</span>
                     <h2 class="section-landing-title mb-3">Sé parte desde <strong>el primer día.</strong></h2>
-                    <p class="section-landing-lead mb-4">Los primeros 100 Miembros Pioneros acceden gratis durante 3 meses al lanzamiento.</p>
+                    <p class="section-landing-lead mb-4">Los 100 Miembros Pioneros acceden gratis durante 3 meses.</p>
                     <ul class="founder-benefits">
                         <li><i class="ti ti-circle-check"></i><span><strong>3 meses gratis</strong> desde el lanzamiento.</span></li>
                         <li><i class="ti ti-circle-check"></i><span>Distintivo <strong>"Miembro Pionero"</strong> visible en tu ficha para siempre.</span></li>
