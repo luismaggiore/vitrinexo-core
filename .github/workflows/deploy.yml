@@ -48,9 +48,14 @@ jobs:
              grep -n 'Dices\|Dinos\|conecta los puntos' '$SSH_TARGET/shortcodes/shortcodes-public.php' 2>/dev/null || echo 'archivo no legible en SSH_TARGET' && \
              echo '--- Purgando caché ---' && \
              cd '$WP_PATH' && \
-             wp eval 'opcache_reset(); echo "OPcache reset.\n";' --allow-root 2>/dev/null || true && \
+             echo '<?php opcache_reset(); echo "ok"; @unlink(__FILE__);' > opcache-reset.php && \
              wp cache flush --allow-root 2>/dev/null && echo 'Object cache OK' || true && \
              wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed OK' || true"
+
+          echo "=== Reseteando PHP OPcache via HTTP ==="
+          sleep 2
+          RESULT=$(curl -sf "https://vitrinexo.com/opcache-reset.php" 2>/dev/null || echo "no-opcache")
+          echo "OPcache reset result: $RESULT"
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
