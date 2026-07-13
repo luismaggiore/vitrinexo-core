@@ -124,7 +124,7 @@ add_shortcode( 'vx_landing', function (): string {
                 <div class="multiverse-card multiverse-card--main">
                     <span class="multiverse-card__label">Plataforma principal</span>
                     <h3 class="multiverse-card__title">Vitrinexo</h3>
-                    <p class="multiverse-card__desc">El directorio B2B general. La vitrina donde cada empresa de servicios se muestra y encuentra aliados, clientes y proveedores en toda Hispanoamérica.</p>
+                    <p class="multiverse-card__desc">El directorio B2B completo. La vitrina donde cada empresa de servicios se muestra y encuentra aliados, clientes y proveedores.</p>
                 </div>
                 <div class="multiverse-card multiverse-card--out2b">
                     <span class="multiverse-card__label">Comunidad vertical</span>
