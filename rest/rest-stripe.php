@@ -88,7 +88,7 @@ function vx_get_planes_config(): array {
             'moneda'      => $moneda,
             'intervalo'   => 'mes',
             'stripe_price_id' => get_option( 'vx_stripe_price_preferencial', '' ),
-            'descripcion' => 'Precio exclusivo para Socios Fundadores de Vitrinexo.',
+            'descripcion' => 'Precio exclusivo para Miembros Originales de Vitrinexo.',
             'solo_fundadores' => true,
         ],
     ];

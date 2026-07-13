@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Planes de FACTURACIÓN de Vitrinexo.
  *
- * El badge "Afiliado Original" (vx_es_fundador) es INDEPENDIENTE del plan.
+ * El badge "Miembro Original" (vx_es_fundador) es INDEPENDIENTE del plan.
  * duracion_dias=0 → sin vencimiento automático (plan gratuito indefinido).
  */
 class VX_Plans
@@ -36,7 +36,7 @@ class VX_Plans
             'precio'            => 1900,
             'duracion_dias'     => 30,
             'precio_renovacion' => 1900,
-            'descripcion'       => 'Precio exclusivo para Socios Fundadores',
+            'descripcion'       => 'Precio exclusivo para Miembros Originales',
             'solo_fundadores'   => true,
         ],
     ];

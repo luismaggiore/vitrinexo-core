@@ -7,7 +7,7 @@ add_shortcode( 'vx_landing', function (): string {
     $logo_url     = get_template_directory_uri() . '/assets/img/vitrinexo.svg';
     $is_logged    = is_user_logged_in();
     $registro_url = $is_logged ? home_url( '/dashboard/' ) : home_url( '/login/?tab=registro' );
-    $cta_label    = $is_logged ? 'Ir a mi dashboard' : 'Quiero ser Afiliado Original';
+    $cta_label    = $is_logged ? 'Ir a mi dashboard' : 'Quiero ser Miembro Original';
     ob_start();
     ?>
 
@@ -150,18 +150,18 @@ add_shortcode( 'vx_landing', function (): string {
         </div>
     </section>
 
-    <!-- ── Afiliado Original ── -->
+    <!-- ── Miembro Original ── -->
     <?php if ( ! $is_logged ) : ?>
     <section class="section-landing" id="socio-fundador">
         <div class="container">
             <div class="founder-block">
                 <div>
-                    <span class="badge-vx badge-founder mb-3 d-inline-flex"><i class="ti ti-star"></i> Afiliado Original · Gratis 6 meses</span>
+                    <span class="badge-vx badge-founder mb-3 d-inline-flex"><i class="ti ti-star"></i> Miembro Original · Gratis 3 meses</span>
                     <h2 class="section-landing-title mb-3">Sé parte desde<br><strong>el primer día.</strong></h2>
-                    <p class="section-landing-lead mb-4">Los primeros 100 Socios Fundadores acceden gratis durante 6 meses al lanzamiento y quedan inmortalizados en el "Salón de Fundadores". Cupos estrictamente limitados.</p>
+                    <p class="section-landing-lead mb-4">Los primeros 100 Miembros Originales acceden gratis durante 3 meses al lanzamiento y quedan inmortalizados en el "Salón de Originales". Cupos estrictamente limitados.</p>
                     <ul class="founder-benefits">
-                        <li><i class="ti ti-circle-check"></i><span><strong>6 meses gratis</strong> desde el lanzamiento.</span></li>
-                        <li><i class="ti ti-circle-check"></i><span>Distintivo <strong>"Afiliado Original"</strong> visible en tu ficha para siempre.</span></li>
+                        <li><i class="ti ti-circle-check"></i><span><strong>3 meses gratis</strong> desde el lanzamiento.</span></li>
+                        <li><i class="ti ti-circle-check"></i><span>Distintivo <strong>"Miembro Original"</strong> visible en tu ficha para siempre.</span></li>
                         <li><i class="ti ti-circle-check"></i><span>Acceso anticipado a <strong>Out2B, Woman, Senior</strong> y 4Dinner.</span></li>
                         <li><i class="ti ti-circle-check"></i><span><strong>Precio preferente de por vida</strong> al finalizar el período gratuito.</span></li>
                         <li><i class="ti ti-circle-check"></i><span><strong>Onboarding uno a uno</strong> con el equipo de Maggiore.</span></li>
@@ -174,7 +174,7 @@ add_shortcode( 'vx_landing', function (): string {
                         <p class="text-sm-muted mb-2">Te contactamos antes del lanzamiento. <strong>Sin spam.</strong></p>
                         <div class="alert-vx alert-warning mb-3" style="padding:8px 12px">
                             <i class="ti ti-clock" style="font-size:15px"></i>
-                            <span style="font-size:12px">Cupos limitados — <strong>primeros 100</strong> Socios Fundadores.</span>
+                            <span style="font-size:12px">Cupos limitados — <strong>primeros 100</strong> Miembros Originales.</span>
                         </div>
                         <form id="founderForm" action="https://formspree.io/f/mwvwnred" method="POST">
                             <div class="row g-2 mb-2">
@@ -219,7 +219,7 @@ add_shortcode( 'vx_landing', function (): string {
                                 </div>
                             </div>
                             <button type="submit" class="btn-vx btn-primary-vx btn-vx-md w-100 justify-content-center">
-                                <i class="ti ti-star"></i> Reservar mi lugar como Afiliado Original
+                                <i class="ti ti-star"></i> Reservar mi lugar como Miembro Original
                             </button>
                         </form>
                     </div>
