@@ -118,7 +118,7 @@ add_shortcode( 'vx_landing', function (): string {
             <div class="section-landing-head">
                 <span class="section-landing-label">El multiverso</span>
                 <h2 class="section-landing-title">Una plataforma.<br><strong>Muchas comunidades.</strong></h2>
-                <p class="section-landing-lead">Vitrinexo no es una sola comunidad: es un multiverso. Sub-comunidades verticales dentro de la misma plataforma, cada una con su propia afinidad y propósito.</p>
+                <p class="section-landing-lead">Vitrinexo no es una sola comunidad. Hay subcomunidades verticales dentro de la misma plataforma, cada una con su propia afinidad y propósito.</p>
             </div>
             <div class="multiverse-grid">
                 <div class="multiverse-card multiverse-card--main">
