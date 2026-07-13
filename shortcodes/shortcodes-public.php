@@ -86,7 +86,7 @@ add_shortcode( 'vx_landing', function (): string {
                 </div>
                 <div class="step-card">
                     <div class="step-card__num">04</div>
-                    <div class="step-card__icon"><i class="ti ti-handshake"></i></div>
+                    <div class="step-card__icon"><i class="ti ti-heart-handshake"></i></div>
                     <h3 class="step-card__title">Haz negocios</h3>
                     <p class="step-card__desc">Contacto directo, sin intermediarios ni comisiones.</p>
                 </div>
