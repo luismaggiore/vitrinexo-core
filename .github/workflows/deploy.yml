@@ -45,7 +45,11 @@ jobs:
             -o ConnectTimeout=30 \
             -p "$SSH_PORT" \
             "$SSH_USERNAME@$SSH_HOST" \
-            "cd '$WP_PATH' && \
+            "echo '--- Verificando archivo en servidor ---' && \
+             grep -n 'Dices\|Dinos\|conecta los puntos' '$SSH_TARGET/shortcodes/shortcodes-public.php' || echo 'archivo no encontrado en SSH_TARGET' && \
+             echo '--- Buscando plugin en servidor ---' && \
+             find ~ -maxdepth 6 -name 'shortcodes-public.php' 2>/dev/null && \
+             cd '$WP_PATH' && \
              wp cache flush --allow-root && echo 'Object cache flushed.' || true && \
              wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed cache purged.' || true && \
              echo 'Caché purgado correctamente.'"
