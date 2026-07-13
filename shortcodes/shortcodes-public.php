@@ -152,7 +152,7 @@ add_shortcode( 'vx_landing', function (): string {
         <div class="container">
             <div class="section-landing-head">
                 <span class="section-landing-label">Experiencia presencial</span>
-                <h2 class="section-landing-title">Vitrinexo <strong style="color:var(--color-green-500)">4Dinner</strong></h2>
+                <h2 class="section-landing-title">Vitrinexo <strong>4Dinner</strong></h2>
                 <p class="section-landing-lead">Cenas de networking en formato íntimo: 4 personas, 1 mesa, 1 conversación real. Miércoles 8pm hora local, simultáneamente en múltiples ciudades.</p>
             </div>
         </div>
