@@ -29,7 +29,7 @@ jobs:
           sudo apt-get install -y sshpass rsync
 
           echo "=== Desplegando archivos via rsync ==="
-          sshpass -p "$SSH_PASSWORD" rsync -az --delete \
+          sshpass -p "$SSH_PASSWORD" rsync -az --checksum --delete \
             -e "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -p $SSH_PORT" \
             ./ \
             "$SSH_USERNAME@$SSH_HOST:$SSH_TARGET/"
