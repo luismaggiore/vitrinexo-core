@@ -175,11 +175,10 @@ add_shortcode( 'vx_landing', function (): string {
                 </div>
                 <div class="founder-form-card">
                     <div id="founderFormView">
-                        <h3>Reserva tu lugar</h3>
-                        <p class="text-sm-muted mb-2">Te contactamos antes del lanzamiento. <strong>Sin spam.</strong></p>
+                        <h3>Inscríbete</h3>
                         <div class="alert-vx alert-warning mb-3" style="padding:8px 12px">
                             <i class="ti ti-clock" style="font-size:15px"></i>
-                            <span style="font-size:12px">Cupos limitados — <strong>primeros 100</strong> Miembros Pioneros.</span>
+                            <span style="font-size:12px">Cupos limitados como Miembros Pioneros <strong>(Primeros 100 inscritos)</strong></span>
                         </div>
                         <form id="founderForm" action="https://formspree.io/f/mwvwnred" method="POST">
                             <div class="row g-2 mb-2">
@@ -224,7 +223,7 @@ add_shortcode( 'vx_landing', function (): string {
                                 </div>
                             </div>
                             <button type="submit" class="btn-vx btn-primary-vx btn-vx-md w-100 justify-content-center">
-                                <i class="ti ti-star"></i> Reservar mi lugar como Miembro Pionero
+                                <i class="ti ti-arrow-right"></i> Empieza a Vitrinear
                             </button>
                         </form>
                     </div>
