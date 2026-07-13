@@ -162,9 +162,6 @@ add_shortcode( 'vx_landing', function (): string {
                     <ul class="founder-benefits">
                         <li><i class="ti ti-circle-check"></i><span><strong>3 meses gratis</strong> desde el lanzamiento.</span></li>
                         <li><i class="ti ti-circle-check"></i><span>Distintivo <strong>"Miembro Original"</strong> visible en tu ficha para siempre.</span></li>
-                        <li><i class="ti ti-circle-check"></i><span>Acceso anticipado a <strong>Out2B, Woman, Senior</strong> y 4Dinner.</span></li>
-                        <li><i class="ti ti-circle-check"></i><span><strong>Precio preferente de por vida</strong> al finalizar el período gratuito.</span></li>
-                        <li><i class="ti ti-circle-check"></i><span><strong>Onboarding uno a uno</strong> con el equipo de Maggiore.</span></li>
                         <li><i class="ti ti-circle-check"></i><span>Sin compromiso. Si no te convence, simplemente no renuevas.</span></li>
                     </ul>
                 </div>
