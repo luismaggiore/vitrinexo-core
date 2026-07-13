@@ -430,7 +430,7 @@ Desarrollado por <a href="https://www.maggiore.cl" style="color:#8ea5b8;">Maggio
             : 'Renovar mi plan';
 
         $msg_extra = $fundador
-            ? '<p style="font-size:14px;color:#1a2335;">Como <strong>Miembro Original</strong> tienes acceso a un precio especial permanente. Actívalo antes de que venza tu acceso gratuito para no perder ninguna conexión.</p>'
+            ? '<p style="font-size:14px;color:#1a2335;">Como <strong>Miembro Pionero</strong> tienes acceso a un precio especial permanente. Actívalo antes de que venza tu acceso gratuito para no perder ninguna conexión.</p>'
             : '';
 
         $content = self::h1( "$urgencia Tu plan vence el $fecha" )

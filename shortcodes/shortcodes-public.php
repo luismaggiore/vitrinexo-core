@@ -7,7 +7,7 @@ add_shortcode( 'vx_landing', function (): string {
     $logo_url     = get_template_directory_uri() . '/assets/img/vitrinexo.svg';
     $is_logged    = is_user_logged_in();
     $registro_url = $is_logged ? home_url( '/dashboard/' ) : home_url( '/login/?tab=registro' );
-    $cta_label    = $is_logged ? 'Ir a mi dashboard' : 'Quiero ser Miembro Original';
+    $cta_label    = $is_logged ? 'Ir a mi dashboard' : 'Quiero ser Miembro Pionero';
     ob_start();
     ?>
 
@@ -158,18 +158,18 @@ add_shortcode( 'vx_landing', function (): string {
         </div>
     </section>
 
-    <!-- ── Miembro Original ── -->
+    <!-- ── Miembro Pionero ── -->
     <?php if ( ! $is_logged ) : ?>
     <section class="section-landing" id="socio-fundador">
         <div class="container">
             <div class="founder-block">
                 <div>
-                    <span class="badge-vx badge-founder mb-3 d-inline-flex"><i class="ti ti-star"></i> Miembro Original · Gratis 3 meses</span>
+                    <span class="badge-vx badge-founder mb-3 d-inline-flex"><i class="ti ti-star"></i> Miembro Pionero · Gratis 3 meses</span>
                     <h2 class="section-landing-title mb-3">Sé parte desde<br><strong>el primer día.</strong></h2>
-                    <p class="section-landing-lead mb-4">Los primeros 100 Miembros Originales acceden gratis durante 3 meses al lanzamiento.</p>
+                    <p class="section-landing-lead mb-4">Los primeros 100 Miembros Pioneros acceden gratis durante 3 meses al lanzamiento.</p>
                     <ul class="founder-benefits">
                         <li><i class="ti ti-circle-check"></i><span><strong>3 meses gratis</strong> desde el lanzamiento.</span></li>
-                        <li><i class="ti ti-circle-check"></i><span>Distintivo <strong>"Miembro Original"</strong> visible en tu ficha para siempre.</span></li>
+                        <li><i class="ti ti-circle-check"></i><span>Distintivo <strong>"Miembro Pionero"</strong> visible en tu ficha para siempre.</span></li>
                         <li><i class="ti ti-circle-check"></i><span>Sin compromiso. Si no te convence, simplemente no renuevas.</span></li>
                     </ul>
                 </div>
@@ -179,7 +179,7 @@ add_shortcode( 'vx_landing', function (): string {
                         <p class="text-sm-muted mb-2">Te contactamos antes del lanzamiento. <strong>Sin spam.</strong></p>
                         <div class="alert-vx alert-warning mb-3" style="padding:8px 12px">
                             <i class="ti ti-clock" style="font-size:15px"></i>
-                            <span style="font-size:12px">Cupos limitados — <strong>primeros 100</strong> Miembros Originales.</span>
+                            <span style="font-size:12px">Cupos limitados — <strong>primeros 100</strong> Miembros Pioneros.</span>
                         </div>
                         <form id="founderForm" action="https://formspree.io/f/mwvwnred" method="POST">
                             <div class="row g-2 mb-2">
@@ -224,7 +224,7 @@ add_shortcode( 'vx_landing', function (): string {
                                 </div>
                             </div>
                             <button type="submit" class="btn-vx btn-primary-vx btn-vx-md w-100 justify-content-center">
-                                <i class="ti ti-star"></i> Reservar mi lugar como Miembro Original
+                                <i class="ti ti-star"></i> Reservar mi lugar como Miembro Pionero
                             </button>
                         </form>
                     </div>

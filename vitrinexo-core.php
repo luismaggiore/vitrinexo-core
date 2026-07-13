@@ -1043,7 +1043,7 @@ function vx_admin_ajustes_page(): void {
         <div style="display:flex;gap:16px;margin:16px 0;flex-wrap:wrap">
             <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px 24px;text-align:center">
                 <div style="font-size:28px;font-weight:700;color:#16a34a"><?php echo $total_fundadores; ?></div>
-                <div style="color:#6b7280;font-size:13px">Miembros Originales en total</div>
+                <div style="color:#6b7280;font-size:13px">Miembros Pioneros en total</div>
             </div>
             <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px 24px;text-align:center">
                 <div style="font-size:28px;font-weight:700;color:#2563eb"><?php echo $fundadores_gratis; ?></div>
@@ -1064,7 +1064,7 @@ function vx_admin_ajustes_page(): void {
                     <td>
                         <label>
                             <input type="checkbox" name="vx_auto_fundador" value="1" <?php checked( $auto_fundador, '1' ); ?>>
-                            Asignar badge de <strong>Miembro Original</strong> a cada usuario que completa el onboarding
+                            Asignar badge de <strong>Miembro Pionero</strong> a cada usuario que completa el onboarding
                         </label>
                         <p class="description">
                             El badge es <strong>permanente</strong> — una vez asignado, no se quita aunque cambien de plan.<br>

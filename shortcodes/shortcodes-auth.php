@@ -1387,7 +1387,7 @@ add_shortcode( 'vx_dashboard', function (): string {
             <!-- Fundadores -->
             <label class="btn-vx btn-ghost-vx btn-vx-sm" style="border:1px solid var(--color-border);cursor:pointer">
               <input type="checkbox" name="fundador" value="1" style="display:none">
-              <i class="ti ti-star"></i> Miembros Originales
+              <i class="ti ti-star"></i> Miembros Pioneros
             </label>
             <a href="<?php echo esc_url( home_url( '/directorio/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm ms-auto link-primary-color">
               Ver todo <i class="ti ti-arrow-right ms-1"></i>
@@ -1675,7 +1675,7 @@ add_shortcode( 'vx_directorio', function (): string {
             </select>
             <label class="btn-vx <?php echo $fundador ? 'btn-soft-secondary' : 'btn-ghost-vx'; ?> btn-vx-sm" style="cursor:pointer">
               <input type="checkbox" name="fundador" value="1" <?php checked( $fundador ); ?> onchange="this.form.submit()" style="display:none">
-              <i class="ti ti-star"></i> Miembros Originales
+              <i class="ti ti-star"></i> Miembros Pioneros
             </label>
             <?php if ( $pais || $industria || $fundador || $busqueda ) : ?>
             <a href="<?php echo esc_url( home_url( '/directorio/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm ms-auto">
@@ -2621,7 +2621,7 @@ add_shortcode( 'vx_configuracion', function (): string {
                 <strong>Tu acceso gratuito ha vencido.</strong><br>
                 Elige un plan para seguir conectando con la red Vitrinexo.
                 <?php if ( $es_fundador ) : ?>
-                Como Miembro Original tienes acceso al <strong>precio preferencial</strong>.
+                Como Miembro Pionero tienes acceso al <strong>precio preferencial</strong>.
                 <?php endif; ?>
               </div>
             </div>
@@ -2643,7 +2643,7 @@ add_shortcode( 'vx_configuracion', function (): string {
               <h2 class="section-title-sm mb-3">Tu membresía actual</h2>
               <div class="d-flex align-items-center gap-3 flex-wrap mb-3">
                 <?php if ( $es_fundador ) : ?>
-                <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:4px 12px;font-weight:700;font-size:14px">⭐ Miembro Original</span>
+                <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:4px 12px;font-weight:700;font-size:14px">⭐ Miembro Pionero</span>
                 <?php endif; ?>
                 <span class="badge-vx <?php echo $is_vencido ? 'badge-neutral' : 'badge-primary'; ?>" style="font-size:13px">
                   <?php echo esc_html( ucfirst( $plan_actual ) ); ?>
