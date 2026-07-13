@@ -48,6 +48,7 @@ jobs:
              grep -n 'Dices\|Dinos\|conecta los puntos' '$SSH_TARGET/shortcodes/shortcodes-public.php' 2>/dev/null || echo 'archivo no legible en SSH_TARGET' && \
              echo '--- Purgando caché ---' && \
              cd '$WP_PATH' && \
+             wp eval 'opcache_reset(); echo "OPcache reset.\n";' --allow-root 2>/dev/null || true && \
              wp cache flush --allow-root 2>/dev/null && echo 'Object cache OK' || true && \
              wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed OK' || true"
         env:
