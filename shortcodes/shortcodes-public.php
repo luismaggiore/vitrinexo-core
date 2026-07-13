@@ -14,13 +14,15 @@ add_shortcode( 'vx_landing', function (): string {
     <!-- ── Hero con canvas animado ── -->
     <section class="network-hero light">
         <canvas id="networkCanvas"></canvas>
-        <div class="hero-content">
-            <img width="200" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
-            <h1 class="my-4">Tu <strong>vitrina</strong> para construir<br><strong>nexos</strong> de negocio.</h1>
-            <div class="mt-5">
-                <p>Muestra lo que haces y encuentra lo que necesitas. Vitrinexo es la vitrina de servicios profesionales donde tu empresa gana visibilidad y oportunidades de negocio, sin publicidad y entre pares.</p>
+        <div class="container">
+            <div class="hero-content">
+                <img width="200" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
+                <h1 class="my-4">Tu <strong>vitrina</strong> para construir<br><strong>nexos</strong> de negocio.</h1>
+                <div class="mt-5">
+                    <p>Muestra lo que haces y encuentra lo que necesitas. Vitrinexo es la vitrina de servicios profesionales donde tu empresa gana visibilidad y oportunidades de negocio, sin publicidad y entre pares.</p>
+                </div>
+                <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill mt-4" href="<?php echo esc_url( $registro_url ); ?>"><?php echo esc_html( $cta_label ); ?></a>
             </div>
-            <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill mt-4" href="<?php echo esc_url( $registro_url ); ?>"><?php echo esc_html( $cta_label ); ?></a>
         </div>
     </section>
 
