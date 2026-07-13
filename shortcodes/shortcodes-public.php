@@ -59,7 +59,7 @@ add_shortcode( 'vx_landing', function (): string {
         <div class="container">
             <div class="section-landing-head">
                 <span class="section-landing-label">Cómo funciona</span>
-                <h2 class="section-landing-title">Dices qué ofreces.<br>Dices qué buscas.<br><strong>Vitrinexo conecta los puntos.</strong></h2>
+                <h2 class="section-landing-title">Dinos qué ofreces.<br>Dinos qué buscas.<br><strong>Vitrinexo conecta los puntos para ti.</strong></h2>
                 <p class="section-landing-lead">Cada empresa tiene un perfil verificado con información comercial real: a quién atiende, en qué puede ayudar y qué necesita.</p>
             </div>
             <div class="steps-grid">
