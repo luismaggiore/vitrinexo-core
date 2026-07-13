@@ -34,8 +34,7 @@ jobs:
             ./ \
             "$SSH_USERNAME@$SSH_HOST:$SSH_TARGET/"
 
-          echo "=== Purgando caché de WordPress ==="
-          # WP root está 3 niveles arriba de .../wp-content/plugins/vitrinexo-core
+          echo "=== Verificando archivo en servidor ==="
           WP_PATH="${SSH_TARGET%/wp-content/*}"
 
           sshpass -p "$SSH_PASSWORD" ssh \
@@ -45,14 +44,12 @@ jobs:
             -o ConnectTimeout=30 \
             -p "$SSH_PORT" \
             "$SSH_USERNAME@$SSH_HOST" \
-            "echo '--- Verificando archivo en servidor ---' && \
-             grep -n 'Dices\|Dinos\|conecta los puntos' '$SSH_TARGET/shortcodes/shortcodes-public.php' || echo 'archivo no encontrado en SSH_TARGET' && \
-             echo '--- Buscando plugin en servidor ---' && \
-             find ~ -maxdepth 6 -name 'shortcodes-public.php' 2>/dev/null && \
+            "echo 'SSH_TARGET apunta a:' && ls '$SSH_TARGET/shortcodes/' 2>/dev/null || echo 'directorio no encontrado' && \
+             grep -n 'Dices\|Dinos\|conecta los puntos' '$SSH_TARGET/shortcodes/shortcodes-public.php' 2>/dev/null || echo 'archivo no legible en SSH_TARGET' && \
+             echo '--- Purgando caché ---' && \
              cd '$WP_PATH' && \
-             wp cache flush --allow-root && echo 'Object cache flushed.' || true && \
-             wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed cache purged.' || true && \
-             echo 'Caché purgado correctamente.'"
+             wp cache flush --allow-root 2>/dev/null && echo 'Object cache OK' || true && \
+             wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed OK' || true"
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
