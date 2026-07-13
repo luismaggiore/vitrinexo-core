@@ -63,7 +63,7 @@ add_shortcode( 'vx_landing', function (): string {
                 <h2 class="section-landing-title">Dinos qué ofreces.<br>Dinos qué buscas.<br><strong>Vitrinexo conecta los puntos para ti.</strong></h2>
                 <p class="section-landing-lead">Cada empresa y persona tiene un perfil con información verificada.</p>
             </div>
-            <div class="steps-grid">
+            <div class="problem-grid">
                 <div class="step-card">
                     <div class="step-card__num">01</div>
                     <div class="step-card__icon"><i class="ti ti-id-badge-2"></i></div>
