@@ -60,7 +60,7 @@ add_shortcode( 'vx_landing', function (): string {
     </section>
 
     <!-- ── Cómo funciona ── -->
-    <section class="section-landing section-landing--alt network-section" id="como-funciona">
+    <section class="section-landing network-section" id="como-funciona">
         <canvas class="network-canvas"></canvas>
         <div class="container">
             <div class="section-landing-head">
