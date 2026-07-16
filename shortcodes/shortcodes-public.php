@@ -7,7 +7,7 @@ add_shortcode( 'vx_landing', function (): string {
     $logo_url     = get_template_directory_uri() . '/assets/img/vitrinexo.svg';
     $is_logged    = is_user_logged_in();
     $registro_url = $is_logged ? home_url( '/dashboard/' ) : home_url( '/login/?tab=registro' );
-    $cta_label    = $is_logged ? 'Ir a mi dashboard' : 'Quiero ser Miembro Pionero';
+    $cta_label    = $is_logged ? 'Ir a mi dashboard' : 'Quiero ser Pionero';
     ob_start();
     ?>
 
