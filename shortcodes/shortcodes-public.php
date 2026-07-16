@@ -13,7 +13,6 @@ add_shortcode( 'vx_landing', function (): string {
 
     <!-- ── Hero con canvas animado ── -->
     <section class="network-hero light">
-        <canvas class="network-canvas"></canvas>
         <div class="container">
             <div class="hero-content">
                 <img width="200" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
@@ -60,8 +59,7 @@ add_shortcode( 'vx_landing', function (): string {
     </section>
 
     <!-- ── Cómo funciona ── -->
-    <section class="section-landing network-section" id="como-funciona">
-        <canvas class="network-canvas"></canvas>
+    <section class="section-landing" id="como-funciona">
         <div class="container">
             <div class="section-landing-head">
                 <span class="section-landing-label">Cómo funciona</span>
