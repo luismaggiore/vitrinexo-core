@@ -38,6 +38,8 @@ jobs:
             -p "$SSH_PORT" \
             "$SSH_USERNAME@$SSH_HOST" \
             "cd '$WP_PATH' && \
+             echo '=== Configurando Resend API key ===' && \
+             wp option update vx_resend_api_key '$RESEND_API_KEY' --allow-root 2>/dev/null && echo 'Resend OK' || true && \
              echo '=== Test de renderizado PHP ===' && \
              wp eval 'echo do_shortcode(\"[vx_landing]\");' --allow-root 2>/dev/null | grep -o 'Dices\|Dinos' | head -1 || echo 'sin resultado' && \
              wp cache flush --allow-root 2>/dev/null && echo 'Object cache OK' || true && \
@@ -48,3 +50,4 @@ jobs:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
           SSH_TARGET: ${{ secrets.SSH_TARGET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}

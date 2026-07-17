@@ -3,10 +3,41 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Wrapper de email sobre wp_mail().
- * Abstracción del proveedor (FluentSMTP + Postmark).
+ * Abstracción del proveedor — Resend vía SMTP.
+ *
+ * SMTP: smtp.resend.com:465 (SSL)
+ * Usuario: resend
+ * Clave:   opción WP vx_resend_api_key
  */
 class VX_Mailer
 {
+    /**
+     * Registra el hook phpmailer_init para configurar Resend SMTP.
+     * Llamar desde el bootstrap del plugin (init o plugins_loaded).
+     */
+    public static function init(): void
+    {
+        add_action( 'phpmailer_init', [ self::class, 'configure_smtp' ] );
+        add_filter( 'wp_mail_from',      fn() => 'hola@vitrinexo.com' );
+        add_filter( 'wp_mail_from_name', fn() => 'Vitrinexo' );
+    }
+
+    /**
+     * Inyecta la configuración SMTP de Resend en PHPMailer.
+     */
+    public static function configure_smtp( \PHPMailer\PHPMailer\PHPMailer $mailer ): void
+    {
+        $api_key = get_option( 'vx_resend_api_key', '' );
+        if ( ! $api_key ) return;
+
+        $mailer->isSMTP();
+        $mailer->Host       = 'smtp.resend.com';
+        $mailer->SMTPAuth   = true;
+        $mailer->Port       = 465;
+        $mailer->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+        $mailer->Username   = 'resend';
+        $mailer->Password   = $api_key;
+    }
     const FROM_NAME  = 'Vitrinexo';
     const FROM_EMAIL = 'hola@vitrinexo.com';
 

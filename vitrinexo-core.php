@@ -112,6 +112,11 @@ foreach ( $vx_modules as $file ) {
     }
 }
 
+// Inicializar SMTP de Resend — debe registrarse antes del hook init
+if ( class_exists( 'VX_Mailer' ) ) {
+    VX_Mailer::init();
+}
+
 add_action( 'init', function () {
     if ( class_exists( 'VX_User_Meta' ) ) {
         VX_User_Meta::register();
