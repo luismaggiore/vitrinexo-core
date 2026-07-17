@@ -1,0 +1,31 @@
+name: Set WP Option
+on:
+  workflow_dispatch:
+    inputs:
+      option_name:
+        description: 'WP option name'
+        required: true
+      option_value:
+        description: 'WP option value'
+        required: true
+jobs:
+  set:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set option via WP-CLI
+        run: |
+          sudo apt-get install -y sshpass -q
+          WP_PATH="${SSH_TARGET%/wp-content/*}"
+          sshpass -p "$SSH_PASSWORD" ssh \
+            -o StrictHostKeyChecking=no -o PreferredAuthentications=password \
+            -o PubkeyAuthentication=no -o ConnectTimeout=30 -p "$SSH_PORT" \
+            "$SSH_USERNAME@$SSH_HOST" \
+            "cd '$WP_PATH' && wp option update '$OPTION_NAME' '$OPTION_VALUE' --allow-root && echo 'OK'"
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_TARGET: ${{ secrets.SSH_TARGET }}
+          OPTION_NAME: ${{ github.event.inputs.option_name }}
+          OPTION_VALUE: ${{ github.event.inputs.option_value }}
