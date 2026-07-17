@@ -116,7 +116,7 @@ add_shortcode( 'vx_landing', function (): string {
     </section>
 
     <!-- ── El multiverso ── -->
-    <section class="section-landing" id="multiverso">
+    <section class="section-landing" id="el-multiverso">
         <div class="container">
             <div class="section-landing-head">
                 <span class="section-landing-label">El multiverso</span>
@@ -161,7 +161,7 @@ add_shortcode( 'vx_landing', function (): string {
 
     <!-- ── Miembro Pionero ── -->
     <?php if ( ! $is_logged ) : ?>
-    <section class="section-landing" id="socio-fundador">
+    <section class="section-landing" id="afiliado-original">
         <div class="container">
             <div class="founder-block">
                 <div>
