@@ -213,7 +213,11 @@ add_shortcode( 'vx_confirmar_correo', function (): string {
         <div class="container-sm py-5">
             <div class="vx-flow-card text-center">
                 <div class="vx-flow-card__icon mb-4">
-                    <i class="ti ti-mail-check"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-primary)">
+                      <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                      <path d="m3 7 9 6 9-6"/>
+                      <path d="m9 14 2 2 4-4"/>
+                    </svg>
                 </div>
                 <h1 class="vx-flow-card__title">Revisa tu correo</h1>
                 <p class="vx-flow-card__desc">
