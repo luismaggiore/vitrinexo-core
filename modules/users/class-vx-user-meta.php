@@ -24,6 +24,8 @@ class VX_User_Meta
     const TIPO_VERIFICACION     = 'vx_tipo_verificacion';
     const TOKEN_CONFIRMACION    = 'vx_token_confirmacion';
     const TOKEN_EXPIRA          = 'vx_token_expira';
+    const TOKEN_APROBAR         = 'vx_token_aprobar';
+    const TOKEN_RECHAZAR        = 'vx_token_rechazar';
     const ONBOARDING_COMPLETO   = 'vx_onboarding_completo';
     const ONBOARDING_PASO       = 'vx_onboarding_paso';
 

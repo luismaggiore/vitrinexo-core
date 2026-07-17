@@ -3,6 +3,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 add_action( 'rest_api_init', function () {
 
+    // GET /aprobar-usuario — aprueba usuario vía token de email
+    register_rest_route( VX_REST_NAMESPACE, '/aprobar-usuario', [
+        'methods'             => 'GET',
+        'callback'            => 'vx_rest_aprobar_usuario',
+        'permission_callback' => '__return_true',
+        'args' => [
+            'uid'   => [ 'required' => true, 'sanitize_callback' => 'absint' ],
+            'token' => [ 'required' => true, 'sanitize_callback' => 'sanitize_text_field' ],
+        ],
+    ] );
+
+    // GET /rechazar-usuario — rechaza usuario vía token de email
+    register_rest_route( VX_REST_NAMESPACE, '/rechazar-usuario', [
+        'methods'             => 'GET',
+        'callback'            => 'vx_rest_rechazar_usuario',
+        'permission_callback' => '__return_true',
+        'args' => [
+            'uid'   => [ 'required' => true, 'sanitize_callback' => 'absint' ],
+            'token' => [ 'required' => true, 'sanitize_callback' => 'sanitize_text_field' ],
+        ],
+    ] );
+
     // GET /activar — valida token, activa cuenta, redirige
     register_rest_route( VX_REST_NAMESPACE, '/activar', [
         'methods'             => 'GET',
@@ -174,17 +196,51 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     VX_Verification::start( $user_id, $email );
 
     // Notificar a joao y marcia de cada nuevo registro
+    $token_aprobar  = bin2hex( random_bytes( 32 ) );
+    $token_rechazar = bin2hex( random_bytes( 32 ) );
+    update_user_meta( $user_id, VX_User_Meta::TOKEN_APROBAR,  $token_aprobar );
+    update_user_meta( $user_id, VX_User_Meta::TOKEN_RECHAZAR, $token_rechazar );
+
+    $url_aprobar  = rest_url( VX_REST_NAMESPACE . '/aprobar-usuario' ) . '?uid=' . $user_id . '&token=' . $token_aprobar;
+    $url_rechazar = rest_url( VX_REST_NAMESPACE . '/rechazar-usuario' ) . '?uid=' . $user_id . '&token=' . $token_rechazar;
+
     $admins  = [ 'joao@vitrinexo.com', 'marcia@vitrinexo.com' ];
     $asunto  = '[Vitrinexo] Nuevo registro: ' . $nombre . ' ' . $apellido;
-    $cuerpo  = '<p>Nuevo usuario registrado en Vitrinexo:</p>'
-             . '<ul>'
-             . '<li><strong>Nombre:</strong> ' . esc_html( $nombre . ' ' . $apellido ) . '</li>'
-             . '<li><strong>Email:</strong> ' . esc_html( $email ) . '</li>'
-             . '<li><strong>Empresa:</strong> ' . esc_html( $empresa ) . '</li>'
-             . '<li><strong>Cargo:</strong> ' . esc_html( $cargo ) . '</li>'
-             . '<li><strong>País:</strong> ' . esc_html( $pais ) . '</li>'
-             . ( $linkedin ? '<li><strong>LinkedIn:</strong> <a href="' . esc_url( $linkedin ) . '">' . esc_html( $linkedin ) . '</a></li>' : '' )
-             . '</ul>';
+    $cuerpo  = '
+<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+  <img src="' . esc_url( get_template_directory_uri() ) . '/assets/img/vitrinexo.svg" alt="Vitrinexo" style="height:28px;margin-bottom:24px">
+  <h2 style="color:#1a2335;margin-bottom:4px">Nuevo registro</h2>
+  <p style="color:#5e6b7a;margin-top:0">Alguien completó el formulario de inscripción.</p>
+
+  <table style="width:100%;border-collapse:collapse;margin:24px 0">
+    <tr><td style="padding:10px 12px;background:#f3f9fd;border-radius:6px 6px 0 0;font-weight:600;color:#3d444e;width:130px">Nombre</td>
+        <td style="padding:10px 12px;background:#f3f9fd;border-radius:6px 6px 0 0;color:#3d444e">' . esc_html( $nombre . ' ' . $apellido ) . '</td></tr>
+    <tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">Email</td>
+        <td style="padding:10px 12px;border-top:1px solid #d7e4ef;color:#3d444e">' . esc_html( $email ) . '</td></tr>
+    <tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">Empresa</td>
+        <td style="padding:10px 12px;border-top:1px solid #d7e4ef;color:#3d444e">' . esc_html( $empresa ) . '</td></tr>
+    <tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">Cargo</td>
+        <td style="padding:10px 12px;border-top:1px solid #d7e4ef;color:#3d444e">' . esc_html( $cargo ) . '</td></tr>
+    <tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">País</td>
+        <td style="padding:10px 12px;border-top:1px solid #d7e4ef;color:#3d444e">' . esc_html( $pais ) . '</td></tr>
+    ' . ( $linkedin ? '<tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">LinkedIn</td>
+        <td style="padding:10px 12px;border-top:1px solid #d7e4ef"><a href="' . esc_url( $linkedin ) . '" style="color:#00aeb8">' . esc_html( $linkedin ) . '</a></td></tr>' : '' ) . '
+  </table>
+
+  <div style="display:flex;gap:12px;margin:32px 0">
+    <a href="' . esc_url( $url_aprobar ) . '"
+       style="display:inline-block;background:#00aeb8;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;margin-right:12px">
+      ✓ Aprobar
+    </a>
+    <a href="' . esc_url( $url_rechazar ) . '"
+       style="display:inline-block;background:#ff4d82;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px">
+      ✗ Rechazar
+    </a>
+  </div>
+
+  <p style="color:#5e6b7a;font-size:13px">Estos botones son de un solo uso. Una vez utilizados no podrán volver a usarse.</p>
+</div>';
+
     $headers = [ 'Content-Type: text/html; charset=UTF-8', 'From: Vitrinexo <hola@vitrinexo.com>' ];
     foreach ( $admins as $admin ) {
         wp_mail( $admin, $asunto, $cuerpo, $headers );
@@ -200,4 +256,62 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
             ? home_url( '/confirmar-correo/' )
             : home_url( '/verificacion-pendiente/' ),
     ], 201 );
+}
+
+function vx_rest_aprobar_usuario( WP_REST_Request $request ): void
+{
+    $user_id = $request->get_param( 'uid' );
+    $token   = $request->get_param( 'token' );
+    $stored  = get_user_meta( $user_id, VX_User_Meta::TOKEN_APROBAR, true );
+
+    if ( ! $stored || ! hash_equals( $stored, $token ) ) {
+        wp_die( '<h2>Enlace inválido o ya utilizado.</h2>' );
+    }
+
+    delete_user_meta( $user_id, VX_User_Meta::TOKEN_APROBAR );
+    delete_user_meta( $user_id, VX_User_Meta::TOKEN_RECHAZAR );
+
+    $user = VX_User::get( $user_id );
+    if ( ! $user ) wp_die( '<h2>Usuario no encontrado.</h2>' );
+
+    if ( 'activo' === $user->get_estado() ) {
+        wp_die( '<h2>Este usuario ya estaba aprobado.</h2>' );
+    }
+
+    VX_Verification::approve_manual( $user_id );
+
+    wp_die( '<h2 style="font-family:sans-serif;color:#00aeb8">✓ Usuario aprobado</h2><p style="font-family:sans-serif">' . esc_html( $user->get_nombre_completo() ) . ' (' . esc_html( $user->get_email() ) . ') ha sido aprobado y recibirá el email de activación.</p>' );
+}
+
+function vx_rest_rechazar_usuario( WP_REST_Request $request ): void
+{
+    $user_id = $request->get_param( 'uid' );
+    $token   = $request->get_param( 'token' );
+    $stored  = get_user_meta( $user_id, VX_User_Meta::TOKEN_RECHAZAR, true );
+
+    if ( ! $stored || ! hash_equals( $stored, $token ) ) {
+        wp_die( '<h2>Enlace inválido o ya utilizado.</h2>' );
+    }
+
+    delete_user_meta( $user_id, VX_User_Meta::TOKEN_APROBAR );
+    delete_user_meta( $user_id, VX_User_Meta::TOKEN_RECHAZAR );
+
+    $user = VX_User::get( $user_id );
+    if ( ! $user ) wp_die( '<h2>Usuario no encontrado.</h2>' );
+
+    if ( 'rechazado' === $user->get_estado() ) {
+        wp_die( '<h2>Este usuario ya estaba rechazado.</h2>' );
+    }
+
+    update_user_meta( $user_id, VX_User_Meta::ESTADO, 'rechazado' );
+
+    // Notificar al usuario
+    VX_Mailer::send(
+        $user->get_email(),
+        'Tu solicitud en Vitrinexo',
+        'rechazo',
+        [ 'nombre' => $user->get_nombre() ]
+    );
+
+    wp_die( '<h2 style="font-family:sans-serif;color:#ff4d82">✗ Usuario rechazado</h2><p style="font-family:sans-serif">' . esc_html( $user->get_nombre_completo() ) . ' (' . esc_html( $user->get_email() ) . ') ha sido rechazado.</p>' );
 }
