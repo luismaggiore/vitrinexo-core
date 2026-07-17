@@ -12,54 +12,10 @@ jobs:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
           SSH_TARGET: ${{ secrets.SSH_TARGET }}
+          PHP_B64: "JHM9Z2V0X29wdGlvbigiZmx1ZW50bWFpbC1zZXR0aW5ncyIsW10pOyRpZD1hcnJheV9rZXlfZmlyc3QoJHNbImNvbm5lY3Rpb25zIl0pO2VjaG8gIk9sZDogIi4kc1siY29ubmVjdGlvbnMiXVskaWRdWyJwcm92aWRlcl9zZXR0aW5ncyJdWyJob3N0Il0uIgoiOyRzWyJjb25uZWN0aW9ucyJdWyRpZF1bInRpdGxlIl09IlJlc2VuZCBTTVRQIjskc1siY29ubmVjdGlvbnMiXVskaWRdWyJwcm92aWRlcl9zZXR0aW5ncyJdPVsicHJvdmlkZXIiPT4ic210cCIsInNlbmRlcl9uYW1lIj0+IlZpdHJpbmV4byIsInNlbmRlcl9lbWFpbCI9PiJob2xhQHZpdHJpbmV4by5jb20iLCJmb3JjZV9mcm9tX25hbWUiPT4ibm8iLCJmb3JjZV9mcm9tX2VtYWlsIj0+InllcyIsInJldHVybl9wYXRoIj0+InllcyIsImhvc3QiPT4ic210cC5yZXNlbmQuY29tIiwicG9ydCI9PiI0NjUiLCJhdXRoIj0+InllcyIsInVzZXJuYW1lIj0+InJlc2VuZCIsInBhc3N3b3JkIj0+InJlX0JIaExldkVlXzVHdDJIeVBUQ0VnSllTaUo4ckVWZG5hRiIsImF1dG9fdGxzIj0+Im5vIiwiZW5jcnlwdGlvbiI9PiJzc2wiLCJrZXlfc3RvcmUiPT4iZGIiXTt1cGRhdGVfb3B0aW9uKCJmbHVlbnRtYWlsLXNldHRpbmdzIiwkcyk7JHY9Z2V0X29wdGlvbigiZmx1ZW50bWFpbC1zZXR0aW5ncyIpO2VjaG8gIk5ldzogIi4kdlsiY29ubmVjdGlvbnMiXVskaWRdWyJwcm92aWRlcl9zZXR0aW5ncyJdWyJob3N0Il0uIgoiO2VjaG8gIlVzZXI6ICIuJHZbImNvbm5lY3Rpb25zIl1bJGlkXVsicHJvdmlkZXJfc2V0dGluZ3MiXVsidXNlcm5hbWUiXS4iCiI7ZWNobyAiRG9uZSBPSwoiOwo="
         run: |
           sudo apt-get install -y sshpass -q
           WP_PATH="${SSH_TARGET%/wp-content/*}"
-
-          # Write a PHP eval script locally then pipe it to the server
-          cat > /tmp/fix_smtp.php << 'PHP'
-$s = get_option('fluentmail-settings', []);
-$id = array_key_first($s['connections']);
-echo "Old host: " . $s['connections'][$id]['provider_settings']['host'] . "\n";
-$s['connections'][$id]['title'] = 'Resend SMTP';
-$s['connections'][$id]['provider_settings'] = array(
-  'provider'         => 'smtp',
-  'sender_name'      => 'Vitrinexo',
-  'sender_email'     => 'hola@vitrinexo.com',
-  'force_from_name'  => 'no',
-  'force_from_email' => 'yes',
-  'return_path'      => 'yes',
-  'host'             => 'smtp.resend.com',
-  'port'             => '465',
-  'auth'             => 'yes',
-  'username'         => 'resend',
-  'password'         => 're_BHhLevEe_5Gt2HyPTCEgJYSiJ8rEVdnaF',
-  'auto_tls'         => 'no',
-  'encryption'       => 'ssl',
-  'key_store'        => 'db',
-);
-update_option('fluentmail-settings', $s);
-$v = get_option('fluentmail-settings');
-echo "New host: " . $v['connections'][$id]['provider_settings']['host'] . "\n";
-echo "Username: " . $v['connections'][$id]['provider_settings']['username'] . "\n";
-echo "Done OK\n";
-PHP
-
-          # Copy file to server
-          sshpass -p "$SSH_PASSWORD" scp \
-            -o StrictHostKeyChecking=no \
-            -o PreferredAuthentications=password \
-            -o PubkeyAuthentication=no \
-            -P "$SSH_PORT" \
-            /tmp/fix_smtp.php \
-            "$SSH_USERNAME@$SSH_HOST:/tmp/fix_smtp.php"
-
-          # Run it with WP-CLI
-          sshpass -p "$SSH_PASSWORD" ssh \
-            -o StrictHostKeyChecking=no \
-            -o PreferredAuthentications=password \
-            -o PubkeyAuthentication=no \
-            -o ConnectTimeout=30 \
-            -p "$SSH_PORT" \
-            "$SSH_USERNAME@$SSH_HOST" \
-            "cd '$WP_PATH' && wp eval-file /tmp/fix_smtp.php --allow-root && rm /tmp/fix_smtp.php"
+          echo "$PHP_B64" | base64 -d > /tmp/fix_smtp.php
+          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -P "$SSH_PORT" /tmp/fix_smtp.php "$SSH_USERNAME@$SSH_HOST:/tmp/fix_smtp.php"
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=30 -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "cd '$WP_PATH' && wp eval-file /tmp/fix_smtp.php --allow-root && rm /tmp/fix_smtp.php"
