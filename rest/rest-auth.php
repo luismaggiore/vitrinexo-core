@@ -34,6 +34,8 @@ add_action( 'rest_api_init', function () {
             'pais'     => [ 'required' => true, 'sanitize_callback' => 'sanitize_text_field' ],
             'empresa'  => [ 'required' => true, 'sanitize_callback' => 'sanitize_text_field' ],
             'telefono' => [ 'required' => false, 'sanitize_callback' => 'sanitize_text_field' ],
+            'cargo'    => [ 'required' => false, 'sanitize_callback' => 'sanitize_text_field' ],
+            'linkedin' => [ 'required' => false, 'sanitize_callback' => 'sanitize_url' ],
         ],
     ] );
 
@@ -98,6 +100,8 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     $pais     = $request->get_param( 'pais' )     ?? '';
     $empresa  = $request->get_param( 'empresa' )  ?? '';
     $telefono = $request->get_param( 'telefono' ) ?? '';
+    $cargo    = $request->get_param( 'cargo' )    ?? '';
+    $linkedin = $request->get_param( 'linkedin' ) ?? '';
 
     if ( empty( trim( $pais ) ) ) {
         return new WP_REST_Response( [ 'success' => false, 'error' => 'pais_requerido', 'message' => 'El país es obligatorio.' ], 400 );
@@ -158,6 +162,14 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
         update_user_meta( $user_id, 'vx_empresa_inicial', $empresa );
     }
 
+    // Guardar cargo y LinkedIn
+    if ( $cargo ) {
+        update_user_meta( $user_id, 'vx_cargo_inicial', sanitize_text_field( $cargo ) );
+    }
+    if ( $linkedin ) {
+        update_user_meta( $user_id, VX_User_Meta::LINKEDIN, esc_url_raw( $linkedin ) );
+    }
+
     // Iniciar flujo de verificación
     VX_Verification::start( $user_id, $email );
 
@@ -169,7 +181,9 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
              . '<li><strong>Nombre:</strong> ' . esc_html( $nombre . ' ' . $apellido ) . '</li>'
              . '<li><strong>Email:</strong> ' . esc_html( $email ) . '</li>'
              . '<li><strong>Empresa:</strong> ' . esc_html( $empresa ) . '</li>'
+             . '<li><strong>Cargo:</strong> ' . esc_html( $cargo ) . '</li>'
              . '<li><strong>País:</strong> ' . esc_html( $pais ) . '</li>'
+             . ( $linkedin ? '<li><strong>LinkedIn:</strong> <a href="' . esc_url( $linkedin ) . '">' . esc_html( $linkedin ) . '</a></li>' : '' )
              . '</ul>';
     $headers = [ 'Content-Type: text/html; charset=UTF-8', 'From: Vitrinexo <hola@vitrinexo.com>' ];
     foreach ( $admins as $admin ) {

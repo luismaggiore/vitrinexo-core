@@ -115,6 +115,18 @@ add_shortcode( 'vx_login', function (): string {
                             </label>
                             <input type="text" id="reg-empresa" name="empresa" class="vx-form__input" required placeholder="Nombre de tu empresa o negocio">
                         </div>
+                        <div class="vx-form__group">
+                            <label class="vx-form__label" for="reg-cargo">
+                                Cargo <span style="color:var(--color-pink-500)">*</span>
+                            </label>
+                            <input type="text" id="reg-cargo" name="cargo" class="vx-form__input" required placeholder="Tu cargo o rol en la empresa">
+                        </div>
+                        <div class="vx-form__group">
+                            <label class="vx-form__label" for="reg-linkedin">
+                                LinkedIn <span style="color:var(--color-pink-500)">*</span>
+                            </label>
+                            <input type="url" id="reg-linkedin" name="linkedin" class="vx-form__input" required placeholder="https://linkedin.com/in/tu-perfil">
+                        </div>
                         <!-- Aceptación obligatoria de términos -->
                         <div class="vx-form__group mt-3">
                             <label class="d-flex align-items-start gap-2" style="cursor:pointer;font-size:14px;line-height:1.5">
