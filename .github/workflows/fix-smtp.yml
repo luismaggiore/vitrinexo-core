@@ -1,0 +1,37 @@
+name: Fix FluentSMTP Config
+on:
+  workflow_dispatch:
+    inputs:
+      resend_key:
+        description: 'Resend API Key'
+        required: true
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update FluentSMTP to use Resend
+        run: |
+          sudo apt-get install -y sshpass -q
+          WP_PATH="${SSH_TARGET%/wp-content/*}"
+          sshpass -p "$SSH_PASSWORD" ssh \
+            -o StrictHostKeyChecking=no -o PreferredAuthentications=password \
+            -o PubkeyAuthentication=no -o ConnectTimeout=30 -p "$SSH_PORT" \
+            "$SSH_USERNAME@$SSH_HOST" \
+            "cd '$WP_PATH' && wp eval '
+\$settings = get_option(\"fluentmail-settings\", []);
+\$conn_id = array_key_first(\$settings[\"connections\"]);
+echo \"Old: \" . \$settings[\"connections\"][\$conn_id][\"provider_settings\"][\"host\"] . \"\n\";
+\$settings[\"connections\"][\$conn_id][\"title\"] = \"Resend SMTP\";
+\$settings[\"connections\"][\$conn_id][\"provider_settings\"] = [\"provider\"=>\"smtp\",\"sender_name\"=>\"Vitrinexo\",\"sender_email\"=>\"hola@vitrinexo.com\",\"force_from_name\"=>\"no\",\"force_from_email\"=>\"yes\",\"return_path\"=>\"yes\",\"host\"=>\"smtp.resend.com\",\"port\"=>\"465\",\"auth\"=>\"yes\",\"username\"=>\"resend\",\"password\"=>\"$RESEND_KEY\",\"auto_tls\"=>\"no\",\"encryption\"=>\"ssl\",\"key_store\"=>\"db\"];
+update_option(\"fluentmail-settings\", \$settings);
+\$updated = get_option(\"fluentmail-settings\");
+echo \"New: \" . \$updated[\"connections\"][\$conn_id][\"provider_settings\"][\"host\"] . \"\n\";
+echo \"Done\n\";
+            ' --allow-root"
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_TARGET: ${{ secrets.SSH_TARGET }}
+          RESEND_KEY: ${{ github.event.inputs.resend_key }}
