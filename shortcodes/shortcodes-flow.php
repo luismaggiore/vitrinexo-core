@@ -232,6 +232,46 @@ add_shortcode( 'vx_confirmar_correo', function (): string {
             </div>
         </div>
     </div>
+    <script>
+    (function () {
+        var btn = document.getElementById('vx-reenviar-token');
+        var msg = document.getElementById('vx-reenviar-msg');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+            fetch('/wp-json/vx/v1/reenviar-token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': vxData?.nonce || '' },
+                credentials: 'same-origin',
+            })
+            .then(function(r){ return r.json(); })
+            .then(function(data) {
+                msg.classList.remove('d-none', 'vx-alert--error', 'vx-alert--success');
+                if (data.success) {
+                    msg.classList.add('vx-alert--success');
+                    msg.textContent = 'Correo reenviado. Revisa tu bandeja de entrada.';
+                    btn.textContent = 'Correo reenviado';
+                } else {
+                    msg.classList.add('vx-alert--error');
+                    msg.textContent = 'No se pudo reenviar. Intenta más tarde.';
+                    btn.disabled = false;
+                    btn.textContent = 'Reenviar correo';
+                }
+            })
+            .catch(function() {
+                msg.classList.remove('d-none');
+                msg.classList.add('vx-alert--error');
+                msg.textContent = 'Error de conexión. Intenta más tarde.';
+                btn.disabled = false;
+                btn.textContent = 'Reenviar correo';
+            });
+        });
+    })();
+    </script>
+            </div>
+        </div>
+    </div>
     <?php
     return ob_get_clean();
 } );

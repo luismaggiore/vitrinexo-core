@@ -161,6 +161,21 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     // Iniciar flujo de verificación
     VX_Verification::start( $user_id, $email );
 
+    // Notificar a joao y marcia de cada nuevo registro
+    $admins  = [ 'joao@vitrinexo.com', 'marcia@vitrinexo.com' ];
+    $asunto  = '[Vitrinexo] Nuevo registro: ' . $nombre . ' ' . $apellido;
+    $cuerpo  = '<p>Nuevo usuario registrado en Vitrinexo:</p>'
+             . '<ul>'
+             . '<li><strong>Nombre:</strong> ' . esc_html( $nombre . ' ' . $apellido ) . '</li>'
+             . '<li><strong>Email:</strong> ' . esc_html( $email ) . '</li>'
+             . '<li><strong>Empresa:</strong> ' . esc_html( $empresa ) . '</li>'
+             . '<li><strong>País:</strong> ' . esc_html( $pais ) . '</li>'
+             . '</ul>';
+    $headers = [ 'Content-Type: text/html; charset=UTF-8', 'From: Vitrinexo <hola@vitrinexo.com>' ];
+    foreach ( $admins as $admin ) {
+        wp_mail( $admin, $asunto, $cuerpo, $headers );
+    }
+
     $tipo_verificacion = VX_Domain_Helper::is_institutional( $email ) ? 'automatica' : 'manual';
 
     return new WP_REST_Response( [
