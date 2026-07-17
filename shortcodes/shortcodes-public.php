@@ -20,7 +20,7 @@ add_shortcode( 'vx_landing', function (): string {
                 <div class="mt-5">
                     <p>Muestra lo que haces y encuentra lo que necesitas. <span class="vx-name">Vitrinexo</span> es la vitrina de servicios profesionales donde tu empresa gana visibilidad y oportunidades de negocio, sin publicidad y entre pares.</p>
                 </div>
-                <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill mt-4" href="<?php echo esc_url( $registro_url ); ?>"><?php echo esc_html( $cta_label ); ?></a>
+                <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill mt-4" href="<?php echo $is_logged ? esc_url( home_url( '/dashboard/' ) ) : '#afiliado-original'; ?>"><?php echo esc_html( $cta_label ); ?></a>
             </div>
         </div>
     </section>
@@ -202,6 +202,14 @@ add_shortcode( 'vx_landing', function (): string {
                             <div class="mb-2">
                                 <label class="form-label-vx">Empresa *</label>
                                 <input class="form-control-vx" name="empresa" required placeholder="Nombre de tu empresa" />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label-vx">Cargo *</label>
+                                <input class="form-control-vx" name="cargo" required placeholder="Tu cargo o rol en la empresa" />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label-vx">LinkedIn *</label>
+                                <input type="url" class="form-control-vx" name="linkedin" required placeholder="https://linkedin.com/in/tu-perfil" />
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
