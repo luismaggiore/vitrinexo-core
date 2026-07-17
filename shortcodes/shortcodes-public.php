@@ -149,7 +149,7 @@ add_shortcode( 'vx_landing', function (): string {
     </section>
 
     <!-- ── 4Dinner ── -->
-    <section class="section-landing section-landing--alt section-landing--simple" id="cuatro-dinner">
+    <section class="section-landing section-landing--alt section-landing--simple" id="for-dinner">
         <div class="container">
             <div class="section-landing-head">
                 <span class="section-landing-label">Experiencia presencial</span>
