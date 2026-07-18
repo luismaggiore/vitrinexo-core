@@ -5,18 +5,17 @@ jobs:
   fix:
     runs-on: ubuntu-latest
     steps:
-      - name: Update FluentSMTP to Resend SMTP
+      - name: Reset and recreate FluentSMTP with Resend
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
           SSH_TARGET: ${{ secrets.SSH_TARGET }}
-          PHP_B64: "PD9waHAKJHMgPSBnZXRfb3B0aW9uKCJmbHVlbnRtYWlsLXNldHRpbmdzIiwgW10pOwokbmV3X2lkID0gInZ4X3Jlc2VuZF9jb25uIjsKJHNbImNvbm5lY3Rpb25zIl0gPSBbCiAgJG5ld19pZCA9PiBbCiAgICAidGl0bGUiID0+ICJSZXNlbmQgU01UUCIsCiAgICAicHJvdmlkZXJfc2V0dGluZ3MiID0+IFsKICAgICAgInByb3ZpZGVyIiA9PiAic210cCIsCiAgICAgICJzZW5kZXJfbmFtZSIgPT4gIlZpdHJpbmV4byIsCiAgICAgICJzZW5kZXJfZW1haWwiID0+ICJob2xhQHZpdHJpbmV4by5jb20iLAogICAgICAiZm9yY2VfZnJvbV9uYW1lIiA9PiAibm8iLAogICAgICAiZm9yY2VfZnJvbV9lbWFpbCIgPT4gInllcyIsCiAgICAgICJyZXR1cm5fcGF0aCIgPT4gInllcyIsCiAgICAgICJob3N0IiA9PiAic210cC5yZXNlbmQuY29tIiwKICAgICAgInBvcnQiID0+ICI0NjUiLAogICAgICAiYXV0aCIgPT4gInllcyIsCiAgICAgICJ1c2VybmFtZSIgPT4gInJlc2VuZCIsCiAgICAgICJwYXNzd29yZCIgPT4gInJlX0JIaExldkVlXzVHdDJIeVBUQ0VnSllTaUo4ckVWZG5hRiIsCiAgICAgICJhdXRvX3RscyIgPT4gIm5vIiwKICAgICAgImVuY3J5cHRpb24iID0+ICJzc2wiLAogICAgICAia2V5X3N0b3JlIiA9PiAiZGIiLAogICAgXQogIF0KXTsKJHNbIm1hcHBpbmdzIl0gPSBbImhvbGFAdml0cmluZXhvLmNvbSIgPT4gJG5ld19pZF07CnVwZGF0ZV9vcHRpb24oImZsdWVudG1haWwtc2V0dGluZ3MiLCAkcyk7CiR2ID0gZ2V0X29wdGlvbigiZmx1ZW50bWFpbC1zZXR0aW5ncyIpOwplY2hvICJDb25uZWN0aW9uczogIiAuIGNvdW50KCR2WyJjb25uZWN0aW9ucyJdKSAuIFBIUF9FT0w7CmVjaG8gIkhvc3Q6ICIgLiAkdlsiY29ubmVjdGlvbnMiXVskbmV3X2lkXVsicHJvdmlkZXJfc2V0dGluZ3MiXVsiaG9zdCJdIC4gUEhQX0VPTDsKZWNobyAiRG9uZSBPSyIgLiBQSFBfRU9MOwo="
+          PHP_B64: "PD9waHAKZGVsZXRlX29wdGlvbigiZmx1ZW50bWFpbC1zZXR0aW5ncyIpOwokbmV3X2lkID0gInZ4X3Jlc2VuZF8iOwokc2V0dGluZ3MgPSBbCiAgImNvbm5lY3Rpb25zIiA9PiBbCiAgICAkbmV3X2lkID0+IFsKICAgICAgInRpdGxlIiA9PiAiUmVzZW5kIFNNVFAiLAogICAgICAicHJvdmlkZXJfc2V0dGluZ3MiID0+IFsKICAgICAgICAicHJvdmlkZXIiID0+ICJzbXRwIiwKICAgICAgICAic2VuZGVyX25hbWUiID0+ICJWaXRyaW5leG8iLAogICAgICAgICJzZW5kZXJfZW1haWwiID0+ICJob2xhQHZpdHJpbmV4by5jb20iLAogICAgICAgICJmb3JjZV9mcm9tX25hbWUiID0+ICJubyIsCiAgICAgICAgImZvcmNlX2Zyb21fZW1haWwiID0+ICJ5ZXMiLAogICAgICAgICJyZXR1cm5fcGF0aCIgPT4gInllcyIsCiAgICAgICAgImhvc3QiID0+ICJzbXRwLnJlc2VuZC5jb20iLAogICAgICAgICJwb3J0IiA9PiAiNDY1IiwKICAgICAgICAiYXV0aCIgPT4gInllcyIsCiAgICAgICAgInVzZXJuYW1lIiA9PiAicmVzZW5kIiwKICAgICAgICAicGFzc3dvcmQiID0+ICJyZV9CSGhMZXZFZV81R3QySHlQVENFZ0pZU2lKOHJFVmRuYUYiLAogICAgICAgICJhdXRvX3RscyIgPT4gIm5vIiwKICAgICAgICAiZW5jcnlwdGlvbiIgPT4gInNzbCIsCiAgICAgICAgImtleV9zdG9yZSIgPT4gImRiIiwKICAgICAgXQogICAgXQogIF0sCiAgIm1hcHBpbmdzIiA9PiBbImhvbGFAdml0cmluZXhvLmNvbSIgPT4gJG5ld19pZF0sCiAgIm1pc2MiID0+IFsibG9nX2VtYWlscyIgPT4gInllcyIsICJsb2dfc2F2ZWRfaW50ZXJ2YWxfZGF5cyIgPT4gMTQsICJkZWZhdWx0X2Nvbm5lY3Rpb24iID0+ICRuZXdfaWRdLApdOwphZGRfb3B0aW9uKCJmbHVlbnRtYWlsLXNldHRpbmdzIiwgJHNldHRpbmdzKTsKJHYgPSBnZXRfb3B0aW9uKCJmbHVlbnRtYWlsLXNldHRpbmdzIik7CmVjaG8gIkNvbm5lY3Rpb25zOiAiIC4gY291bnQoJHZbImNvbm5lY3Rpb25zIl0pIC4gUEhQX0VPTDsKZWNobyAiSG9zdDogIiAuICR2WyJjb25uZWN0aW9ucyJdWyRuZXdfaWRdWyJwcm92aWRlcl9zZXR0aW5ncyJdWyJob3N0Il0gLiBQSFBfRU9MOwplY2hvICJEb25lIE9LIiAuIFBIUF9FT0w7Cg=="
         run: |
           sudo apt-get install -y sshpass -q
           WP_PATH="${SSH_TARGET%/wp-content/*}"
           printf '%s' "$PHP_B64" | base64 -d > /tmp/fix_smtp.php
-          echo "=== PHP starts with: ===" && head -1 /tmp/fix_smtp.php
           sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -P "$SSH_PORT" /tmp/fix_smtp.php "$SSH_USERNAME@$SSH_HOST:/tmp/fix_smtp.php"
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=30 -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "cd '$WP_PATH' && wp eval-file /tmp/fix_smtp.php --allow-root 2>&1; echo exit:$?; rm /tmp/fix_smtp.php"
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=30 -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "cd '$WP_PATH' && wp eval-file /tmp/fix_smtp.php --allow-root 2>&1; echo 'exit:'$?; rm /tmp/fix_smtp.php"
