@@ -133,9 +133,7 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
         return new WP_REST_Response( [ 'success' => false, 'error' => 'empresa_requerida', 'message' => 'El nombre de empresa es obligatorio.' ], 400 );
     }
 
-    if ( empty( trim( $telefono ) ) ) {
-        return new WP_REST_Response( [ 'success' => false, 'error' => 'telefono_requerido', 'message' => 'El teléfono es obligatorio.' ], 400 );
-    }
+    // telefono es opcional — no se valida
 
     if ( ! is_email( $email ) ) {
         return new WP_REST_Response( [ 'success' => false, 'error' => 'email_invalido' ], 400 );
