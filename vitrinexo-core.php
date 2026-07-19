@@ -193,15 +193,45 @@ add_action( 'wp_dashboard_setup', function () {
 // Quitar el panel "¡Bienvenido a WordPress!"
 remove_action( 'welcome_panel', 'wp_welcome_panel' );
 
+// 4. Suprimir avisos (notices) de Hostinger y LiteSpeed — no relevantes para Vitrinexo
+add_action( 'admin_head', function () {
+    echo '<style>
+        .notice.hostinger-notice,
+        .notice[class*="hostinger"],
+        .hostinger-reach-notice,
+        #hostinger-reach-dashboard-widget,
+        .litespeed_icon.notice,
+        .litespeed-notice,
+        div[class*="litespeed"][class*="notice"] {
+            display: none !important;
+        }
+    </style>';
+} );
+
 // 3. Toolbar (barra superior) — quitar elementos innecesarios
 add_action( 'admin_bar_menu', function ( $bar ) {
-    $bar->remove_node( 'wp-logo' );              // Logo WordPress
-    $bar->remove_node( 'new-content' );          // Botón Añadir
-    $bar->remove_node( 'comments' );             // Icono comentarios
-    $bar->remove_node( 'updates' );              // Icono actualizaciones
-    $bar->remove_node( 'hostinger' );            // Hostinger (slug)
-    $bar->remove_node( 'hostinger_admin_bar' );  // Hostinger (ID real en toolbar)
-    $bar->remove_node( 'litespeed-menu' );       // LiteSpeed en toolbar
+    $bar->remove_node( 'wp-logo' );
+    $bar->remove_node( 'new-content' );
+    $bar->remove_node( 'comments' );
+    $bar->remove_node( 'updates' );
+
+    // Todos los nodos de Hostinger en la toolbar
+    foreach ( [
+        'hostinger_admin_bar',
+        'hostinger-easy-onboarding-admin-bar-onboarding',
+        'hostinger-tools-admin-bar',
+        'hostinger-ai-assistant-ai-content-creator',
+        'hostinger-reach',
+        'hostinger_hpanel_home_admin_bar',
+        'hostinger_website_list_admin_bar',
+        'hostinger_billings_admin_bar',
+    ] as $node ) {
+        $bar->remove_node( $node );
+    }
+
+    // LiteSpeed en la toolbar
+    $bar->remove_node( 'litespeed-menu' );
+    $bar->remove_node( 'litespeed-bar-manage' );
 }, 999 );
 
 add_action( 'admin_menu', function () {
