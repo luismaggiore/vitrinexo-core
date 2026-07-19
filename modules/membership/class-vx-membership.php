@@ -120,7 +120,7 @@ class VX_Membership
      * Activa un plan de facturación.
      *
      * Planes válidos: gratuito | mensual | anual | preferencial
-     * El badge de Fundador (vx_es_fundador) es INDEPENDIENTE — no se modifica aquí.
+     * El distintivo Pionero (vx_es_fundador) es INDEPENDIENTE — no se modifica aquí.
      *
      * @param string $plan    Identificador del plan de facturación
      * @param int    $expiry  Timestamp de vencimiento (0 = sin vencimiento)

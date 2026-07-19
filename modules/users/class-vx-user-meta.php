@@ -30,7 +30,7 @@ class VX_User_Meta
     const ONBOARDING_COMPLETO   = 'vx_onboarding_completo';
     const ONBOARDING_PASO       = 'vx_onboarding_paso';
 
-    // Membresía — plan de facturación (independiente del badge de fundador)
+    // Membresía — plan de facturación (independiente del distintivo Pionero)
     const PLAN                  = 'vx_plan';           // gratuito | mensual | anual | preferencial
     const PLAN_ESTADO           = 'vx_plan_estado';    // activo | vencido
     const PLAN_INICIO           = 'vx_plan_inicio';

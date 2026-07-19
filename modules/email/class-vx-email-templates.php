@@ -455,7 +455,7 @@ Desarrollado por <a href="https://www.maggiore.cl" style="color:#8ea5b8;">Maggio
         $fecha     = esc_html( $d['fecha_vencimiento'] ?? '' );
         $fundador  = ! empty( $d['es_fundador'] );
 
-        $badge     = $fundador ? ' <span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700;">⭐ Fundador</span>' : '';
+        $badge     = $fundador ? ' <span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700;">⭐ Pionero</span>' : '';
 
         $content = self::h1( "¡Tu plan $plan está activo, $nombre!" )
             . self::p( 'Bienvenido de vuelta. Tienes acceso completo a Vitrinexo' . ( $fecha ? ' hasta el <strong>' . $fecha . '</strong>' : ' sin fecha de vencimiento' ) . '.' . $badge )
@@ -648,7 +648,7 @@ Desarrollado por <a href="https://www.maggiore.cl" style="color:#8ea5b8;">Maggio
         $content = self::h1( "Lamentamos verte partir, $nombre" )
             . self::p( "Tu cuenta de Vitrinexo asociada a <strong>$email</strong> ha sido eliminada de forma permanente junto con todos tus datos, empresas y conexiones." )
             . '<div style="background:#f8fafc;border-radius:8px;padding:14px 16px;margin:20px 0;">'
-            . '<p style="margin:0;font-size:13px;color:#5e6b7a;">Si esto fue un error o quieres volver en el futuro, puedes registrarte nuevamente en vitrinexo.com. Tu badge Fundador no puede ser recuperado.</p>'
+            . '<p style="margin:0;font-size:13px;color:#5e6b7a;">Si esto fue un error o quieres volver en el futuro, puedes registrarte nuevamente en vitrinexo.com. Tu distintivo Pionero no puede ser recuperado.</p>'
             . '</div>'
             . self::p( 'Gracias por haber sido parte de la red. Si tienes comentarios sobre por qué decidiste irte, escríbenos a <a href="mailto:hola@vitrinexo.com" style="color:#2cced6;">hola@vitrinexo.com</a> — nos ayuda a mejorar.' );
 

@@ -1136,7 +1136,7 @@ function vx_admin_ajustes_page(): void {
             <table class="form-table">
 
                 <tr>
-                    <th>Badge Fundador automático</th>
+                    <th>Distintivo Pionero automático</th>
                     <td>
                         <label>
                             <input type="checkbox" name="vx_auto_fundador" value="1" <?php checked( $auto_fundador, '1' ); ?>>
@@ -1256,9 +1256,9 @@ function vx_admin_ajustes_page(): void {
         <hr>
         <h2>Flujo de pagos</h2>
         <ol style="max-width:640px;line-height:1.8">
-            <li><strong>Ahora (beta)</strong>: los usuarios completan el onboarding → reciben badge Fundador permanente → plan gratuito sin fecha de vencimiento.</li>
+            <li><strong>Ahora (beta)</strong>: los usuarios completan el onboarding → reciben distintivo Pionero permanente → plan gratuito sin fecha de vencimiento.</li>
             <li><strong>Cuando decidas cobrar</strong>: fija una fecha de fin del plan gratuito y marca "Aplicar a todos". Los Fundadores reciben aviso y pueden suscribirse al precio preferencial desde su configuración.</li>
-            <li><strong>Usuarios nuevos post-fundador</strong>: no reciben badge (auto-fundador desactivado) → plan gratuito con acceso limitado → para acceso completo deben suscribirse al plan mensual o anual.</li>
+            <li><strong>Usuarios nuevos post-fundador</strong>: no reciben distintivo (auto-pionero desactivado) → plan gratuito con acceso limitado → para acceso completo deben suscribirse al plan mensual o anual.</li>
         </ol>
         <p>Para modificar el plan o badge de un miembro individual → <a href="<?php echo esc_url( admin_url( 'users.php' ) ); ?>">Usuarios</a> → columna <em>Plan</em>.</p>
     </div>

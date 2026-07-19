@@ -928,7 +928,7 @@ function vx_render_member_card( array $m, int $viewer_id = 0, ?array $only_offer
     // Badges
     $badges = '';
     if ( ! empty( $m['is_founder'] ) ) {
-        $badges .= ' <span class="founder-tooltip" data-tooltip="Miembro fundador" tabindex="0"><i class="founder-tag ti ti-star"></i></span>';
+        $badges .= ' <span class="founder-tooltip" data-tooltip="Miembro Pionero" tabindex="0"><i class="founder-tag ti ti-star"></i></span>';
     }
     if ( ! empty( $m['comunidades'] ) && in_array( 'senior', (array) $m['comunidades'], true ) ) {
         $badges .= ' <span class="badge-vx badge-neutral" style="font-size:10px">Senior</span>';
@@ -3128,7 +3128,7 @@ add_shortcode( 'vx_perfil', function (): string {
           <h1 class="profile-name">
             <?php echo esc_html( $user->get_nombre_completo() ); ?>
             <?php if ( $user->is_founder() ) : ?>
-            <span class="founder-tooltip ms-1" data-tooltip="Miembro fundador" tabindex="0"><i class="founder-tag ti ti-star"></i></span>
+            <span class="founder-tooltip ms-1" data-tooltip="Miembro Pionero" tabindex="0"><i class="founder-tag ti ti-star"></i></span>
             <?php endif; ?>
             <?php if ( $user->is_senior_verified() ) : ?>
             <span class="badge-vx badge-neutral ms-1" style="font-size:11px">Senior</span>

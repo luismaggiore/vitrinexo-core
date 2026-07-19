@@ -128,7 +128,7 @@ class VX_Admin_Users
                 $plans_disponibles = [ 'gratuito', 'mensual', 'anual', 'preferencial' ];
                 // Badge fundador (permanente, independiente del plan)
                 $html = $es_fundador
-                    ? '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-bottom:3px;display:inline-block">⭐ Fundador</span><br>'
+                    ? '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-bottom:3px;display:inline-block">⭐ Pionero</span><br>'
                     : '';
                 // Plan de facturación
                 $html .= '<span style="color:' . $color . ';font-weight:600">' . esc_html( ucfirst( $plan ) ) . '</span>';
@@ -141,7 +141,7 @@ class VX_Admin_Users
                     $html .= ' <small style="color:#6b7280">sin vencimiento</small>';
                 }
 
-                // Botones rápidos para cambiar badge fundador
+                // Botones rápidos para cambiar distintivo Pionero
                 if ( $es_fundador ) {
                     $rm_founder_url = wp_nonce_url(
                         admin_url( 'users.php?action=vx_set_plan&user_id=' . $user_id . '&plan=gratuito&dias=0&quitar_fundador=1' ),
@@ -171,20 +171,20 @@ class VX_Admin_Users
                 $html .= '</form>';
                 $html .= '<script>document.querySelectorAll(\'select\').forEach(function(s){s.addEventListener(\'change\',function(){var f=this.nextElementSibling;f.querySelector(\'[name=plan]\').value=this.value;f.style.display=this.value?\'inline\':\'none\';});});</script>';
 
-                // Toggle badge fundador
+                // Toggle distintivo Pionero
                 $html .= '<br style="margin-top:4px">';
                 if ( $es_fundador ) {
                     $rm_url = wp_nonce_url(
                         admin_url( 'users.php?action=vx_set_plan&user_id=' . $user_id . '&quitar_fundador=1' ),
                         'vx_set_plan_' . $user_id
                     );
-                    $html .= '<a href="' . esc_url( $rm_url ) . '" style="font-size:11px;color:#dc2626" onclick="return confirm(\'¿Quitar badge de Fundador? Esto es permanente.\')">✕ Quitar badge Fundador</a>';
+                    $html .= '<a href="' . esc_url( $rm_url ) . '" style="font-size:11px;color:#dc2626" onclick="return confirm(\'¿Quitar distintivo Pionero? Esto es permanente.\')">✕ Quitar distintivo Pionero</a>';
                 } else {
                     $add_url = wp_nonce_url(
                         admin_url( 'users.php?action=vx_set_plan&user_id=' . $user_id . '&dar_fundador=1' ),
                         'vx_set_plan_' . $user_id
                     );
-                    $html .= '<a href="' . esc_url( $add_url ) . '" style="font-size:11px;color:#d97706">⭐ Dar badge Fundador</a>';
+                    $html .= '<a href="' . esc_url( $add_url ) . '" style="font-size:11px;color:#d97706">⭐ Dar distintivo Pionero</a>';
                 }
 
                 return $html;
@@ -341,7 +341,7 @@ class VX_Admin_Users
 
         if ( ! $user_id ) wp_die( 'Usuario inválido.' );
 
-        // ── Cambio de badge Fundador (via GET link) ──
+        // ── Cambio de distintivo Pionero (via GET link) ──
         if ( ! empty( $params['quitar_fundador'] ) ) {
             update_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, false );
             update_user_meta( $user_id, VX_User_Meta::PRECIO_PREFERENTE, false );
