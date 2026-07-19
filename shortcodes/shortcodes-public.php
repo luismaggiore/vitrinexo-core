@@ -181,7 +181,8 @@ add_shortcode( 'vx_landing', function (): string {
                             <i class="ti ti-clock" style="font-size:15px"></i>
                             <span style="font-size:12px">Cupos limitados como Miembros Pioneros <strong>(Primeros 100 inscritos)</strong></span>
                         </div>
-                        <form id="founderForm" action="https://formspree.io/f/mwvwnred" method="POST">
+                        <div id="founderFormError" class="alert-vx alert-error mb-2" style="display:none;padding:8px 12px;font-size:13px"></div>
+                        <form id="founderForm">
                             <div class="row g-2 mb-2">
                                 <div class="col-6">
                                     <label class="form-label-vx">Nombre *</label>
@@ -237,8 +238,8 @@ add_shortcode( 'vx_landing', function (): string {
                         </form>
                     </div>
                     <div class="founder-form-success" id="founderFormSuccess">
-                        <h3>🎉 ¡Ya eres parte de Vitrinexo!</h3>
-                        <p>Te contactaremos pronto.<br>Revisa tu bandeja de entrada.</p>
+                        <h3>⏳ ¡Tu perfil está siendo validado!</h3>
+                        <p>Revisa tu bandeja de entrada.<br>Te escribiremos pronto.</p>
                     </div>
                 </div>
             </div>
@@ -247,21 +248,50 @@ add_shortcode( 'vx_landing', function (): string {
 
     <script>
     (function() {
-        var form = document.getElementById('founderForm');
-        var view = document.getElementById('founderFormView');
+        var form   = document.getElementById('founderForm');
+        var view   = document.getElementById('founderFormView');
         var success = document.getElementById('founderFormSuccess');
+        var errBox = document.getElementById('founderFormError');
         if (!form) return;
+
+        function randPass() {
+            return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2).toUpperCase() + '!9';
+        }
+
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
-            var btn = form.querySelector('[type="submit"]');
+            var btn  = form.querySelector('[type="submit"]');
             var orig = btn.innerHTML;
             btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
-            btn.disabled = true;
+            btn.disabled  = true;
+            if (errBox) errBox.style.display = 'none';
+
+            var data = {};
+            new FormData(form).forEach(function(v, k) { data[k] = v; });
+            data.password = randPass();
+
             try {
-                var res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
-                if (res.ok) { view.style.display = 'none'; success.classList.add('show'); }
-                else { btn.innerHTML = orig; btn.disabled = false; alert('Error al enviar. Escríbenos a hola@vitrinexo.com'); }
-            } catch(err) { btn.innerHTML = orig; btn.disabled = false; alert('Error de conexión. Intenta de nuevo.'); }
+                var res  = await fetch('/wp-json/vx/v1/registrar', {
+                    method : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body   : JSON.stringify(data)
+                });
+                var json = await res.json();
+                if (json.success) {
+                    view.style.display = 'none';
+                    success.classList.add('show');
+                } else {
+                    var msg = json.message || 'Error al registrar. Escríbenos a hola@vitrinexo.com';
+                    if (json.error === 'email_existente') msg = 'Ese email ya está registrado.';
+                    btn.innerHTML = orig; btn.disabled = false;
+                    if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+                    else alert(msg);
+                }
+            } catch(err) {
+                btn.innerHTML = orig; btn.disabled = false;
+                if (errBox) { errBox.textContent = 'Error de conexión. Intenta de nuevo.'; errBox.style.display = 'block'; }
+                else alert('Error de conexión. Intenta de nuevo.');
+            }
         });
     })();
     </script>
