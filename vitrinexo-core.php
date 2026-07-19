@@ -184,7 +184,8 @@ add_action( 'wp_dashboard_setup', function () {
     remove_meta_box( 'dashboard_primary',           'dashboard', 'side' );   // Noticias WordPress
     remove_meta_box( 'dashboard_activity',          'dashboard', 'normal' ); // Actividad
     remove_meta_box( 'dashboard_right_now',         'dashboard', 'normal' ); // De un vistazo
-    remove_meta_box( 'fluentsmtp_report_widget',    'dashboard', 'normal' ); // FluentSMTP stats
+    remove_meta_box( 'fluentsmtp_reports_widget',   'dashboard', 'normal' ); // FluentSMTP stats
+    remove_meta_box( 'fluentsmtp_report_widget',    'dashboard', 'normal' ); // FluentSMTP stats (alt ID)
     remove_meta_box( 'dashboard_site_health',       'dashboard', 'normal' ); // Site health
     remove_meta_box( 'hostinger_dashboard_widget',  'dashboard', 'normal' ); // Hostinger widget
 }, 999 );
@@ -194,11 +195,13 @@ remove_action( 'welcome_panel', 'wp_welcome_panel' );
 
 // 3. Toolbar (barra superior) — quitar elementos innecesarios
 add_action( 'admin_bar_menu', function ( $bar ) {
-    $bar->remove_node( 'wp-logo' );          // Logo WordPress
-    $bar->remove_node( 'new-content' );      // Botón Añadir
-    $bar->remove_node( 'comments' );         // Icono comentarios
-    $bar->remove_node( 'updates' );          // Icono actualizaciones (ya lo vemos en menú)
-    $bar->remove_node( 'hostinger' );        // Branding Hostinger en toolbar
+    $bar->remove_node( 'wp-logo' );              // Logo WordPress
+    $bar->remove_node( 'new-content' );          // Botón Añadir
+    $bar->remove_node( 'comments' );             // Icono comentarios
+    $bar->remove_node( 'updates' );              // Icono actualizaciones
+    $bar->remove_node( 'hostinger' );            // Hostinger (slug)
+    $bar->remove_node( 'hostinger_admin_bar' );  // Hostinger (ID real en toolbar)
+    $bar->remove_node( 'litespeed-menu' );       // LiteSpeed en toolbar
 }, 999 );
 
 add_action( 'admin_menu', function () {
