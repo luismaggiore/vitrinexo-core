@@ -18,6 +18,7 @@ class VX_User_Meta
     const CONTACTO_PREFERIDO = 'vx_contacto_preferido';
     const TELEFONO           = 'vx_telefono';
     const LINKEDIN           = 'vx_linkedin';
+    const CARGO              = 'vx_cargo_inicial';
 
     // Verificación y estado de cuenta
     const ESTADO                = 'vx_estado';
