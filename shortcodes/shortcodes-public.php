@@ -271,7 +271,7 @@ add_shortcode( 'vx_landing', function (): string {
             data.password = randPass();
 
             try {
-                var res  = await fetch('/wp-json/vx/v1/registrar', {
+                var res  = await fetch('/wp-json/vitrinexo/v1/registrar', {
                     method : 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body   : JSON.stringify(data)
