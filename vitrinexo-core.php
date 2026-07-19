@@ -881,8 +881,8 @@ function vx_admin_validaciones_page(): void {
                 $edit_url    = get_edit_user_link( $wp_user->ID );
 
                 // Datos para verificar identidad
-                $empresa_obj  = $vx ? $vx->get_empresa_principal() : null;
-                $empresa_nombre = $empresa_obj ? $empresa_obj->get_nombre() : '';
+                $empresa_obj    = $vx ? $vx->get_empresa_activa() : null;
+                $empresa_nombre = $empresa_obj ? $empresa_obj->post_title : ( $vx ? (string) get_user_meta( $wp_user->ID, 'vx_empresa_inicial', true ) : '' );
                 $industria    = $vx ? $vx->get_industria() : '';
                 $cargo        = $vx ? (string) get_user_meta( $wp_user->ID, VX_User_Meta::CARGO, true ) : '';
                 $ciudad       = $vx ? $vx->get_ciudad() : '';
