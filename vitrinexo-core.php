@@ -164,12 +164,41 @@ add_filter( 'query_vars', function ( array $vars ): array {
 
 // ── Manual de activación Stripe (página oculta del admin, imprimible como PDF) ─
 
-// ── Ocultar secciones de WordPress que Vitrinexo no necesita ──
+// ── Limpiar la interfaz admin de WordPress ──────────────────────────────────
+
+// 1. Menú lateral — ocultar todo lo que no es de Vitrinexo
 add_action( 'admin_menu', function () {
-    remove_menu_page( 'edit.php' );              // Entradas (blog)
-    remove_menu_page( 'upload.php' );            // Medios
-    remove_menu_page( 'edit.php?post_type=page' ); // Páginas
-    remove_menu_page( 'edit-comments.php' );     // Comentarios
+    remove_menu_page( 'edit.php' );                    // Entradas
+    remove_menu_page( 'upload.php' );                  // Medios
+    remove_menu_page( 'edit.php?post_type=page' );     // Páginas
+    remove_menu_page( 'edit-comments.php' );           // Comentarios
+    remove_menu_page( 'tools.php' );                   // Herramientas
+    remove_menu_page( 'hostinger' );                   // Hostinger branding
+    remove_menu_page( 'hostinger-reach' );             // Hostinger Reach
+    remove_menu_page( 'hostinger-easy-onboarding' );   // Hostinger Onboarding
+}, 999 );
+
+// 2. Dashboard — eliminar widgets innecesarios
+add_action( 'wp_dashboard_setup', function () {
+    remove_meta_box( 'dashboard_quick_press',       'dashboard', 'side' );   // Borrador rápido
+    remove_meta_box( 'dashboard_primary',           'dashboard', 'side' );   // Noticias WordPress
+    remove_meta_box( 'dashboard_activity',          'dashboard', 'normal' ); // Actividad
+    remove_meta_box( 'dashboard_right_now',         'dashboard', 'normal' ); // De un vistazo
+    remove_meta_box( 'fluentsmtp_report_widget',    'dashboard', 'normal' ); // FluentSMTP stats
+    remove_meta_box( 'dashboard_site_health',       'dashboard', 'normal' ); // Site health
+    remove_meta_box( 'hostinger_dashboard_widget',  'dashboard', 'normal' ); // Hostinger widget
+}, 999 );
+
+// Quitar el panel "¡Bienvenido a WordPress!"
+remove_action( 'welcome_panel', 'wp_welcome_panel' );
+
+// 3. Toolbar (barra superior) — quitar elementos innecesarios
+add_action( 'admin_bar_menu', function ( $bar ) {
+    $bar->remove_node( 'wp-logo' );          // Logo WordPress
+    $bar->remove_node( 'new-content' );      // Botón Añadir
+    $bar->remove_node( 'comments' );         // Icono comentarios
+    $bar->remove_node( 'updates' );          // Icono actualizaciones (ya lo vemos en menú)
+    $bar->remove_node( 'hostinger' );        // Branding Hostinger en toolbar
 }, 999 );
 
 add_action( 'admin_menu', function () {
