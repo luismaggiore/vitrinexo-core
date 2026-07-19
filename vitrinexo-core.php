@@ -232,7 +232,7 @@ add_action( 'admin_bar_menu', function ( $bar ) {
     // LiteSpeed en la toolbar
     $bar->remove_node( 'litespeed-menu' );
     $bar->remove_node( 'litespeed-bar-manage' );
-}, 999 );
+}, 99999 );
 
 add_action( 'admin_menu', function () {
     add_submenu_page(
