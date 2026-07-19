@@ -176,6 +176,7 @@ add_action( 'admin_menu', function () {
     remove_menu_page( 'hostinger' );                   // Hostinger branding
     remove_menu_page( 'hostinger-reach' );             // Hostinger Reach
     remove_menu_page( 'hostinger-easy-onboarding' );   // Hostinger Onboarding
+    remove_submenu_page( 'themes.php', 'site-editor.php?path=/pattern' ); // Patrones
 }, 999 );
 
 // 2. Dashboard — eliminar widgets innecesarios
