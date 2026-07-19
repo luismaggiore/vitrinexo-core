@@ -22,4 +22,7 @@ add_action( 'init', function () {
         'map_meta_cap'        => true,
         'rewrite'             => false,
     ] );
+
+    // Mostrar todas las notificaciones sin paginación en el admin
+    add_filter( 'edit_vx_notification_per_page', fn() => -1 );
 } );
