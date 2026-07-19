@@ -164,6 +164,14 @@ add_filter( 'query_vars', function ( array $vars ): array {
 
 // ── Manual de activación Stripe (página oculta del admin, imprimible como PDF) ─
 
+// ── Ocultar secciones de WordPress que Vitrinexo no necesita ──
+add_action( 'admin_menu', function () {
+    remove_menu_page( 'edit.php' );              // Entradas (blog)
+    remove_menu_page( 'upload.php' );            // Medios
+    remove_menu_page( 'edit.php?post_type=page' ); // Páginas
+    remove_menu_page( 'edit-comments.php' );     // Comentarios
+}, 999 );
+
 add_action( 'admin_menu', function () {
     add_submenu_page(
         null,                        // sin padre → no aparece en el menú lateral
