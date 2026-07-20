@@ -71,8 +71,10 @@ class VX_Admin_Users
 
     public static function add_columns( array $columns ): array
     {
-        $new_columns = [];
+        // Eliminar columnas de WordPress que no aplican
+        unset( $columns['posts'] );
 
+        $new_columns = [];
         foreach ( $columns as $key => $label ) {
             $new_columns[ $key ] = $label;
             if ( 'email' === $key ) {
@@ -81,9 +83,9 @@ class VX_Admin_Users
                 $new_columns['vx_comunidades'] = 'Comunidades';
                 $new_columns['vx_stat_sol']    = '📨 Solicitudes';
                 $new_columns['vx_stat_cnx']    = '🤝 Conexiones';
+                $new_columns['vx_perfil']      = 'Perfil';
             }
         }
-
         return $new_columns;
     }
 
@@ -644,3 +646,48 @@ class VX_Admin_Users
         exit;
     }
 }
+
+    // ── Campos Vitrinexo en pantalla de edición de usuario WP ───────────────
+
+    public static function init_profile_fields(): void
+    {
+        add_action( 'show_user_profile',        [ self::class, 'render_profile_fields' ] );
+        add_action( 'edit_user_profile',        [ self::class, 'render_profile_fields' ] );
+        add_action( 'personal_options_update',  [ self::class, 'save_profile_fields' ] );
+        add_action( 'edit_user_profile_update', [ self::class, 'save_profile_fields' ] );
+    }
+
+    public static function render_profile_fields( WP_User $user ): void
+    {
+        $fields = [
+            [ 'key' => 'vx_empresa_inicial', 'label' => 'Empresa',  'type' => 'text' ],
+            [ 'key' => VX_User_Meta::CARGO,   'label' => 'Cargo',    'type' => 'text' ],
+            [ 'key' => VX_User_Meta::LINKEDIN,'label' => 'LinkedIn', 'type' => 'url'  ],
+            [ 'key' => VX_User_Meta::PAIS,    'label' => 'País',     'type' => 'text' ],
+            [ 'key' => VX_User_Meta::ESTADO,  'label' => 'Estado Vitrinexo', 'type' => 'text' ],
+        ];
+        ?>
+        <h2>Datos Vitrinexo</h2>
+        <table class="form-table" role="presentation">
+        <?php foreach ( $fields as $f ) : $val = esc_attr( get_user_meta( $user->ID, $f['key'], true ) ); ?>
+        <tr>
+            <th><label for="vx_<?php echo esc_attr( $f['key'] ); ?>"><?php echo esc_html( $f['label'] ); ?></label></th>
+            <td><input type="<?php echo esc_attr( $f['type'] ); ?>" name="vx_<?php echo esc_attr( $f['key'] ); ?>" id="vx_<?php echo esc_attr( $f['key'] ); ?>" value="<?php echo $val; ?>" class="regular-text" /></td>
+        </tr>
+        <?php endforeach; ?>
+        </table>
+        <?php
+    }
+
+    public static function save_profile_fields( int $user_id ): void
+    {
+        if ( ! current_user_can( 'edit_user', $user_id ) ) return;
+        $keys = [
+            'vx_empresa_inicial', VX_User_Meta::CARGO, VX_User_Meta::LINKEDIN,
+            VX_User_Meta::PAIS, VX_User_Meta::ESTADO,
+        ];
+        foreach ( $keys as $key ) {
+            $posted = sanitize_text_field( wp_unslash( $_POST[ 'vx_' . $key ] ?? '' ) );
+            update_user_meta( $user_id, $key, $posted );
+        }
+    }

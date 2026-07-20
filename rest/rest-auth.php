@@ -273,12 +273,13 @@ function vx_rest_aprobar_usuario( WP_REST_Request $request ): void
     if ( ! $user ) wp_die( '<h2>Usuario no encontrado.</h2>' );
 
     if ( 'activo' === $user->get_estado() ) {
-        wp_die( '<h2>Este usuario ya estaba aprobado.</h2>' );
+        wp_die( '<h2 style="font-family:sans-serif;color:#00aeb8">✓ Este usuario ya estaba aprobado.</h2>' );
     }
 
-    VX_Verification::approve_manual( $user_id );
+    // Activar directamente sin requerir confirmación de email
+    VX_Verification::activate_account( $user_id );
 
-    wp_die( '<h2 style="font-family:sans-serif;color:#00aeb8">✓ Usuario aprobado</h2><p style="font-family:sans-serif">' . esc_html( $user->get_nombre_completo() ) . ' (' . esc_html( $user->get_email() ) . ') ha sido aprobado y recibirá el email de activación.</p>' );
+    wp_die( '<h2 style="font-family:sans-serif;color:#00aeb8">✓ Usuario aprobado y activado</h2><p style="font-family:sans-serif">' . esc_html( $user->get_nombre_completo() ) . ' (' . esc_html( $user->get_email() ) . ') ha sido aprobado y ya puede acceder a Vitrinexo.</p>' );
 }
 
 function vx_rest_rechazar_usuario( WP_REST_Request $request ): void

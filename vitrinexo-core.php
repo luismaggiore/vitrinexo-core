@@ -92,6 +92,7 @@ $vx_modules = [
     'rest/rest-feed.php',
 
     // Admin
+    'modules/admin/class-vx-admin-emails.php',
     'modules/admin/class-vx-admin-users.php',
     'modules/admin/class-vx-admin-connections.php',
     'modules/admin/class-vx-admin-dinner.php',
@@ -1272,8 +1273,12 @@ add_action( 'admin_init', function () {
         update_option( 'vx_pages_version', VX_VERSION );
     }
 
+    if ( class_exists( 'VX_Admin_Emails' ) ) {
+        VX_Admin_Emails::init();
+    }
     if ( class_exists( 'VX_Admin_Users' ) ) {
         VX_Admin_Users::init();
+        VX_Admin_Users::init_profile_fields();
     }
     if ( class_exists( 'VX_Admin_Connections' ) ) {
         VX_Admin_Connections::init();

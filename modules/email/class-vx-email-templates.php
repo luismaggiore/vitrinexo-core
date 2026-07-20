@@ -15,6 +15,13 @@ class VX_Email_Templates
      * @param array  $data
      * @return string  HTML del email o '' si no existe.
      */
+    public static function render_plain( string $html_body ): string
+    {
+        return self::wrapper(
+            '<p style="margin:0 0 20px;font-size:16px;line-height:1.7;color:#3d444e;">' . $html_body . '</p>'
+        );
+    }
+
     public static function render( string $template, array $data ): string
     {
         $method = 'tpl_' . str_replace( '-', '_', $template );

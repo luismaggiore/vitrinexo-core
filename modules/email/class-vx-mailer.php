@@ -39,6 +39,20 @@ class VX_Mailer
             return false;
         }
 
+        // Si existe una plantilla editable en el admin, usarla (subject sobreescribe el pasado)
+        if ( class_exists( 'VX_Admin_Emails' ) ) {
+            $editable = VX_Admin_Emails::get( $template, $data );
+            if ( ! empty( $editable['body_text'] ) ) {
+                $subject = $editable['subject'];
+                // Convertir texto plano a HTML simple para el wrapper
+                $body_html = nl2br( esc_html( $editable['body_text'] ) );
+                $html = VX_Email_Templates::render_plain( $body_html );
+                if ( ! empty( $html ) ) {
+                    goto send_mail;
+                }
+            }
+        }
+
         $html = VX_Email_Templates::render( $template, $data );
 
         if ( empty( $html ) ) {
@@ -46,6 +60,7 @@ class VX_Mailer
             return false;
         }
 
+        send_mail:
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
             'From: ' . self::FROM_NAME . ' <' . self::FROM_EMAIL . '>',
