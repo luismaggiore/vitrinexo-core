@@ -645,7 +645,6 @@ class VX_Admin_Users
         fclose( $out );
         exit;
     }
-}
 
     // ── Campos Vitrinexo en pantalla de edición de usuario WP ───────────────
 
@@ -691,3 +690,4 @@ class VX_Admin_Users
             update_user_meta( $user_id, $key, $posted );
         }
     }
+}
