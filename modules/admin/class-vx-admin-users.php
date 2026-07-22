@@ -445,30 +445,83 @@ class VX_Admin_Users
         exit;
     }
 
-    /** CSS para compactar la tabla de usuarios */
+    /** CSS + JS: tabla con ancho automático, scroll horizontal y columnas redimensionables */
     public static function users_table_css(): void
     {
-        echo '<style>
-        /* Filas más compactas */
-        #the-list tr { height: auto !important; }
-        #the-list td { vertical-align: middle !important; padding: 6px 8px !important; }
-        #the-list td.column-username { width: 130px; }
-        .column-vx_registro  { width: 80px; white-space: nowrap; }
-        .column-vx_plan      { width: 120px; }
-        .column-vx_vencimiento { width: 100px; }
-        .column-vx_pionero   { width: 80px; text-align: center; }
-        .column-vx_estado    { width: 100px; }
-        .column-vx_empresa   { width: 130px; }
-        .column-vx_cargo     { width: 120px; }
-        .column-vx_telefono  { width: 110px; }
-
-        /* Controles inline: visibles solo en hover */
-        .vx-edit-control { display: none; margin-top: 3px; }
-        td:hover .vx-edit-control { display: flex; gap: 3px; align-items: center; }
-        td:hover .vx-edit-control-block { display: block; margin-top: 3px; }
-        .vx-edit-control-block { display: none; margin-top: 3px; }
-        </style>';
+        ?>
+<style>
+/* Wrapper scroll horizontal */
+.wrap table.wp-list-table.widefat {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    table-layout: auto !important;
+}
+.wrap table.wp-list-table {
+    width: max-content !important;
+    min-width: 100%;
+    table-layout: auto !important;
+}
+/* Celdas compactas */
+#the-list tr { height: auto !important; }
+#the-list td,
+.wp-list-table thead th,
+.wp-list-table tfoot th {
+    vertical-align: middle !important;
+    padding: 6px 10px !important;
+    white-space: nowrap;
+    position: relative;
+}
+/* Columnas de texto largo: permitir wrap */
+.column-name, .column-email, .column-vx_empresa, .column-vx_cargo {
+    white-space: normal;
+    min-width: 100px;
+}
+/* Controles inline: visibles solo en hover */
+.vx-edit-control       { display: none; margin-top: 3px; }
+.vx-edit-control-block { display: none; margin-top: 3px; }
+td:hover .vx-edit-control       { display: flex; gap: 3px; align-items: center; }
+td:hover .vx-edit-control-block { display: block; }
+/* Handles de resize */
+.vx-rh {
+    position: absolute; right: 0; top: 0;
+    width: 5px; height: 100%;
+    cursor: col-resize;
+    user-select: none; z-index: 10;
+}
+.vx-rh:hover, .vx-rh.active { background: #00aeb8; opacity: .5; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tbl = document.querySelector('table.wp-list-table');
+    if (!tbl) return;
+    tbl.querySelectorAll('thead th').forEach(function(th) {
+        var h = document.createElement('div');
+        h.className = 'vx-rh';
+        th.appendChild(h);
+        var x0, w0;
+        h.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            x0 = e.clientX; w0 = th.offsetWidth;
+            h.classList.add('active');
+            function mv(e) {
+                var w = Math.max(50, w0 + e.clientX - x0);
+                th.style.width = th.style.minWidth = w + 'px';
+            }
+            function up() {
+                h.classList.remove('active');
+                document.removeEventListener('mousemove', mv);
+                document.removeEventListener('mouseup', up);
+            }
+            document.addEventListener('mousemove', mv);
+            document.addEventListener('mouseup', up);
+        });
+    });
+});
+</script>
+        <?php
     }
+
 
     /** Cambia el plan de un usuario desde el dropdown inline. */
     public static function handle_cambiar_plan(): void
