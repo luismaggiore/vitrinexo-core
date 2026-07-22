@@ -91,10 +91,6 @@ class VX_Admin_Users
                 $new_columns['vx_plan']        = 'Plan';
                 $new_columns['vx_vencimiento'] = 'Vencimiento';
                 $new_columns['vx_pionero']     = 'Pionero';
-                $new_columns['vx_comunidades'] = 'Comunidades';
-                $new_columns['vx_stat_sol']    = '📨 Solicitudes';
-                $new_columns['vx_stat_cnx']    = '🤝 Conexiones';
-                $new_columns['vx_perfil']      = 'Perfil';
             }
         }
         return $new_columns;
