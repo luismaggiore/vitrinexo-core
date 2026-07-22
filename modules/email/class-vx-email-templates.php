@@ -43,15 +43,14 @@ class VX_Email_Templates
 <tr><td align="center" style="padding:32px 16px;">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;">
 <tr><td style="background:linear-gradient(135deg,#00aeb8 0%,#2ead6e 100%);padding:28px 32px;">
-<img src="https://vitrinexo.com/wp-content/themes/vitrinexo-theme/assets/img/vitrinexo-blanco.svg"
-     alt="Vitrinexo" width="130" style="display:block;">
+<span style="font-size:26px;font-weight:800;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif;letter-spacing:-0.5px;display:block;">Vitri<span style="opacity:0.85">nexo</span></span>
 </td></tr>
 <tr><td style="padding:32px;">' . $content . '</td></tr>
 <tr><td style="background:#f8fafc;padding:20px 32px;border-top:1px solid #e2ecf3;">
 <p style="margin:0;font-size:12px;color:#8ea5b8;text-align:center;">
-© ' . wp_date('Y') . ' Vitrinexo SpA · <a href="https://vitrinexo.com/privacidad" style="color:#8ea5b8;">Privacidad</a> ·
-<a href="https://vitrinexo.com/terminos" style="color:#8ea5b8;">Términos</a> ·
-Desarrollado por <a href="https://www.maggiore.cl" style="color:#8ea5b8;">Maggiore</a>
+© ' . wp_date('Y') . ' Vitrinexo SpA &nbsp;·&nbsp;
+<a href="' . home_url('/privacidad/') . '" style="color:#8ea5b8;text-decoration:none;">Privacidad</a> &nbsp;·&nbsp;
+<a href="' . home_url('/terminos/') . '" style="color:#8ea5b8;text-decoration:none;">Términos</a>
 </p></td></tr>
 </table></td></tr></table></body></html>';
     }
