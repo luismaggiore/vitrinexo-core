@@ -57,6 +57,7 @@ class VX_Admin_Users
         add_action( 'admin_action_vx_cambiar_plan',         [ self::class, 'handle_cambiar_plan' ] );
         add_action( 'admin_action_vx_dar_pionero',          [ self::class, 'handle_dar_pionero' ] );
         add_action( 'admin_action_vx_quitar_pionero',       [ self::class, 'handle_quitar_pionero' ] );
+        add_action( 'admin_head-users.php',                 [ self::class, 'users_table_css' ] );
         add_action( 'admin_action_vx_normalize_ciudades',   [ self::class, 'handle_normalize_ciudades' ] );
 
         // Filtro por estado en la lista
@@ -142,60 +143,65 @@ class VX_Admin_Users
 
             // ── Plan (dropdown configurable) ───────────────────────────────────
             case 'vx_plan':
+                $user = get_userdata( $user_id );
+                if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">—</span>';
                 $plan_actual = get_user_meta( $user_id, VX_User_Meta::PLAN, true ) ?: 'Gratuito';
                 $planes      = vx_get_planes();
-                $nonce_plan  = wp_create_nonce( 'vx_cambiar_plan_' . $user_id );
-                $html  = '<span style="font-size:12px;font-weight:600;color:#1a2335">' . esc_html( $plan_actual ) . '</span><br>';
-                $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '" style="margin-top:4px">';
+                $html  = '<span style="font-size:12px;font-weight:600;color:#1a2335;display:block;margin-bottom:4px">' . esc_html( $plan_actual ) . '</span>';
+                $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '">';
                 $html .= '<input type="hidden" name="action" value="vx_cambiar_plan">';
                 $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
-                $html .= '<input type="hidden" name="_wpnonce" value="' . $nonce_plan . '">';
-                $html .= '<select name="plan" onchange="this.form.submit()" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151;max-width:120px">';
+                $html .= '<input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'vx_cambiar_plan_' . $user_id ) . '">';
+                $html .= '<select name="plan" onchange="this.form.submit()" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151;max-width:110px">';
                 $html .= '<option value="">Cambiar...</option>';
                 foreach ( $planes as $p ) {
-                    $html .= '<option value="' . esc_attr( $p ) . '"' . selected( $p, $plan_actual, false ) . '>' . esc_html( $p ) . '</option>';
+                    if ( $p !== $plan_actual ) $html .= '<option value="' . esc_attr( $p ) . '">' . esc_html( $p ) . '</option>';
                 }
                 $html .= '</select></form>';
                 return $html;
 
             // ── Fecha de vencimiento (editable) ───────────────────────────────
             case 'vx_vencimiento':
-                $user       = get_userdata( $user_id );
-                $expiry_ts  = (int) get_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, true );
+                $user = get_userdata( $user_id );
+                if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">—</span>';
 
-                // Auto-calcular: fecha de registro + 90 días si no hay vencimiento
-                if ( ! $expiry_ts && $user ) {
+                $expiry_ts   = (int) get_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, true );
+                $meta_exists = metadata_exists( 'user', $user_id, VX_User_Meta::PLAN_VENCIMIENTO );
+
+                // Auto-calcular solo si no se ha guardado nunca
+                if ( ! $meta_exists && $user ) {
                     $expiry_ts = strtotime( $user->user_registered ) + ( 90 * DAY_IN_SECONDS );
                     update_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, $expiry_ts );
                 }
 
-                $expiry_date = $expiry_ts ? date( 'Y-m-d', $expiry_ts ) : '';
-                $diff        = $expiry_ts ? ( $expiry_ts - time() ) : 0;
-                $color       = $diff < 0 ? '#dc2626' : ( $diff < 7 * DAY_IN_SECONDS ? '#f59e0b' : '#059669' );
-                $label       = $diff < 0 ? '⚠ Venció' : '✓ Vence';
+                $expiry_date = ( $expiry_ts > 86400 ) ? date( 'Y-m-d', $expiry_ts ) : '';
+                $diff        = $expiry_ts > 86400 ? ( $expiry_ts - time() ) : 0;
+                $color       = ! $expiry_date ? '#9ca3af' : ( $diff < 0 ? '#dc2626' : ( $diff < 7 * DAY_IN_SECONDS ? '#f59e0b' : '#059669' ) );
+                $label       = ! $expiry_date ? '—' : ( $diff < 0 ? '⚠ Venció ' . date_i18n( 'd/m/Y', $expiry_ts ) : date_i18n( 'd/m/Y', $expiry_ts ) );
 
-                $html  = '<span style="font-size:12px;color:' . $color . ';font-weight:500">' . $label . '</span>';
-                $html .= '<br><form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '" style="margin-top:4px;display:flex;gap:3px;align-items:center">';
+                $html  = '<span style="font-size:12px;color:' . $color . ';font-weight:500;display:block;margin-bottom:4px">' . $label . '</span>';
+                $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '" style="display:flex;gap:3px;align-items:center">';
                 $html .= '<input type="hidden" name="action" value="vx_set_vencimiento">';
                 $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
                 $html .= wp_nonce_field( 'vx_set_vencimiento_' . $user_id, '_wpnonce', true, false );
-                $html .= '<input type="date" name="vencimiento" value="' . esc_attr( $expiry_date ) . '" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151;width:120px">';
+                $html .= '<input type="date" name="vencimiento" value="' . esc_attr( $expiry_date ) . '" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151">';
                 $html .= '<button type="submit" class="button button-small" style="font-size:11px;padding:1px 6px">✓</button>';
                 $html .= '</form>';
                 return $html;
 
             // ── Distintivo Pionero ─────────────────────────────────────────────
             case 'vx_pionero':
+                $user = get_userdata( $user_id );
+                if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">—</span>';
                 $es_fundador = (bool) get_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
                 if ( $es_fundador ) {
                     $rm_url = wp_nonce_url( admin_url( 'users.php?action=vx_quitar_pionero&user_id=' . $user_id ), 'vx_quitar_pionero_' . $user_id );
-                    return '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700">⭐ Pionero</span><br>'
-                         . '<a href="' . esc_url( $rm_url ) . '" style="font-size:10px;color:#dc2626;margin-top:4px;display:block" onclick="return confirm(\'¿Quitar distintivo Pionero?\')">✕ Quitar</a>';
-                } else {
-                    $add_url = wp_nonce_url( admin_url( 'users.php?action=vx_dar_pionero&user_id=' . $user_id ), 'vx_dar_pionero_' . $user_id );
-                    return '<span style="color:#9ca3af;font-size:12px">—</span><br>'
-                         . '<a href="' . esc_url( $add_url ) . '" style="font-size:10px;color:#d97706;margin-top:4px;display:block">⭐ Dar</a>';
+                    return '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap">⭐ Pionero</span><br>'
+                         . '<a href="' . esc_url( $rm_url ) . '" style="font-size:10px;color:#dc2626;margin-top:3px;display:block" onclick="return confirm(\'¿Quitar distintivo Pionero?\')">✕ Quitar</a>';
                 }
+                $add_url = wp_nonce_url( admin_url( 'users.php?action=vx_dar_pionero&user_id=' . $user_id ), 'vx_dar_pionero_' . $user_id );
+                return '<span style="color:#9ca3af;font-size:12px">—</span><br>'
+                     . '<a href="' . esc_url( $add_url ) . '" style="font-size:10px;color:#d97706;margin-top:3px;display:block">⭐ Dar</a>';
 
             case 'vx_plan':
                 $es_fundador = (bool) get_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
@@ -428,6 +434,20 @@ class VX_Admin_Users
 
         wp_safe_redirect( admin_url( 'users.php?vx_plan_cambiado=1' ) );
         exit;
+    }
+
+    /** CSS para compactar la tabla de usuarios */
+    public static function users_table_css(): void
+    {
+        echo '<style>
+        #the-list td { vertical-align: middle; padding: 8px 10px; }
+        .column-vx_registro, .column-vx_pionero { width: 90px; }
+        .column-vx_plan { width: 130px; }
+        .column-vx_vencimiento { width: 140px; }
+        .column-vx_estado { width: 120px; }
+        .column-vx_empresa, .column-vx_cargo { width: 120px; }
+        .column-vx_telefono { width: 110px; }
+        </style>';
     }
 
     /** Cambia el plan de un usuario desde el dropdown inline. */
