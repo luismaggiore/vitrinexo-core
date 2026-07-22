@@ -128,6 +128,10 @@ add_action( 'init', function () {
     if ( class_exists( 'VX_Auth' ) ) {
         VX_Auth::init();
     }
+    // Emails admin — debe registrar sus acciones antes de que corra admin_menu
+    if ( is_admin() && class_exists( 'VX_Admin_Emails' ) ) {
+        VX_Admin_Emails::init();
+    }
     if ( class_exists( 'VX_Notification_Triggers' ) ) {
         VX_Notification_Triggers::init();
     }
@@ -1273,9 +1277,6 @@ add_action( 'admin_init', function () {
         update_option( 'vx_pages_version', VX_VERSION );
     }
 
-    if ( class_exists( 'VX_Admin_Emails' ) ) {
-        VX_Admin_Emails::init();
-    }
     if ( class_exists( 'VX_Admin_Users' ) ) {
         VX_Admin_Users::init();
         VX_Admin_Users::init_profile_fields();
