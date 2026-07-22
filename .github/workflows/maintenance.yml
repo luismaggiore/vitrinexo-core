@@ -1,0 +1,20 @@
+name: Site Maintenance
+on:
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update legal pages
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_TARGET: ${{ secrets.SSH_TARGET }}
+        run: |
+          sudo apt-get install -y sshpass -q
+          WP_PATH="${SSH_TARGET%/wp-content/*}"
+          B64=$(base64 -w0 create-legal-pages.php)
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=30 -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "printf '%s' '$B64' | base64 -d > /tmp/legal.php && cd '$WP_PATH' && wp eval-file /tmp/legal.php --allow-root 2>&1 && wp litespeed-purge all --allow-root 2>/dev/null; true"
