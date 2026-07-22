@@ -42,9 +42,9 @@ class VX_Email_Templates
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#edf5fc;">
 <tr><td align="center" style="padding:32px 16px;">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;">
-<tr><td style="background:linear-gradient(135deg,#00aeb8 0%,#2ead6e 100%);padding:28px 32px;">
+<tr><td style="background:#ffffff;padding:24px 32px;border-bottom:3px solid #00aeb8;">
 <img src="https://vitrinexo.com/wp-content/themes/vitrinexo-theme/assets/img/vitrinexo-email.png"
-     alt="Vitrinexo" width="173" height="42" style="display:block;">
+     alt="Vitrinexo" width="133" height="48" style="display:block;">
 </td></tr>
 <tr><td style="padding:32px;">' . $content . '</td></tr>
 <tr><td style="background:#f8fafc;padding:20px 32px;border-top:1px solid #e2ecf3;">
