@@ -169,6 +169,49 @@ add_filter( 'query_vars', function ( array $vars ): array {
 
 // ── Manual de activación Stripe (página oculta del admin, imprimible como PDF) ─
 
+// ── Planes disponibles ──────────────────────────────────────────────────────
+
+function vx_get_planes(): array {
+    $saved = get_option( 'vx_planes_disponibles', '' );
+    if ( $saved ) {
+        $planes = array_filter( array_map( 'trim', explode( "\n", $saved ) ) );
+        if ( ! empty( $planes ) ) return array_values( $planes );
+    }
+    return [ 'Gratuito', 'Miembro Pionero', 'Mensual', 'Anual', 'Preferencial' ];
+}
+
+add_action( 'admin_menu', function () {
+    add_submenu_page(
+        'vitrinexo-core',
+        'Planes',
+        'Planes',
+        'manage_options',
+        'vx-planes',
+        function () {
+            if ( isset( $_POST['vx_planes_save'] ) && check_admin_referer( 'vx_planes' ) ) {
+                update_option( 'vx_planes_disponibles', sanitize_textarea_field( wp_unslash( $_POST['vx_planes'] ?? '' ) ) );
+                echo '<div class="notice notice-success is-dismissible"><p>Planes guardados.</p></div>';
+            }
+            $planes_raw = get_option( 'vx_planes_disponibles', implode( "\n", [ 'Gratuito', 'Miembro Pionero', 'Mensual', 'Anual', 'Preferencial' ] ) );
+            ?>
+            <div class="wrap">
+                <h1>Planes de membresía</h1>
+                <p style="color:#6b7280">Un plan por línea. El primero será el plan por defecto.</p>
+                <form method="post">
+                    <?php wp_nonce_field( 'vx_planes' ); ?>
+                    <input type="hidden" name="vx_planes_save" value="1">
+                    <textarea name="vx_planes" rows="10" class="large-text" style="font-family:monospace;max-width:400px"><?php echo esc_textarea( $planes_raw ); ?></textarea>
+                    <p class="submit"><button type="submit" class="button button-primary">Guardar planes</button></p>
+                </form>
+                <hr>
+                <h3>Planes actuales</h3>
+                <ul><?php foreach ( vx_get_planes() as $p ) echo '<li>' . esc_html( $p ) . '</li>'; ?></ul>
+            </div>
+            <?php
+        }
+    );
+}, 25 );
+
 // ── Limpiar la interfaz admin de WordPress ──────────────────────────────────
 
 // 1. Menú lateral — ocultar todo lo que no es de Vitrinexo

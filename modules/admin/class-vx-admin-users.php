@@ -54,6 +54,7 @@ class VX_Admin_Users
         // Gestión de plan
         add_action( 'admin_action_vx_set_plan',             [ self::class, 'handle_set_plan' ] );
         add_action( 'admin_action_vx_set_vencimiento',      [ self::class, 'handle_set_vencimiento' ] );
+        add_action( 'admin_action_vx_cambiar_plan',         [ self::class, 'handle_cambiar_plan' ] );
         add_action( 'admin_action_vx_dar_pionero',          [ self::class, 'handle_dar_pionero' ] );
         add_action( 'admin_action_vx_quitar_pionero',       [ self::class, 'handle_quitar_pionero' ] );
         add_action( 'admin_action_vx_normalize_ciudades',   [ self::class, 'handle_normalize_ciudades' ] );
@@ -80,13 +81,16 @@ class VX_Admin_Users
         foreach ( $columns as $key => $label ) {
             $new_columns[ $key ] = $label;
             if ( 'name' === $key ) {
-                $new_columns['vx_empresa']  = 'Empresa';
-                $new_columns['vx_cargo']    = 'Cargo';
-                $new_columns['vx_telefono'] = 'Teléfono';
+                $new_columns['vx_empresa']     = 'Empresa';
+                $new_columns['vx_cargo']       = 'Cargo';
+                $new_columns['vx_telefono']    = 'Teléfono';
             }
             if ( 'email' === $key ) {
                 $new_columns['vx_estado']      = 'Estado';
+                $new_columns['vx_registro']    = 'Registro';
                 $new_columns['vx_plan']        = 'Plan';
+                $new_columns['vx_vencimiento'] = 'Vencimiento';
+                $new_columns['vx_pionero']     = 'Pionero';
                 $new_columns['vx_comunidades'] = 'Comunidades';
                 $new_columns['vx_stat_sol']    = '📨 Solicitudes';
                 $new_columns['vx_stat_cnx']    = '🤝 Conexiones';
@@ -132,6 +136,70 @@ class VX_Admin_Users
                 }
 
                 return $html;
+
+            // ── Fecha de registro (solo lectura) ──────────────────────────────
+            case 'vx_registro':
+                $user = get_userdata( $user_id );
+                return $user
+                    ? '<span style="font-size:12px;color:#374151">' . date_i18n( 'd/m/Y', strtotime( $user->user_registered ) ) . '</span>'
+                    : '—';
+
+            // ── Plan (dropdown configurable) ───────────────────────────────────
+            case 'vx_plan':
+                $plan_actual = get_user_meta( $user_id, VX_User_Meta::PLAN, true ) ?: 'Gratuito';
+                $planes      = vx_get_planes();
+                $nonce_plan  = wp_create_nonce( 'vx_cambiar_plan_' . $user_id );
+                $html  = '<span style="font-size:12px;font-weight:600;color:#1a2335">' . esc_html( $plan_actual ) . '</span><br>';
+                $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '" style="margin-top:4px">';
+                $html .= '<input type="hidden" name="action" value="vx_cambiar_plan">';
+                $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
+                $html .= '<input type="hidden" name="_wpnonce" value="' . $nonce_plan . '">';
+                $html .= '<select name="plan" onchange="this.form.submit()" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151;max-width:120px">';
+                $html .= '<option value="">Cambiar...</option>';
+                foreach ( $planes as $p ) {
+                    $html .= '<option value="' . esc_attr( $p ) . '"' . selected( $p, $plan_actual, false ) . '>' . esc_html( $p ) . '</option>';
+                }
+                $html .= '</select></form>';
+                return $html;
+
+            // ── Fecha de vencimiento (editable) ───────────────────────────────
+            case 'vx_vencimiento':
+                $user       = get_userdata( $user_id );
+                $expiry_ts  = (int) get_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, true );
+
+                // Auto-calcular: fecha de registro + 90 días si no hay vencimiento
+                if ( ! $expiry_ts && $user ) {
+                    $expiry_ts = strtotime( $user->user_registered ) + ( 90 * DAY_IN_SECONDS );
+                    update_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, $expiry_ts );
+                }
+
+                $expiry_date = $expiry_ts ? date( 'Y-m-d', $expiry_ts ) : '';
+                $diff        = $expiry_ts ? ( $expiry_ts - time() ) : 0;
+                $color       = $diff < 0 ? '#dc2626' : ( $diff < 7 * DAY_IN_SECONDS ? '#f59e0b' : '#059669' );
+                $label       = $diff < 0 ? '⚠ Venció' : '✓ Vence';
+
+                $html  = '<span style="font-size:12px;color:' . $color . ';font-weight:500">' . $label . '</span>';
+                $html .= '<br><form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '" style="margin-top:4px;display:flex;gap:3px;align-items:center">';
+                $html .= '<input type="hidden" name="action" value="vx_set_vencimiento">';
+                $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
+                $html .= wp_nonce_field( 'vx_set_vencimiento_' . $user_id, '_wpnonce', true, false );
+                $html .= '<input type="date" name="vencimiento" value="' . esc_attr( $expiry_date ) . '" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151;width:120px">';
+                $html .= '<button type="submit" class="button button-small" style="font-size:11px;padding:1px 6px">✓</button>';
+                $html .= '</form>';
+                return $html;
+
+            // ── Distintivo Pionero ─────────────────────────────────────────────
+            case 'vx_pionero':
+                $es_fundador = (bool) get_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
+                if ( $es_fundador ) {
+                    $rm_url = wp_nonce_url( admin_url( 'users.php?action=vx_quitar_pionero&user_id=' . $user_id ), 'vx_quitar_pionero_' . $user_id );
+                    return '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700">⭐ Pionero</span><br>'
+                         . '<a href="' . esc_url( $rm_url ) . '" style="font-size:10px;color:#dc2626;margin-top:4px;display:block" onclick="return confirm(\'¿Quitar distintivo Pionero?\')">✕ Quitar</a>';
+                } else {
+                    $add_url = wp_nonce_url( admin_url( 'users.php?action=vx_dar_pionero&user_id=' . $user_id ), 'vx_dar_pionero_' . $user_id );
+                    return '<span style="color:#9ca3af;font-size:12px">—</span><br>'
+                         . '<a href="' . esc_url( $add_url ) . '" style="font-size:10px;color:#d97706;margin-top:4px;display:block">⭐ Dar</a>';
+                }
 
             case 'vx_plan':
                 $es_fundador = (bool) get_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
@@ -362,6 +430,19 @@ class VX_Admin_Users
             : (int) strtotime( '+' . $dias . ' days' );
         $membresia->activate( $plan, $expiry );
 
+        wp_safe_redirect( admin_url( 'users.php?vx_plan_cambiado=1' ) );
+        exit;
+    }
+
+    /** Cambia el plan de un usuario desde el dropdown inline. */
+    public static function handle_cambiar_plan(): void
+    {
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+        $user_id = absint( $_POST['user_id'] ?? 0 );
+        check_admin_referer( 'vx_cambiar_plan_' . $user_id );
+        if ( ! $user_id ) wp_die( 'Usuario inválido.' );
+        $plan = sanitize_text_field( $_POST['plan'] ?? '' );
+        if ( $plan ) update_user_meta( $user_id, VX_User_Meta::PLAN, $plan );
         wp_safe_redirect( admin_url( 'users.php?vx_plan_cambiado=1' ) );
         exit;
     }
