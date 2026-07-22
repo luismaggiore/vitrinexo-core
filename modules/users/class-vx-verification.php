@@ -86,13 +86,39 @@ class VX_Verification
     }
 
     /**
-     * Activa una cuenta: cambia vx_estado a 'activo' y envía email de bienvenida.
-     *
-     * @param int $user_id
+     * Activa una cuenta: cambia vx_estado a 'activo', asigna distintivo Pionero
+     * si es uno de los primeros 100, y establece vencimiento 3 meses.
      */
     public static function activate_account( int $user_id ): void
     {
         update_user_meta( $user_id, VX_User_Meta::ESTADO, 'activo' );
+
+        // ── Distintivo Pionero (primeros 100 miembros activos) ─────────────
+        $activos = get_users( [
+            'meta_key'   => VX_User_Meta::ESTADO,
+            'meta_value' => 'activo',
+            'count_total' => true,
+            'number'     => 1,
+            'fields'     => 'ids',
+        ] );
+        $total_activos = count( get_users( [
+            'meta_key'   => VX_User_Meta::ESTADO,
+            'meta_value' => 'activo',
+            'number'     => -1,
+            'fields'     => 'ids',
+        ] ) );
+        if ( $total_activos <= 100 ) {
+            update_user_meta( $user_id, 'vx_es_fundador', 1 );
+        }
+
+        // ── Vencimiento automático: 3 meses desde la aprobación ───────────
+        $vencimiento = ( new DateTime( 'now', new DateTimeZone( 'America/Santiago' ) ) )
+            ->modify( '+3 months' )
+            ->format( 'Y-m-d' );
+        $vencimiento_actual = get_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, true );
+        if ( empty( $vencimiento_actual ) ) {
+            update_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, $vencimiento );
+        }
 
         $user = VX_User::get( $user_id );
         if ( ! $user ) return;
@@ -100,8 +126,8 @@ class VX_Verification
         VX_Mailer::send(
             $user->get_email(),
             '¡Bienvenido a Vitrinexo, ' . $user->get_nombre() . '!',
-            'bienvenida',
-            [ 'nombre' => $user->get_nombre() ]
+            'aprobacion',
+            [ 'nombre' => $user->get_nombre(), 'link' => home_url( '/ingresar/' ) ]
         );
 
         do_action( 'vx_account_activated', $user_id );

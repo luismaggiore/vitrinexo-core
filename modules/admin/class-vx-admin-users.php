@@ -71,12 +71,16 @@ class VX_Admin_Users
 
     public static function add_columns( array $columns ): array
     {
-        // Eliminar columnas de WordPress que no aplican
         unset( $columns['posts'] );
 
         $new_columns = [];
         foreach ( $columns as $key => $label ) {
             $new_columns[ $key ] = $label;
+            if ( 'name' === $key ) {
+                $new_columns['vx_empresa']  = 'Empresa';
+                $new_columns['vx_cargo']    = 'Cargo';
+                $new_columns['vx_telefono'] = 'Teléfono';
+            }
             if ( 'email' === $key ) {
                 $new_columns['vx_estado']      = 'Estado';
                 $new_columns['vx_plan']        = 'Plan';
@@ -92,6 +96,12 @@ class VX_Admin_Users
     public static function render_column( string $output, string $column, int $user_id ): string
     {
         switch ( $column ) {
+            case 'vx_empresa':
+                return esc_html( get_user_meta( $user_id, 'vx_empresa_inicial', true ) ?: '—' );
+            case 'vx_cargo':
+                return esc_html( get_user_meta( $user_id, VX_User_Meta::CARGO, true ) ?: '—' );
+            case 'vx_telefono':
+                return esc_html( get_user_meta( $user_id, VX_User_Meta::TELEFONO, true ) ?: '—' );
             case 'vx_estado':
                 $estado = get_user_meta( $user_id, VX_User_Meta::ESTADO, true );
                 $labels = [
@@ -654,6 +664,33 @@ class VX_Admin_Users
         add_action( 'edit_user_profile',        [ self::class, 'render_profile_fields' ] );
         add_action( 'personal_options_update',  [ self::class, 'save_profile_fields' ] );
         add_action( 'edit_user_profile_update', [ self::class, 'save_profile_fields' ] );
+        // Agregar campos también al formulario "Añadir usuario"
+        add_action( 'user_new_form',            [ self::class, 'render_profile_fields_new' ] );
+        add_action( 'user_register',            [ self::class, 'save_profile_fields' ] );
+    }
+
+    public static function render_profile_fields_new(): void
+    {
+        ?>
+        <h2>Datos Vitrinexo</h2>
+        <table class="form-table" role="presentation">
+        <?php
+        $fields = [
+            [ 'key' => 'vx_empresa_inicial',  'label' => 'Empresa',   'type' => 'text' ],
+            [ 'key' => VX_User_Meta::CARGO,    'label' => 'Cargo',     'type' => 'text' ],
+            [ 'key' => VX_User_Meta::LINKEDIN, 'label' => 'LinkedIn',  'type' => 'url'  ],
+            [ 'key' => VX_User_Meta::PAIS,     'label' => 'País',      'type' => 'text' ],
+            [ 'key' => VX_User_Meta::TELEFONO, 'label' => 'Teléfono',  'type' => 'tel'  ],
+            [ 'key' => VX_User_Meta::ESTADO,   'label' => 'Estado',    'type' => 'text' ],
+        ];
+        foreach ( $fields as $f ) : ?>
+        <tr>
+            <th><label for="vx_new_<?php echo esc_attr( $f['key'] ); ?>"><?php echo esc_html( $f['label'] ); ?></label></th>
+            <td><input type="<?php echo esc_attr( $f['type'] ); ?>" name="vx_<?php echo esc_attr( $f['key'] ); ?>" id="vx_new_<?php echo esc_attr( $f['key'] ); ?>" value="" class="regular-text" /></td>
+        </tr>
+        <?php endforeach; ?>
+        </table>
+        <?php
     }
 
     public static function render_profile_fields( WP_User $user ): void

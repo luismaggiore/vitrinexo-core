@@ -168,6 +168,22 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     $user_id = wp_create_user( $email, $password, $email );
 
     if ( is_wp_error( $user_id ) ) {
+        $code = $user_id->get_error_code();
+        if ( $code === 'existing_user_login' || $code === 'existing_user_email' ) {
+            return new WP_REST_Response( [ 'success' => false, 'error' => 'email_existente', 'message' => 'Ese email ya está registrado.' ], 409 );
+        }
+        return new WP_REST_Response( [ 'success' => false, 'error' => $code ], 500 );
+    }
+
+    // Actualizar nombre en la tabla wp_users para que aparezca en el admin
+    wp_update_user( [
+        'ID'           => $user_id,
+        'first_name'   => $nombre,
+        'last_name'    => $apellido,
+        'display_name' => $nombre . ' ' . $apellido,
+    ] );
+
+    if ( is_wp_error( $user_id ) ) {
         return new WP_REST_Response( [ 'success' => false, 'error' => $user_id->get_error_code() ], 500 );
     }
 
@@ -198,6 +214,19 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     // Guardar empresa inicial en meta temporal (para el onboarding paso 3)
     if ( $empresa ) {
         update_user_meta( $user_id, 'vx_empresa_inicial', $empresa );
+
+        // Crear entrada en el CPT vx_empresa para que aparezca en el listado
+        $empresa_id = wp_insert_post( [
+            'post_type'   => 'vx_empresa',
+            'post_title'  => sanitize_text_field( $empresa ),
+            'post_status' => 'publish',
+            'post_author' => $user_id,
+        ] );
+        if ( $empresa_id && ! is_wp_error( $empresa_id ) ) {
+            update_post_meta( $empresa_id, 'vx_user_id',        $user_id );
+            update_post_meta( $empresa_id, 'vx_empresa_activa', '1' );
+            update_post_meta( $empresa_id, 'vx_industria',      sanitize_text_field( $rubro ) );
+        }
     }
 
     // Guardar cargo y LinkedIn
