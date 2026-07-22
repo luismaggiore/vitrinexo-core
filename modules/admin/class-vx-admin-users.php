@@ -53,6 +53,9 @@ class VX_Admin_Users
 
         // Gestión de plan
         add_action( 'admin_action_vx_set_plan',             [ self::class, 'handle_set_plan' ] );
+        add_action( 'admin_action_vx_set_vencimiento',      [ self::class, 'handle_set_vencimiento' ] );
+        add_action( 'admin_action_vx_dar_pionero',          [ self::class, 'handle_dar_pionero' ] );
+        add_action( 'admin_action_vx_quitar_pionero',       [ self::class, 'handle_quitar_pionero' ] );
         add_action( 'admin_action_vx_normalize_ciudades',   [ self::class, 'handle_normalize_ciudades' ] );
 
         // Filtro por estado en la lista
@@ -133,71 +136,47 @@ class VX_Admin_Users
             case 'vx_plan':
                 $es_fundador = (bool) get_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
                 $plan        = get_user_meta( $user_id, VX_User_Meta::PLAN, true ) ?: 'gratuito';
-                $plan_estado = get_user_meta( $user_id, VX_User_Meta::PLAN_ESTADO, true );
-                $expiry      = (int) get_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, true );
-                $color       = 'activo' === $plan_estado ? 'green' : '#999';
+                $expiry_ts   = (int) get_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, true );
+                $expiry_date = $expiry_ts ? date( 'Y-m-d', $expiry_ts ) : '';
 
-                $plans_disponibles = [ 'gratuito', 'mensual', 'anual', 'preferencial' ];
-                // Badge fundador (permanente, independiente del plan)
+                // Distintivo Pionero
                 $html = $es_fundador
-                    ? '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-bottom:3px;display:inline-block">⭐ Pionero</span><br>'
+                    ? '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-bottom:4px;display:inline-block">⭐ Pionero</span><br>'
                     : '';
-                // Plan de facturación
-                $html .= '<span style="color:' . $color . ';font-weight:600">' . esc_html( ucfirst( $plan ) ) . '</span>';
-                if ( $expiry ) {
-                    $diff = $expiry - time();
-                    $color_exp = $diff < 0 ? 'red' : ( $diff < 7 * DAY_IN_SECONDS ? '#f59e0b' : '#6b7280' );
-                    $label = $diff < 0 ? 'venció ' : 'vence ';
-                    $html .= ' <small style="color:' . $color_exp . '">' . $label . date_i18n( 'd/m/Y', $expiry ) . '</small>';
+
+                // Nombre del plan
+                $html .= '<span style="font-weight:600;color:#1a2335">' . esc_html( ucfirst( $plan ) ) . '</span>';
+
+                // Fecha de vencimiento editable inline
+                $nonce = wp_create_nonce( 'vx_set_vencimiento_' . $user_id );
+                if ( $expiry_ts ) {
+                    $diff      = $expiry_ts - time();
+                    $color_exp = $diff < 0 ? '#dc2626' : ( $diff < 7 * DAY_IN_SECONDS ? '#f59e0b' : '#059669' );
+                    $label     = $diff < 0 ? 'Venció: ' : 'Vence: ';
+                    $html .= '<br><small style="color:' . $color_exp . ';font-weight:500">' . $label . date_i18n( 'd/m/Y', $expiry_ts ) . '</small>';
                 } else {
-                    $html .= ' <small style="color:#6b7280">sin vencimiento</small>';
+                    $html .= '<br><small style="color:#9ca3af">Sin vencimiento</small>';
                 }
 
-                // Botones rápidos para cambiar distintivo Pionero
-                if ( $es_fundador ) {
-                    $rm_founder_url = wp_nonce_url(
-                        admin_url( 'users.php?action=vx_set_plan&user_id=' . $user_id . '&plan=gratuito&dias=0&quitar_fundador=1' ),
-                        'vx_set_plan_' . $user_id
-                    );
-                } else {
-                    $add_founder_url = wp_nonce_url(
-                        admin_url( 'users.php?action=vx_set_plan&user_id=' . $user_id . '&plan=gratuito&dias=0&dar_fundador=1' ),
-                        'vx_set_plan_' . $user_id
-                    );
-                }
-                $html .= '<br><select onchange="this.nextElementSibling.querySelector(\'input\').name=\'plan\';this.nextElementSibling.style.display=\'inline\'" style="font-size:11px;margin-top:3px">';
-                $html .= '<option value="">Cambiar plan...</option>';
-                foreach ( $plans_disponibles as $p ) {
-                    if ( $p !== $plan ) {
-                        $html .= '<option value="' . esc_attr( $p ) . '">' . esc_html( ucfirst( $p ) ) . '</option>';
-                    }
-                }
-                $html .= '</select>';
-                $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '" style="display:none;margin-top:3px">';
-                $html .= wp_nonce_field( 'vx_set_plan_' . $user_id, '_wpnonce', true, false );
-                $html .= '<input type="hidden" name="action" value="vx_set_plan">';
+                // Formulario de fecha inline
+                $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '" style="margin-top:5px;display:flex;gap:4px;align-items:center">';
+                $html .= '<input type="hidden" name="action" value="vx_set_vencimiento">';
                 $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
-                $html .= '<input type="hidden" name="plan" value="">';
-                $html .= '<input type="number" name="dias" value="180" min="1" max="3650" style="width:50px;font-size:11px" title="Días de vigencia">';
-                $html .= '<button type="submit" class="button button-small" style="font-size:11px">Aplicar</button>';
+                $html .= wp_nonce_field( 'vx_set_vencimiento_' . $user_id, '_wpnonce', true, false );
+                $html .= '<input type="date" name="vencimiento" value="' . esc_attr( $expiry_date ) . '" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151">';
+                $html .= '<button type="submit" class="button button-small" style="font-size:11px;padding:1px 6px">✓</button>';
                 $html .= '</form>';
-                $html .= '<script>document.querySelectorAll(\'select\').forEach(function(s){s.addEventListener(\'change\',function(){var f=this.nextElementSibling;f.querySelector(\'[name=plan]\').value=this.value;f.style.display=this.value?\'inline\':\'none\';});});</script>';
 
                 // Toggle distintivo Pionero
-                $html .= '<br style="margin-top:4px">';
                 if ( $es_fundador ) {
-                    $rm_url = wp_nonce_url(
-                        admin_url( 'users.php?action=vx_set_plan&user_id=' . $user_id . '&quitar_fundador=1' ),
-                        'vx_set_plan_' . $user_id
-                    );
-                    $html .= '<a href="' . esc_url( $rm_url ) . '" style="font-size:11px;color:#dc2626" onclick="return confirm(\'¿Quitar distintivo Pionero? Esto es permanente.\')">✕ Quitar distintivo Pionero</a>';
+                    $rm_url = wp_nonce_url( admin_url( 'users.php?action=vx_quitar_pionero&user_id=' . $user_id ), 'vx_quitar_pionero_' . $user_id );
+                    $html .= '<a href="' . esc_url( $rm_url ) . '" style="font-size:10px;color:#dc2626;display:block;margin-top:3px" onclick="return confirm(\'¿Quitar distintivo Pionero?\')">✕ Quitar distintivo</a>';
                 } else {
-                    $add_url = wp_nonce_url(
-                        admin_url( 'users.php?action=vx_set_plan&user_id=' . $user_id . '&dar_fundador=1' ),
-                        'vx_set_plan_' . $user_id
-                    );
-                    $html .= '<a href="' . esc_url( $add_url ) . '" style="font-size:11px;color:#d97706">⭐ Dar distintivo Pionero</a>';
+                    $add_url = wp_nonce_url( admin_url( 'users.php?action=vx_dar_pionero&user_id=' . $user_id ), 'vx_dar_pionero_' . $user_id );
+                    $html .= '<a href="' . esc_url( $add_url ) . '" style="font-size:10px;color:#d97706;display:block;margin-top:3px">⭐ Dar distintivo</a>';
                 }
+
+                return $html;
 
                 return $html;
 
@@ -387,7 +366,44 @@ class VX_Admin_Users
         exit;
     }
 
-    // ── Normalización de ciudades existentes ─────────────────────────────────
+    /** Actualiza la fecha de vencimiento del plan desde el input date inline. */
+    public static function handle_set_vencimiento(): void
+    {
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+        $user_id = absint( $_POST['user_id'] ?? 0 );
+        check_admin_referer( 'vx_set_vencimiento_' . $user_id );
+        if ( ! $user_id ) wp_die( 'Usuario inválido.' );
+
+        $fecha = sanitize_text_field( $_POST['vencimiento'] ?? '' );
+        $ts    = $fecha ? (int) strtotime( $fecha . ' 23:59:59' ) : 0;
+        update_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, $ts );
+        wp_safe_redirect( admin_url( 'users.php?vx_plan_cambiado=1' ) );
+        exit;
+    }
+
+    /** Asigna el distintivo Pionero. */
+    public static function handle_dar_pionero(): void
+    {
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+        $user_id = absint( $_GET['user_id'] ?? 0 );
+        check_admin_referer( 'vx_dar_pionero_' . $user_id );
+        update_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
+        update_user_meta( $user_id, VX_User_Meta::PRECIO_PREFERENTE, true );
+        wp_safe_redirect( admin_url( 'users.php?vx_plan_cambiado=1' ) );
+        exit;
+    }
+
+    /** Quita el distintivo Pionero. */
+    public static function handle_quitar_pionero(): void
+    {
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
+        $user_id = absint( $_GET['user_id'] ?? 0 );
+        check_admin_referer( 'vx_quitar_pionero_' . $user_id );
+        update_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, false );
+        update_user_meta( $user_id, VX_User_Meta::PRECIO_PREFERENTE, false );
+        wp_safe_redirect( admin_url( 'users.php?vx_plan_cambiado=1' ) );
+        exit;
+    }
 
     /**
      * Muestra el aviso con el botón de normalizar ciudades en el listado de usuarios.
