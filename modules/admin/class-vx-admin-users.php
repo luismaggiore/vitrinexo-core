@@ -147,7 +147,8 @@ class VX_Admin_Users
                 if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">—</span>';
                 $plan_actual = get_user_meta( $user_id, VX_User_Meta::PLAN, true ) ?: 'Gratuito';
                 $planes      = vx_get_planes();
-                $html  = '<span style="font-size:12px;font-weight:600;color:#1a2335;display:block;margin-bottom:4px">' . esc_html( $plan_actual ) . '</span>';
+                $html  = '<span style="font-size:12px;font-weight:600;color:#1a2335">' . esc_html( $plan_actual ) . '</span>';
+                $html .= '<div class="vx-edit-control-block">';
                 $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '">';
                 $html .= '<input type="hidden" name="action" value="vx_cambiar_plan">';
                 $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
@@ -157,7 +158,7 @@ class VX_Admin_Users
                 foreach ( $planes as $p ) {
                     if ( $p !== $plan_actual ) $html .= '<option value="' . esc_attr( $p ) . '">' . esc_html( $p ) . '</option>';
                 }
-                $html .= '</select></form>';
+                $html .= '</select></form></div>';
                 return $html;
 
             // ── Fecha de vencimiento (editable) ───────────────────────────────
@@ -168,7 +169,6 @@ class VX_Admin_Users
                 $expiry_ts   = (int) get_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, true );
                 $meta_exists = metadata_exists( 'user', $user_id, VX_User_Meta::PLAN_VENCIMIENTO );
 
-                // Auto-calcular solo si no se ha guardado nunca
                 if ( ! $meta_exists && $user ) {
                     $expiry_ts = strtotime( $user->user_registered ) + ( 90 * DAY_IN_SECONDS );
                     update_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, $expiry_ts );
@@ -176,17 +176,26 @@ class VX_Admin_Users
 
                 $expiry_date = ( $expiry_ts > 86400 ) ? date( 'Y-m-d', $expiry_ts ) : '';
                 $diff        = $expiry_ts > 86400 ? ( $expiry_ts - time() ) : 0;
-                $color       = ! $expiry_date ? '#9ca3af' : ( $diff < 0 ? '#dc2626' : ( $diff < 7 * DAY_IN_SECONDS ? '#f59e0b' : '#059669' ) );
-                $label       = ! $expiry_date ? '—' : ( $diff < 0 ? '⚠ Venció ' . date_i18n( 'd/m/Y', $expiry_ts ) : date_i18n( 'd/m/Y', $expiry_ts ) );
 
-                $html  = '<span style="font-size:12px;color:' . $color . ';font-weight:500;display:block;margin-bottom:4px">' . $label . '</span>';
+                if ( ! $expiry_date ) {
+                    $label = '—'; $color = '#9ca3af';
+                } elseif ( $diff < 0 ) {
+                    $label = '⚠ ' . date_i18n( 'd/m/Y', $expiry_ts ); $color = '#dc2626';
+                } elseif ( $diff < 7 * DAY_IN_SECONDS ) {
+                    $label = date_i18n( 'd/m/Y', $expiry_ts ); $color = '#f59e0b';
+                } else {
+                    $label = date_i18n( 'd/m/Y', $expiry_ts ); $color = '#059669';
+                }
+
+                $html  = '<span style="font-size:12px;color:' . $color . ';font-weight:500;white-space:nowrap">' . $label . '</span>';
+                $html .= '<div class="vx-edit-control">';
                 $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '" style="display:flex;gap:3px;align-items:center">';
                 $html .= '<input type="hidden" name="action" value="vx_set_vencimiento">';
                 $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
                 $html .= wp_nonce_field( 'vx_set_vencimiento_' . $user_id, '_wpnonce', true, false );
                 $html .= '<input type="date" name="vencimiento" value="' . esc_attr( $expiry_date ) . '" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151">';
-                $html .= '<button type="submit" class="button button-small" style="font-size:11px;padding:1px 6px">✓</button>';
-                $html .= '</form>';
+                $html .= '<button type="submit" class="button button-small" style="font-size:11px;padding:1px 5px">✓</button>';
+                $html .= '</form></div>';
                 return $html;
 
             // ── Distintivo Pionero ─────────────────────────────────────────────
@@ -440,13 +449,24 @@ class VX_Admin_Users
     public static function users_table_css(): void
     {
         echo '<style>
-        #the-list td { vertical-align: middle; padding: 8px 10px; }
-        .column-vx_registro, .column-vx_pionero { width: 90px; }
-        .column-vx_plan { width: 130px; }
-        .column-vx_vencimiento { width: 140px; }
-        .column-vx_estado { width: 120px; }
-        .column-vx_empresa, .column-vx_cargo { width: 120px; }
-        .column-vx_telefono { width: 110px; }
+        /* Filas más compactas */
+        #the-list tr { height: auto !important; }
+        #the-list td { vertical-align: middle !important; padding: 6px 8px !important; }
+        #the-list td.column-username { width: 130px; }
+        .column-vx_registro  { width: 80px; white-space: nowrap; }
+        .column-vx_plan      { width: 120px; }
+        .column-vx_vencimiento { width: 100px; }
+        .column-vx_pionero   { width: 80px; text-align: center; }
+        .column-vx_estado    { width: 100px; }
+        .column-vx_empresa   { width: 130px; }
+        .column-vx_cargo     { width: 120px; }
+        .column-vx_telefono  { width: 110px; }
+
+        /* Controles inline: visibles solo en hover */
+        .vx-edit-control { display: none; margin-top: 3px; }
+        td:hover .vx-edit-control { display: flex; gap: 3px; align-items: center; }
+        td:hover .vx-edit-control-block { display: block; margin-top: 3px; }
+        .vx-edit-control-block { display: none; margin-top: 3px; }
         </style>';
     }
 
