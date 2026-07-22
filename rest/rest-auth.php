@@ -3,6 +3,24 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 add_action( 'rest_api_init', function () {
 
+    // GET /stats/inscritos — contador público de inscritos
+    register_rest_route( VX_REST_NAMESPACE, '/stats/inscritos', [
+        'methods'             => 'GET',
+        'callback'            => function() {
+            $counts   = count_users();
+            $total    = max( 0, ( $counts['total_users'] ?? 0 ) - 2 ); // restar los 2 admins
+            $cupo     = 100;
+            $restante = max( 0, $cupo - $total );
+            return new WP_REST_Response( [
+                'inscritos' => $total,
+                'cupo'      => $cupo,
+                'restante'  => $restante,
+                'porcentaje'=> min( 100, round( $total / $cupo * 100 ) ),
+            ] );
+        },
+        'permission_callback' => '__return_true',
+    ] );
+
     // GET /aprobar-usuario — aprueba usuario vía token de email
     register_rest_route( VX_REST_NAMESPACE, '/aprobar-usuario', [
         'methods'             => 'GET',
@@ -144,7 +162,7 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     }
 
     if ( strlen( $password ) < 8 ) {
-        return new WP_REST_Response( [ 'success' => false, 'error' => 'password_muy_corta' ], 400 );
+        return new WP_REST_Response( [ 'success' => false, 'error' => 'password_muy_corta', 'message' => 'La contraseña debe tener al menos 8 caracteres.' ], 400 );
     }
 
     $user_id = wp_create_user( $email, $password, $email );

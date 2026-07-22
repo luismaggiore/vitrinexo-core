@@ -178,46 +178,65 @@ add_shortcode( 'vx_landing', function (): string {
                 <div class="founder-form-card">
                     <div id="founderFormView">
                         <h3>Inscríbete</h3>
-                        <div class="alert-vx alert-warning mb-3" style="padding:8px 12px">
-                            <i class="ti ti-clock" style="font-size:15px"></i>
-                            <span style="font-size:12px">Cupos limitados como Miembros Pioneros <strong>(Primeros 100 inscritos)</strong></span>
+
+                        <!-- Contador de inscritos con barra de progreso -->
+                        <div id="founderCounter" style="margin-bottom:16px">
+                            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+                                <span style="font-size:13px;color:var(--color-text-muted)">Miembros Pioneros</span>
+                                <span id="founderCountText" style="font-size:13px;font-weight:600;color:var(--color-primary)">— / 100</span>
+                            </div>
+                            <div style="background:#e8f0fe;border-radius:999px;height:6px;overflow:hidden">
+                                <div id="founderProgressBar" style="height:100%;width:0%;background:var(--color-primary);border-radius:999px;transition:width .6s ease"></div>
+                            </div>
+                            <p id="founderCountSub" style="font-size:12px;color:var(--color-text-muted);margin:4px 0 0"></p>
                         </div>
+
                         <div id="founderFormError" class="alert-vx alert-error mb-2" style="display:none;padding:8px 12px;font-size:13px"></div>
                         <form id="founderForm">
                             <div class="row g-2 mb-2">
                                 <div class="col-6">
                                     <label class="form-label-vx">Nombre *</label>
-                                    <input class="form-control-vx" name="nombre" required placeholder="Tu nombre" />
+                                    <input class="form-control-vx" name="nombre" required autocomplete="given-name" />
                                 </div>
                                 <div class="col-6">
                                     <label class="form-label-vx">Apellido *</label>
-                                    <input class="form-control-vx" name="apellido" required placeholder="Tu apellido" />
+                                    <input class="form-control-vx" name="apellido" required autocomplete="family-name" />
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label-vx">Email corporativo *</label>
-                                <div class="input-group-vx">
-                                    <span class="input-icon"><i class="ti ti-mail"></i></span>
-                                    <input type="email" name="email" required placeholder="hola@tuempresa.com" />
+                                <label class="form-label-vx">Email *</label>
+                                <input type="email" class="form-control-vx" name="email" required autocomplete="email" />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label-vx">Contraseña *</label>
+                                <div style="position:relative">
+                                    <input type="password" class="form-control-vx" name="password" required autocomplete="new-password" id="founderPassword" style="padding-right:40px" />
+                                    <button type="button" id="founderPwdToggle" tabindex="-1" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:4px">
+                                        <i class="ti ti-eye" id="founderPwdIcon" style="font-size:16px"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label-vx">Empresa *</label>
-                                <input class="form-control-vx" name="empresa" required placeholder="Nombre de tu empresa" />
+                                <input class="form-control-vx" name="empresa" required autocomplete="organization" />
                             </div>
                             <div class="mb-2">
                                 <label class="form-label-vx">Cargo *</label>
-                                <input class="form-control-vx" name="cargo" required placeholder="Tu cargo o rol en la empresa" />
+                                <input class="form-control-vx" name="cargo" required autocomplete="organization-title" />
                             </div>
                             <div class="mb-2">
                                 <label class="form-label-vx">LinkedIn *</label>
-                                <input type="url" class="form-control-vx" name="linkedin" required placeholder="https://linkedin.com/in/tu-perfil" />
+                                <input type="url" class="form-control-vx" name="linkedin" required autocomplete="url" />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label-vx">Teléfono celular *</label>
+                                <input type="tel" class="form-control-vx" name="telefono" required autocomplete="tel" />
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
                                     <label class="form-label-vx">País *</label>
-                                    <select class="form-control-vx" name="pais" required>
-                                        <option value="">Selecciona</option>
+                                    <select class="form-control-vx" name="pais" id="founderPais" required>
+                                        <option value="">Detectando...</option>
                                         <?php foreach ( [ 'Chile','México','Colombia','Argentina','Perú','España','Ecuador','Uruguay','Venezuela','Bolivia','Paraguay','Guatemala','Honduras','El Salvador','Nicaragua','Costa Rica','Panamá','Cuba','República Dominicana','Estados Unidos','Otro' ] as $p ) : ?>
                                         <option><?php echo esc_html( $p ); ?></option>
                                         <?php endforeach; ?>
@@ -249,15 +268,78 @@ add_shortcode( 'vx_landing', function (): string {
 
     <script>
     (function() {
-        var form   = document.getElementById('founderForm');
-        var view   = document.getElementById('founderFormView');
-        var success = document.getElementById('founderFormSuccess');
-        var errBox = document.getElementById('founderFormError');
-        if (!form) return;
+        // ── Contador de inscritos ──────────────────────────────────────────
+        fetch('/wp-json/vitrinexo/v1/stats/inscritos')
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                document.getElementById('founderCountText').textContent = d.inscritos + ' / ' + d.cupo;
+                document.getElementById('founderProgressBar').style.width = d.porcentaje + '%';
+                var restante = d.restante;
+                document.getElementById('founderCountSub').textContent =
+                    restante > 0
+                        ? 'Quedan ' + restante + ' cupos gratuitos.'
+                        : '¡Cupos agotados! Únete a la lista de espera.';
+            })
+            .catch(function(){});
 
-        function randPass() {
-            return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2).toUpperCase() + '!9';
+        // ── Autodetección de país por IP ──────────────────────────────────
+        var paisSelect = document.getElementById('founderPais');
+        fetch('https://ipapi.co/json/')
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                var pais = d.country_name || '';
+                // Mapear nombres en inglés a español
+                var mapa = {
+                    'Chile':'Chile','Mexico':'México','Colombia':'Colombia',
+                    'Argentina':'Argentina','Peru':'Perú','Spain':'España',
+                    'Ecuador':'Ecuador','Uruguay':'Uruguay','Venezuela':'Venezuela',
+                    'Bolivia':'Bolivia','Paraguay':'Paraguay','Guatemala':'Guatemala',
+                    'Honduras':'Honduras','El Salvador':'El Salvador','Nicaragua':'Nicaragua',
+                    'Costa Rica':'Costa Rica','Panama':'Panamá','Cuba':'Cuba',
+                    'Dominican Republic':'República Dominicana','United States':'Estados Unidos'
+                };
+                var paisEs = mapa[pais] || '';
+                if (paisSelect) {
+                    if (paisEs) {
+                        paisSelect.value = paisEs;
+                    }
+                    if (!paisSelect.value || paisSelect.value === '') {
+                        // Agregar la opción si no existe
+                        var opt = document.createElement('option');
+                        opt.value = pais; opt.textContent = pais; opt.selected = true;
+                        paisSelect.insertBefore(opt, paisSelect.options[1]);
+                    }
+                    // Primer option vacío → quitar "Detectando..."
+                    if (paisSelect.options[0].value === '') {
+                        paisSelect.options[0].textContent = 'Selecciona';
+                    }
+                }
+            })
+            .catch(function(){
+                if (paisSelect && paisSelect.options[0]) {
+                    paisSelect.options[0].textContent = 'Selecciona';
+                    paisSelect.value = '';
+                }
+            });
+
+        // ── Toggle contraseña ─────────────────────────────────────────────
+        var pwdInput  = document.getElementById('founderPassword');
+        var pwdToggle = document.getElementById('founderPwdToggle');
+        var pwdIcon   = document.getElementById('founderPwdIcon');
+        if (pwdToggle) {
+            pwdToggle.addEventListener('click', function(){
+                var show = pwdInput.type === 'password';
+                pwdInput.type  = show ? 'text' : 'password';
+                pwdIcon.className = show ? 'ti ti-eye-off' : 'ti ti-eye';
+            });
         }
+
+        // ── Submit ────────────────────────────────────────────────────────
+        var form    = document.getElementById('founderForm');
+        var view    = document.getElementById('founderFormView');
+        var success = document.getElementById('founderFormSuccess');
+        var errBox  = document.getElementById('founderFormError');
+        if (!form) return;
 
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -269,7 +351,6 @@ add_shortcode( 'vx_landing', function (): string {
 
             var data = {};
             new FormData(form).forEach(function(v, k) { data[k] = v; });
-            data.password = randPass();
 
             try {
                 var res  = await fetch('/wp-json/vitrinexo/v1/registrar', {
@@ -286,16 +367,15 @@ add_shortcode( 'vx_landing', function (): string {
                     if (json.error === 'email_existente') msg = 'Ese email ya está registrado.';
                     btn.innerHTML = orig; btn.disabled = false;
                     if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
-                    else alert(msg);
                 }
             } catch(err) {
                 btn.innerHTML = orig; btn.disabled = false;
                 if (errBox) { errBox.textContent = 'Error de conexión. Intenta de nuevo.'; errBox.style.display = 'block'; }
-                else alert('Error de conexión. Intenta de nuevo.');
             }
         });
     })();
     </script>
+
     <?php endif; /* !$is_logged */ ?>
 
     <?php
