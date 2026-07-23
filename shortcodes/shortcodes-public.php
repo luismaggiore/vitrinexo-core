@@ -11,22 +11,18 @@ add_shortcode( 'vx_landing', function (): string {
     ob_start();
     ?>
 
-    <!-- ── Hero rediseñado 40/60 ── -->
-    <section class="vx-hero-split">
-        <div class="vx-hero-split__text">
-            <div class="vx-hero-split__inner">
-                <img class="vx-hero-split__logo fade-up" width="180" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
-                <h1 class="vx-hero-split__title fade-up">Tu <strong>vitrina</strong> para construir <strong>nexos</strong> de negocio.</h1>
-                <p class="vx-hero-split__lead fade-up">Muestra lo que haces y encuentra lo que necesitas. <span class="vx-name">Vitrinexo</span> conecta empresas de servicios con quienes las buscan, sin publicidad y entre pares.</p>
-                <div class="vx-hero-split__actions fade-up">
-                    <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill" href="<?php echo $is_logged ? esc_url( home_url( '/dashboard/' ) ) : '#afiliado-original'; ?>"><?php echo esc_html( $cta_label ); ?></a>
-                    <a class="btn-vx btn-outline-vx btn-vx-lg btn rounded-pill" href="#como-funciona">Cómo funciona <i class="ti ti-arrow-right"></i></a>
+    <!-- ── Hero con canvas animado ── -->
+    <section class="network-hero light">
+        <div class="container">
+            <div class="hero-content">
+                <img width="200" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
+                <h1 class="my-4">Tu <strong>vitrina</strong> para construir<br><strong>nexos</strong> de negocio.</h1>
+                <div class="mt-5">
+                    <p>Muestra lo que haces y encuentra lo que necesitas. <span class="vx-name">Vitrinexo</span> es la vitrina de servicios profesionales donde tu empresa gana visibilidad y oportunidades de negocio, sin publicidad y entre pares.</p>
                 </div>
+                <a class="btn-vx btn-primary-vx btn-vx-lg btn rounded-pill mt-4" href="<?php echo $is_logged ? esc_url( home_url( '/dashboard/' ) ) : '#afiliado-original'; ?>"><?php echo esc_html( $cta_label ); ?></a>
+                <img src="<?php echo esc_url( get_template_directory_uri() ); ?>/assets/img/1-principal-la-elegida-por-mi.png" alt="Vitrinexo" class="hero-feature-img mt-5 img-fluid" />
             </div>
-        </div>
-        <div class="vx-hero-split__media fade-in">
-            <img class="vx-hero-split__img" src="<?php echo esc_url( get_template_directory_uri() ); ?>/assets/img/1-principal-la-elegida-por-mi.png" alt="Conexiones empresariales Vitrinexo" />
-            <div class="vx-hero-split__overlay"></div>
         </div>
     </section>
 
