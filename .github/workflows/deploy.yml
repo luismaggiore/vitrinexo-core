@@ -18,34 +18,27 @@ jobs:
 
       - name: Deploy y purge de caché
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y sshpass rsync
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
           echo "=== Desplegando archivos ==="
-          sshpass -p "$SSH_PASSWORD" rsync -az --checksum --delete \
-            -e "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -p $SSH_PORT" \
+          rsync -az --checksum --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p $SSH_PORT" \
             ./ \
             "$SSH_USERNAME@$SSH_HOST:$SSH_TARGET/"
 
           echo "=== Purgando caché ==="
           WP_PATH="${SSH_TARGET%/wp-content/*}"
-
-          sshpass -p "$SSH_PASSWORD" ssh \
-            -o StrictHostKeyChecking=no \
-            -o PreferredAuthentications=password \
-            -o PubkeyAuthentication=no \
-            -o ConnectTimeout=30 \
-            -p "$SSH_PORT" \
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p "$SSH_PORT" \
             "$SSH_USERNAME@$SSH_HOST" \
             "cd '$WP_PATH' && \
-             echo '=== Configurando Resend API key ===' && \
-             echo '=== Test de renderizado PHP ===' && \
-             wp eval 'echo do_shortcode(\"[vx_landing]\");' --allow-root 2>/dev/null | grep -o 'Dices\|Dinos' | head -1 || echo 'sin resultado' && \
              wp cache flush --allow-root 2>/dev/null && echo 'Object cache OK' || true && \
              wp litespeed-purge all --allow-root 2>/dev/null && echo 'LiteSpeed OK' || true"
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_TARGET: ${{ secrets.SSH_TARGET }}
