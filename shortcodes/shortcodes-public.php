@@ -102,6 +102,15 @@ add_shortcode( 'vx_landing', function (): string {
         </div>
     </section>
 
+    <!-- ── Imagen 3-CF-3 entre Cómo funciona y Para quién es ── -->
+    <div class="section-landing" style="padding-top:0">
+        <div class="container">
+            <div class="vx-img-banner">
+                <img src="<?php echo esc_url( get_template_directory_uri() ); ?>/assets/img/3-CF-3.png" alt="Vitrinexo" />
+            </div>
+        </div>
+    </div>
+
     <!-- ── Para quién es ── -->
     <section class="section-landing" id="para-quien">
         <div class="container">
