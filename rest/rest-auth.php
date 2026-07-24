@@ -249,45 +249,37 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     $url_aprobar  = rest_url( VX_REST_NAMESPACE . '/aprobar-usuario' ) . '?uid=' . $user_id . '&token=' . $token_aprobar;
     $url_rechazar = rest_url( VX_REST_NAMESPACE . '/rechazar-usuario' ) . '?uid=' . $user_id . '&token=' . $token_rechazar;
 
-    $admins  = [ 'joao@vitrinexo.com', 'marcia@vitrinexo.com' ];
-    $asunto  = '[Vitrinexo] Nuevo registro: ' . $nombre . ' ' . $apellido;
-    $cuerpo  = '
-<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-  <img src="' . esc_url( get_template_directory_uri() ) . '/assets/img/vitrinexo.svg" alt="Vitrinexo" style="height:28px;margin-bottom:24px">
-  <h2 style="color:#1a2335;margin-bottom:4px">Nuevo registro</h2>
-  <p style="color:#5e6b7a;margin-top:0">Alguien completó el formulario de inscripción.</p>
+    // Obtener asunto e intro desde plantilla editable (Vitrinexo → Emails)
+    $tpl_data    = [
+        'nombre'       => $nombre,
+        'apellido'     => $apellido,
+        'email_usuario'=> $email,
+        'empresa'      => $empresa,
+        'cargo'        => $cargo,
+        'pais'         => $pais,
+        'telefono'     => $telefono ?? '',
+        'linkedin'     => $linkedin ?? '',
+        'url_aprobar'  => $url_aprobar,
+        'url_rechazar' => $url_rechazar,
+    ];
 
-  <table style="width:100%;border-collapse:collapse;margin:24px 0">
-    <tr><td style="padding:10px 12px;background:#f3f9fd;border-radius:6px 6px 0 0;font-weight:600;color:#3d444e;width:130px">Nombre</td>
-        <td style="padding:10px 12px;background:#f3f9fd;border-radius:6px 6px 0 0;color:#3d444e">' . esc_html( $nombre . ' ' . $apellido ) . '</td></tr>
-    <tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">Email</td>
-        <td style="padding:10px 12px;border-top:1px solid #d7e4ef;color:#3d444e">' . esc_html( $email ) . '</td></tr>
-    <tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">Empresa</td>
-        <td style="padding:10px 12px;border-top:1px solid #d7e4ef;color:#3d444e">' . esc_html( $empresa ) . '</td></tr>
-    <tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">Cargo</td>
-        <td style="padding:10px 12px;border-top:1px solid #d7e4ef;color:#3d444e">' . esc_html( $cargo ) . '</td></tr>
-    <tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">País</td>
-        <td style="padding:10px 12px;border-top:1px solid #d7e4ef;color:#3d444e">' . esc_html( $pais ) . '</td></tr>
-    ' . ( $linkedin ? '<tr><td style="padding:10px 12px;border-top:1px solid #d7e4ef;font-weight:600;color:#3d444e">LinkedIn</td>
-        <td style="padding:10px 12px;border-top:1px solid #d7e4ef"><a href="' . esc_url( $linkedin ) . '" style="color:#00aeb8">' . esc_html( $linkedin ) . '</a></td></tr>' : '' ) . '
-  </table>
+    // Leer asunto editable; reemplazar variables
+    $tpl_defaults = [
+        'subject' => '[Vitrinexo] Nuevo registro: ' . $nombre . ' ' . $apellido,
+        'intro'   => 'Alguien completó el formulario de inscripción. Revisa los datos y aprueba o rechaza la solicitud.',
+    ];
+    if ( class_exists( 'VX_Admin_Emails' ) ) {
+        $editable = VX_Admin_Emails::get( 'notificacion_admin', $tpl_data );
+        if ( ! empty( $editable['subject'] ) )    $tpl_defaults['subject'] = $editable['subject'];
+        if ( ! empty( $editable['body_text'] ) )  $tpl_defaults['intro']   = $editable['body_text'];
+    }
+    $tpl_data['intro'] = $tpl_defaults['intro'];
 
-  <div style="display:flex;gap:12px;margin:32px 0">
-    <a href="' . esc_url( $url_aprobar ) . '"
-       style="display:inline-block;background:#00aeb8;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;margin-right:12px">
-      ✓ Aprobar
-    </a>
-    <a href="' . esc_url( $url_rechazar ) . '"
-       style="display:inline-block;background:#ff4d82;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px">
-      ✗ Rechazar
-    </a>
-  </div>
-
-  <p style="color:#5e6b7a;font-size:13px">Estos botones son de un solo uso. Una vez utilizados no podrán volver a usarse.</p>
-</div>';
-
+    $asunto  = $tpl_defaults['subject'];
+    $cuerpo  = VX_Email_Templates::render( 'notificacion_admin', $tpl_data );
     $headers = [ 'Content-Type: text/html; charset=UTF-8', 'From: Vitrinexo <hola@vitrinexo.com>' ];
-    foreach ( $admins as $admin ) {
+
+    foreach ( [ 'joao@vitrinexo.com', 'marcia@vitrinexo.com' ] as $admin ) {
         wp_mail( $admin, $asunto, $cuerpo, $headers );
     }
 

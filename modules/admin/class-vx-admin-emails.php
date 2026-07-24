@@ -40,6 +40,13 @@ class VX_Admin_Emails
                 'default_subject' => 'Tu perfil está siendo validado',
                 'default_body'    => "Hola {{nombre}},\n\nRecibimos tu solicitud para unirte a Vitrinexo. Nuestro equipo la está revisando y recibirás una respuesta pronto.\n\nGracias por tu paciencia.",
             ],
+            'notificacion_admin' => [
+                'label'   => 'Notificación de nuevo registro (admin)',
+                'desc'    => 'Se envía a joao@vitrinexo.com y marcia@vitrinexo.com cada vez que alguien se registra. La tabla de datos y los botones Aprobar/Rechazar siempre se incluyen automáticamente.',
+                'vars'    => '{{nombre}}, {{apellido}}, {{empresa}}, {{cargo}}, {{pais}}, {{email_usuario}}',
+                'default_subject' => '[Vitrinexo] Nuevo registro: {{nombre}} {{apellido}}',
+                'default_body'    => "Alguien completó el formulario de inscripción.\n\nRevisa los datos a continuación y aprueba o rechaza la solicitud.",
+            ],
         ];
     }
 

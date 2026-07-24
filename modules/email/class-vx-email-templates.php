@@ -728,4 +728,45 @@ class VX_Email_Templates
 
         return self::wrapper( $content );
     }
+
+    // ── Notificación a administradores: nuevo registro ───────────
+
+    private static function tpl_notificacion_admin( array $d ): string
+    {
+        $intro        = nl2br( esc_html( $d['intro'] ?? 'Alguien completó el formulario de inscripción.' ) );
+        $nombre       = esc_html( $d['nombre'] ?? '' );
+        $apellido     = esc_html( $d['apellido'] ?? '' );
+        $email_u      = esc_html( $d['email_usuario'] ?? '' );
+        $empresa      = esc_html( $d['empresa'] ?? '' );
+        $cargo        = esc_html( $d['cargo'] ?? '' );
+        $pais         = esc_html( $d['pais'] ?? '' );
+        $telefono     = esc_html( $d['telefono'] ?? '' );
+        $linkedin     = esc_url( $d['linkedin'] ?? '' );
+        $url_aprobar  = esc_url( $d['url_aprobar'] ?? '' );
+        $url_rechazar = esc_url( $d['url_rechazar'] ?? '' );
+
+        $row = function( string $label, string $value, bool $first = false ) {
+            $top = $first ? 'border-radius:6px 6px 0 0;' : 'border-top:1px solid #d7e4ef;';
+            return '<tr><td style="padding:10px 12px;' . $top . 'background:#f3f9fd;font-weight:600;color:#3d444e;width:130px">' . $label . '</td>'
+                 . '<td style="padding:10px 12px;' . $top . 'background:#f3f9fd;color:#3d444e">' . $value . '</td></tr>';
+        };
+
+        $rows  = $row( 'Nombre',   $nombre . ' ' . $apellido, true );
+        $rows .= $row( 'Email',    '<a href="mailto:' . $email_u . '" style="color:#00aeb8">' . $email_u . '</a>' );
+        $rows .= $row( 'Empresa',  $empresa );
+        $rows .= $row( 'Cargo',    $cargo );
+        $rows .= $row( 'País',     $pais );
+        if ( $telefono ) $rows .= $row( 'Teléfono', $telefono );
+        if ( $linkedin ) $rows .= $row( 'LinkedIn', '<a href="' . $linkedin . '" style="color:#00aeb8">' . $linkedin . '</a>' );
+
+        $content = '<p style="color:#5e6b7a;margin:0 0 24px">' . $intro . '</p>'
+            . '<table style="width:100%;border-collapse:collapse;margin:0 0 32px">' . $rows . '</table>'
+            . '<div style="margin:0 0 24px">'
+            . '<a href="' . $url_aprobar . '" style="display:inline-block;background:#00aeb8;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;margin-right:12px">✓ Aprobar</a>'
+            . '<a href="' . $url_rechazar . '" style="display:inline-block;background:#ff4d82;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px">✗ Rechazar</a>'
+            . '</div>'
+            . '<p style="color:#9ca3af;font-size:12px;margin:0">Estos botones son de un solo uso. Una vez utilizados no podrán volver a usarse.</p>';
+
+        return self::wrapper( $content );
+    }
 }
