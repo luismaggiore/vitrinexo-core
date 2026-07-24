@@ -54,12 +54,12 @@ add_shortcode( 'vx_landing', function (): string {
 
             <!-- Banner Vitrinexo cambia el contexto -->
             <div class="vx-context-banner">
-                <img class="vx-context-banner__img" src="<?php echo esc_url( get_template_directory_uri() ); ?>/assets/img/2-EPR-5-elegida.png" alt="Vitrinexo cambia el contexto" />
-                <div class="vx-context-banner__overlay"></div>
                 <div class="vx-context-banner__content">
-                    <h3 class="vx-context-banner__title">Vitrinexo cambia el contexto</h3>
+                    <span class="section-landing-label">El problema</span>
+                    <h3 class="vx-context-banner__title">Vitrinexo <strong>cambia el contexto</strong></h3>
                     <p class="vx-context-banner__desc">Aquí todos están para hacer negocios, eso lo hace legítimo desde el inicio. No hay que disculparse por ofrecer lo que haces.</p>
                 </div>
+                <img class="vx-context-banner__img" src="<?php echo esc_url( get_template_directory_uri() ); ?>/assets/img/2-EPR-5-elegida.png" alt="Vitrinexo cambia el contexto" />
             </div>
 
         </div>
