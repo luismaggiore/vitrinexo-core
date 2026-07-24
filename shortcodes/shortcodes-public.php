@@ -50,12 +50,18 @@ add_shortcode( 'vx_landing', function (): string {
                     <h3 class="step-card__title">LinkedIn no convierte</h3>
                     <p class="step-card__desc">Ya nadie responde mensajes de desconocidos porque sabe que le van a querer vender algo. El medio mató al mensaje.</p>
                 </div>
-                <div class="step-card">
-                    <div class="step-card__icon"><i class="ti ti-bulb"></i></div>
-                    <h3 class="step-card__title">Vitrinexo cambia el contexto</h3>
-                    <p class="step-card__desc">Aquí todos están para hacer negocios, eso lo hace legítimo desde el inicio. No hay que disculparse por ofrecer lo que haces.</p>
+            </div><!-- /.problem-grid -->
+
+            <!-- Banner Vitrinexo cambia el contexto -->
+            <div class="vx-context-banner">
+                <img class="vx-context-banner__img" src="<?php echo esc_url( get_template_directory_uri() ); ?>/assets/img/2-EPR-5-elegida.png" alt="Vitrinexo cambia el contexto" />
+                <div class="vx-context-banner__overlay"></div>
+                <div class="vx-context-banner__content">
+                    <h3 class="vx-context-banner__title">Vitrinexo cambia el contexto</h3>
+                    <p class="vx-context-banner__desc">Aquí todos están para hacer negocios, eso lo hace legítimo desde el inicio. No hay que disculparse por ofrecer lo que haces.</p>
                 </div>
             </div>
+
         </div>
     </section>
 
