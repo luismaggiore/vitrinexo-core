@@ -164,8 +164,12 @@ add_shortcode( 'vx_landing', function (): string {
     </section>
 
     <!-- ── Imagen nocturna entre Multiverso y 4Dinner ── -->
-    <div class="vx-nocturna-banner">
-        <img class="vx-nocturna-banner__img" src="<?php echo esc_url( get_template_directory_uri() ); ?>/assets/img/6-La-experiencia presencial-EP-2-nocturna.jpeg" alt="Vitrinexo 4Dinner" />
+    <div class="section-landing" style="padding-top:0">
+        <div class="container">
+            <div class="vx-nocturna-banner">
+                <img class="vx-nocturna-banner__img" src="<?php echo esc_url( get_template_directory_uri() ); ?>/assets/img/6-La-experiencia presencial-EP-2-nocturna.jpeg" alt="Vitrinexo 4Dinner" />
+            </div>
+        </div>
     </div>
 
     <!-- ── 4Dinner ── -->
