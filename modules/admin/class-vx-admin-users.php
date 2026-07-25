@@ -149,16 +149,12 @@ class VX_Admin_Users
                 $planes      = vx_get_planes();
                 $html  = '<span style="font-size:12px;font-weight:600;color:#1a2335">' . esc_html( $plan_actual ) . '</span>';
                 $html .= '<div class="vx-edit-control-block">';
-                $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '">';
-                $html .= '<input type="hidden" name="action" value="vx_cambiar_plan">';
-                $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
-                $html .= '<input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'vx_cambiar_plan_' . $user_id ) . '">';
-                $html .= '<select name="plan" onchange="this.form.submit()" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151;max-width:110px">';
+                $html .= '<select onchange="if(this.value){window.location=this.dataset.base+\'&plan=\'+encodeURIComponent(this.value);}" data-base="' . esc_attr( wp_nonce_url( admin_url( 'users.php?action=vx_cambiar_plan&user_id=' . $user_id ), 'vx_cambiar_plan_' . $user_id ) ) . '" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151;max-width:110px">';
                 $html .= '<option value="">Cambiar...</option>';
                 foreach ( $planes as $p ) {
                     if ( $p !== $plan_actual ) $html .= '<option value="' . esc_attr( $p ) . '">' . esc_html( $p ) . '</option>';
                 }
-                $html .= '</select></form></div>';
+                $html .= '</select></div>';
                 return $html;
 
             // ── Fecha de vencimiento (editable) ───────────────────────────────
@@ -188,14 +184,10 @@ class VX_Admin_Users
                 }
 
                 $html  = '<span style="font-size:12px;color:' . $color . ';font-weight:500;white-space:nowrap">' . $label . '</span>';
-                $html .= '<div class="vx-edit-control">';
-                $html .= '<form method="post" action="' . esc_url( admin_url( 'users.php' ) ) . '" style="display:flex;gap:3px;align-items:center">';
-                $html .= '<input type="hidden" name="action" value="vx_set_vencimiento">';
-                $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
-                $html .= wp_nonce_field( 'vx_set_vencimiento_' . $user_id, '_wpnonce', true, false );
-                $html .= '<input type="date" name="vencimiento" value="' . esc_attr( $expiry_date ) . '" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151">';
-                $html .= '<button type="submit" class="button button-small" style="font-size:11px;padding:1px 5px">✓</button>';
-                $html .= '</form></div>';
+                $html .= '<div class="vx-edit-control" style="gap:3px;align-items:center">';
+                $nonce_url = wp_nonce_url( admin_url( 'users.php?action=vx_set_vencimiento&user_id=' . $user_id ), 'vx_set_vencimiento_' . $user_id );
+                $html .= '<input type="date" value="' . esc_attr( $expiry_date ) . '" onchange="window.location=\'' . esc_js( $nonce_url ) . '&vencimiento=\'+this.value" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151">';
+                $html .= '</div>';
                 return $html;
 
             // ── Distintivo Pionero ─────────────────────────────────────────────
@@ -527,10 +519,10 @@ document.addEventListener('DOMContentLoaded', function() {
     public static function handle_cambiar_plan(): void
     {
         if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
-        $user_id = absint( $_POST['user_id'] ?? 0 );
+        $user_id = absint( $_GET['user_id'] ?? 0 );
         check_admin_referer( 'vx_cambiar_plan_' . $user_id );
         if ( ! $user_id ) wp_die( 'Usuario inválido.' );
-        $plan = sanitize_text_field( $_POST['plan'] ?? '' );
+        $plan = sanitize_text_field( $_GET['plan'] ?? '' );
         if ( $plan ) update_user_meta( $user_id, VX_User_Meta::PLAN, $plan );
         wp_safe_redirect( admin_url( 'users.php?vx_plan_cambiado=1' ) );
         exit;
@@ -540,11 +532,11 @@ document.addEventListener('DOMContentLoaded', function() {
     public static function handle_set_vencimiento(): void
     {
         if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Sin permiso.' );
-        $user_id = absint( $_POST['user_id'] ?? 0 );
+        $user_id = absint( $_GET['user_id'] ?? 0 );
         check_admin_referer( 'vx_set_vencimiento_' . $user_id );
         if ( ! $user_id ) wp_die( 'Usuario inválido.' );
 
-        $fecha = sanitize_text_field( $_POST['vencimiento'] ?? '' );
+        $fecha = sanitize_text_field( $_GET['vencimiento'] ?? '' );
         $ts    = $fecha ? (int) strtotime( $fecha . ' 23:59:59' ) : 0;
         update_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, $ts );
         wp_safe_redirect( admin_url( 'users.php?vx_plan_cambiado=1' ) );
