@@ -154,7 +154,7 @@ add_shortcode( 'vx_login', function (): string {
                       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                         <div class="modal-content modal-vx">
                           <div class="modal-header border-0">
-                            <h5 class="modal-title fw-semibold" id="modalTerminosLabel">Términos y Condiciones — Vitrinexo</h5>
+                            <h5 class="modal-title fw-semibold" id="modalTerminosLabel">Términos y Condiciones de Vitrinexo</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                           </div>
                           <div class="modal-body" style="font-size:14px;line-height:1.7;color:var(--color-text-secondary)">
@@ -182,7 +182,7 @@ add_shortcode( 'vx_login', function (): string {
                             <p>Vitrinexo recopila y trata tus datos personales conforme a la legislación vigente en materia de protección de datos. Tu información de perfil es visible para otros miembros verificados de la plataforma. Los datos de contacto solo se revelan a conexiones mutuamente aceptadas. Puedes solicitar la eliminación de tus datos en cualquier momento escribiendo a <a href="mailto:hola@vitrinexo.com" class="link-primary-color">hola@vitrinexo.com</a>.</p>
 
                             <h6 class="fw-semibold text-body-label mb-2 mt-4">6. Propiedad Intelectual</h6>
-                            <p>Todo el contenido de Vitrinexo (diseño, textos, código, marca) es propiedad de Maggiore Marketing o sus licenciantes. Los miembros conservan la propiedad de los contenidos que publican, pero otorgan a Vitrinexo una licencia no exclusiva para mostrarlos dentro de la plataforma.</p>
+                            <p>Todo el contenido de Vitrinexo (diseño, textos, código, marca) es propiedad de Vitrinexo SpA o sus licenciantes. Los miembros conservan la propiedad de los contenidos que publican, pero otorgan a Vitrinexo una licencia no exclusiva para mostrarlos dentro de la plataforma.</p>
 
                             <h6 class="fw-semibold text-body-label mb-2 mt-4">7. Limitación de Responsabilidad</h6>
                             <p>Vitrinexo actúa como intermediario entre profesionales y no garantiza los resultados de las conexiones establecidas. No somos responsables de las relaciones comerciales que se deriven del uso de la plataforma, ni de la veracidad de la información publicada por terceros miembros.</p>
@@ -193,7 +193,7 @@ add_shortcode( 'vx_login', function (): string {
                             <h6 class="fw-semibold text-body-label mb-2 mt-4">9. Ley Aplicable</h6>
                             <p>Estos términos se rigen por las leyes de la República de Chile. Cualquier disputa será sometida a los tribunales competentes de Santiago de Chile, salvo acuerdo expreso entre las partes para someterse a otra jurisdicción.</p>
 
-                            <p class="mt-4" style="font-size:12px;color:var(--color-text-tertiary)">Última actualización: Junio 2026 · Vitrinexo SpA · hola@vitrinexo.com · Desarrollado por <a href="https://www.maggiore.cl" target="_blank" rel="noopener" style="color:inherit">Maggiore</a></p>
+                            <p class="mt-4" style="font-size:12px;color:var(--color-text-tertiary)">Última actualización: Junio 2026 · Vitrinexo SpA · hola@vitrinexo.com</p>
 
                           </div>
                           <div class="modal-footer border-0">

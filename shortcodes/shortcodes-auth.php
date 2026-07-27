@@ -95,11 +95,11 @@ add_shortcode( 'vx_onboarding', function (): string {
     <div class="ob-card text-center">
       <div class="ob-step-eyebrow">Paso 1 de 6</div>
       <h1 class="ob-title">Hola<?php echo $nombre ? ', ' . esc_html( $nombre ) . '.' : '.'; ?><br>Construyamos tu vitrina.</h1>
-      <p class="ob-lead">Te vamos a hacer unas preguntas para que tu perfil quede completo y la red pueda encontrarte. Son 6 pasos cortos — menos de 5 minutos.</p>
+      <p class="ob-lead">Te vamos a hacer unas preguntas para que tu perfil quede completo y la red pueda encontrarte. Son 6 pasos cortos, menos de 5 minutos.</p>
       <div class="ob-welcome-list">
         <div class="ob-welcome-item"><div class="ob-welcome-icon ob-welcome-icon--green"><i class="ti ti-user"></i></div>Datos básicos de tu perfil</div>
         <div class="ob-welcome-item"><div class="ob-welcome-icon ob-welcome-icon--cyan"><i class="ti ti-building"></i></div>Tu empresa y tu rol</div>
-        <div class="ob-welcome-item"><div class="ob-welcome-icon ob-welcome-icon--pink"><i class="ti ti-arrows-exchange"></i></div>Qué ofreces y qué buscas — la clave de los matches</div>
+        <div class="ob-welcome-item"><div class="ob-welcome-icon ob-welcome-icon--pink"><i class="ti ti-arrows-exchange"></i></div>Qué ofreces y qué buscas: la clave de los matches</div>
         <div class="ob-welcome-item"><div class="ob-welcome-icon ob-welcome-icon--purple"><i class="ti ti-users"></i></div>Comunidades a las que quieres pertenecer</div>
       </div>
       <div class="ob-footer ob-footer--center">
@@ -204,7 +204,7 @@ add_shortcode( 'vx_onboarding', function (): string {
 
       <div class="row g-3 mb-3">
         <div class="col-md-6">
-          <label class="form-label-vx">Teléfono <span class="form-hint d-inline">(opcional — incluye prefijo de país)</span></label>
+          <label class="form-label-vx">Teléfono <span class="form-hint d-inline">(opcional, incluye prefijo de país)</span></label>
           <?php echo vx_phone_input_html( 'ob2-telefono', 'telefono', $telefono ); ?>
         </div>
         <div class="col-md-6">
@@ -337,7 +337,7 @@ add_shortcode( 'vx_onboarding', function (): string {
       <div class="mb-4">
         <div class="d-flex align-items-center gap-2 mb-2">
           <span class="badge-vx" style="background:#e8f8f0;color:#166534;font-size:11px;font-weight:700">OFRECES</span>
-          <span style="font-size:12px;color:var(--color-text-secondary)">Elige hasta 5 — ¿En qué puedes ayudar a otros?</span>
+          <span style="font-size:12px;color:var(--color-text-secondary)">Elige hasta 5. ¿En qué puedes ayudar a otros?</span>
         </div>
         <div class="d-flex flex-wrap gap-2 mb-2" id="tags-offer">
           <?php foreach ( $tags_preset_ob as $tag ) :
@@ -359,7 +359,7 @@ add_shortcode( 'vx_onboarding', function (): string {
       <div class="mb-4">
         <div class="d-flex align-items-center gap-2 mb-2">
           <span class="badge-vx" style="background:#fce8f4;color:#831843;font-size:11px;font-weight:700">BUSCAS</span>
-          <span style="font-size:12px;color:var(--color-text-secondary)">Elige hasta 5 — ¿Qué necesitas de la red?</span>
+          <span style="font-size:12px;color:var(--color-text-secondary)">Elige hasta 5. ¿Qué necesitas de la red?</span>
         </div>
         <div class="d-flex flex-wrap gap-2 mb-2" id="tags-seek">
           <?php foreach ( $tags_preset_ob as $tag ) :
@@ -414,7 +414,7 @@ add_shortcode( 'vx_onboarding', function (): string {
       </div>
       <div class="community-toggle" id="com-senior" onclick="obToggleCom(this)">
         <div class="community-toggle__icon community-toggle__icon--senior"><i class="ti ti-award ob-community-icon-i"></i></div>
-        <div><div class="community-toggle__title">Senior</div><div class="community-toggle__desc">Ejecutivos con trayectoria consolidada — requiere verificación</div></div>
+        <div><div class="community-toggle__title">Senior</div><div class="community-toggle__desc">Ejecutivos con trayectoria consolidada, requiere verificación</div></div>
         <i class="ti ti-circle community-toggle__check"></i>
       </div>
 
