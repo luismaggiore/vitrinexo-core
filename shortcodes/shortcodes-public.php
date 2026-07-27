@@ -206,7 +206,7 @@ add_shortcode( 'vx_landing', function (): string {
                         <div id="founderCounter" style="margin-bottom:16px">
                             <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
                                 <span style="font-size:13px;color:var(--color-text-muted)">Miembros Pioneros</span>
-                                <span id="founderCountText" style="font-size:13px;font-weight:600;color:var(--color-primary)">— / 100</span>
+                                <span id="founderCountText" style="font-size:13px;font-weight:600;color:var(--color-primary)">0 / 100</span>
                             </div>
                             <div style="background:#e8f0fe;border-radius:999px;height:6px;overflow:hidden">
                                 <div id="founderProgressBar" style="height:100%;width:0%;background:var(--color-primary);border-radius:999px;transition:width .6s ease"></div>
@@ -456,8 +456,8 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
               </div>
               <hr style="border-color:#fde68a;margin:1.25rem 0">
               <div class="d-flex flex-column gap-2">
-                <div class="d-flex align-items-center gap-2 checklist-item-hero"><i class="ti ti-circle-check checklist-icon-hero"></i> Cada quien paga su consumo — sin costo de acceso</div>
-                <div class="d-flex align-items-center gap-2 checklist-item-hero"><i class="ti ti-circle-check checklist-icon-hero"></i> Perfiles mixtos de industria — nada de silos</div>
+                <div class="d-flex align-items-center gap-2 checklist-item-hero"><i class="ti ti-circle-check checklist-icon-hero"></i> Cada quien paga su consumo, sin costo de acceso</div>
+                <div class="d-flex align-items-center gap-2 checklist-item-hero"><i class="ti ti-circle-check checklist-icon-hero"></i> Perfiles mixtos de industria, nada de silos</div>
                 <div class="d-flex align-items-center gap-2 checklist-item-hero"><i class="ti ti-circle-check checklist-icon-hero"></i> Simultáneo en múltiples ciudades todos los miércoles</div>
                 <div class="d-flex align-items-center gap-2 checklist-item-hero"><i class="ti ti-circle-check checklist-icon-hero"></i> Exclusivo para miembros verificados de Vitrinexo</div>
               </div>
@@ -479,14 +479,14 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
           </h2>
           <p class="text-lead-muted mb-3">Las conferencias, los happy hours y los eventos masivos generan tarjetas de presentación. Las cenas íntimas generan relaciones reales.</p>
           <p class="text-lead-muted mb-3">Con solo 4 personas en la mesa, no hay forma de esconderse ni de hacer networking superficial. La conversación va en serio porque tiene que ir en serio.</p>
-          <p class="text-lead-muted">Y como todos son miembros verificados de <span class="vx-name">Vitrinexo</span>, ya se conocen por sus fichas antes de llegar — lo que hace que la primera hora valga por tres.</p>
+          <p class="text-lead-muted">Y como todos son miembros verificados de <span class="vx-name">Vitrinexo</span>, ya se conocen por sus fichas antes de llegar, lo que hace que la primera hora valga por tres.</p>
         </div>
         <div class="col-12 col-lg-7">
           <div class="row g-3">
             <div class="col-6"><div class="card-vx h-100"><div class="card-title-sm">Conexiones que perduran</div><p class="text-body-muted mb-0">Una cena de 4Dinner genera más conexiones de valor que una tarde entera en un evento masivo.</p></div></div>
             <div class="col-6"><div class="card-vx h-100"><div class="card-title-sm">Continental y local</div><p class="text-body-muted mb-0">Simultáneo en 18+ ciudades. Lo que pasa en Santiago pasa también en Bogotá, Lima y México.</p></div></div>
             <div class="col-6"><div class="card-vx h-100"><div class="card-title-sm">Solo verificados</div><p class="text-body-muted mb-0">No hay sorpresas. Todos los comensales tienen ficha verificada en <span class="vx-name">Vitrinexo</span>.</p></div></div>
-            <div class="col-6"><div class="card-vx h-100"><div class="card-title-sm">Sin costo de acceso</div><p class="text-body-muted mb-0">Cada persona paga su consumo. <span class="vx-name">Vitrinexo</span> coordina la mesa — gratis.</p></div></div>
+            <div class="col-6"><div class="card-vx h-100"><div class="card-title-sm">Sin costo de acceso</div><p class="text-body-muted mb-0">Cada persona paga su consumo. <span class="vx-name">Vitrinexo</span> coordina la mesa, gratis.</p></div></div>
           </div>
         </div>
       </div>

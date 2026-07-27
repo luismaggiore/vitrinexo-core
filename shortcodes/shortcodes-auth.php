@@ -2647,7 +2647,7 @@ add_shortcode( 'vx_configuracion', function (): string {
                 <?php endif; ?>
                 <span class="badge-vx <?php echo $is_vencido ? 'badge-neutral' : 'badge-primary'; ?>" style="font-size:13px">
                   <?php echo esc_html( ucfirst( $plan_actual ) ); ?>
-                  <?php echo $is_vencido ? ' — Vencido' : ' — Activo'; ?>
+                  <?php echo $is_vencido ? ' · Vencido' : ' · Activo'; ?>
                 </span>
                 <?php if ( $expiry ) : ?>
                 <span class="text-body-muted" style="font-size:13px">
@@ -4846,7 +4846,7 @@ add_shortcode( 'vx_4dinner', function (): string {
                                     if ( $cupos === 0 ) continue;
                                 ?>
                                 <option value="<?php echo $d->get_id(); ?>">
-                                    <?php echo esc_html( date_i18n( 'd M', $d->get_fecha() ) . ' — 4Dinner ' . $d->get_ciudad() . ' (' . $cupos . ' cupo' . ( $cupos > 1 ? 's' : '' ) . ')' ); ?>
+                                    <?php echo esc_html( date_i18n( 'd M', $d->get_fecha() ) . ' · 4Dinner ' . $d->get_ciudad() . ' (' . $cupos . ' cupo' . ( $cupos > 1 ? 's' : '' ) . ')' ); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -5235,7 +5235,7 @@ add_shortcode( 'vx_mis_eventos', function (): string {
                         <!-- Recordatorio -->
                         <div class="mt-3 p-3 rounded" style="background:#fffbeb;border:1px solid #fde68a;font-size:.82rem;color:#92400e">
                             <i class="ti ti-circle-check me-1"></i>
-                            Cada quien paga su consumo. Sin agenda formal — la conversación fluye sola.
+                            Cada quien paga su consumo. Sin agenda formal, la conversación fluye sola.
                         </div>
                     </div>
 
