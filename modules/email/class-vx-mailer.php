@@ -44,9 +44,11 @@ class VX_Mailer
             $editable = VX_Admin_Emails::get( $template, $data );
             if ( ! empty( $editable['body_text'] ) ) {
                 $subject = $editable['subject'];
-                // Convertir texto plano a HTML simple para el wrapper
-                $body_html = nl2br( esc_html( $editable['body_text'] ) );
-                $html = VX_Email_Templates::render_plain( $body_html );
+                // El enlace largo se oculta tras un botón; el resto es texto plano.
+                $html = VX_Email_Templates::render_plain_linked(
+                    $editable['body_text'],
+                    self::button_label_for( $template )
+                );
                 if ( ! empty( $html ) ) {
                     goto send_mail;
                 }
@@ -73,6 +75,22 @@ class VX_Mailer
         }
 
         return $result;
+    }
+
+    /**
+     * Etiqueta del botón según el template, para los emails de texto plano
+     * editables donde el enlace se oculta tras un botón.
+     */
+    private static function button_label_for( string $template ): string
+    {
+        switch ( $template ) {
+            case 'confirmacion':
+                return 'Confirmar mi email';
+            case 'aprobacion':
+                return 'Activar mi cuenta';
+            default:
+                return 'Continuar';
+        }
     }
 
     /**

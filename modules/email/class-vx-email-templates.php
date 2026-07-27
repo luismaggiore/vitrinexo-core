@@ -22,6 +22,50 @@ class VX_Email_Templates
         );
     }
 
+    /**
+     * Renderiza texto plano a HTML, pero convierte cualquier línea que sea
+     * solo una URL en un botón (ocultando el enlace largo). El resto del
+     * texto se escapa y se separa en párrafos por líneas en blanco.
+     *
+     * @param string $text          Texto plano con {{variables}} ya reemplazadas.
+     * @param string $button_label  Etiqueta del botón para las URLs detectadas.
+     */
+    public static function render_plain_linked( string $text, string $button_label = 'Continuar' ): string
+    {
+        $lines  = preg_split( '/\r\n|\r|\n/', $text );
+        $blocks = '';
+        $buffer = [];
+
+        $flush = static function () use ( &$buffer, &$blocks ) {
+            if ( empty( $buffer ) ) {
+                return;
+            }
+            $blocks .= '<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#3d444e;">'
+                . implode( '<br>', $buffer ) . '</p>';
+            $buffer = [];
+        };
+
+        foreach ( $lines as $line ) {
+            $trimmed = trim( $line );
+            if ( '' === $trimmed ) {
+                $flush();
+                continue;
+            }
+            // Línea que es únicamente una URL → botón (enlace oculto).
+            if ( preg_match( '#^https?://\S+$#', $trimmed ) ) {
+                $flush();
+                $blocks .= '<div style="text-align:center;margin:28px 0;">'
+                    . self::btn( $trimmed, $button_label )
+                    . '</div>';
+            } else {
+                $buffer[] = esc_html( $line );
+            }
+        }
+        $flush();
+
+        return self::wrapper( $blocks );
+    }
+
     public static function render( string $template, array $data ): string
     {
         $method = 'tpl_' . str_replace( '-', '_', $template );
