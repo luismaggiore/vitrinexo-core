@@ -17,14 +17,14 @@ class VX_Admin_Emails
                 'desc'    => 'Se envía al usuario cuando se registra con email corporativo.',
                 'vars'    => '{{nombre}}, {{link}}',
                 'default_subject' => 'Confirma tu email en Vitrinexo',
-                'default_body'    => "Hola {{nombre}},\n\nEstás a un clic de activar tu cuenta en Vitrinexo.\n\nHaz clic aquí para confirmar tu email:\n{{link}}\n\nSi no solicitaste este registro, ignora este mensaje.",
+                'default_body'    => "Hola {{nombre}},\n\nEstás a un clic de activar tu cuenta en Vitrinexo. Confirma tu email con el botón de abajo:\n\n{{link}}\n\nSi no solicitaste este registro, ignora este mensaje.",
             ],
             'aprobacion' => [
                 'label'   => 'Cuenta aprobada',
                 'desc'    => 'Se envía al usuario cuando el administrador aprueba su solicitud.',
                 'vars'    => '{{nombre}}, {{link}}',
                 'default_subject' => '¡Tu cuenta en Vitrinexo fue aprobada!',
-                'default_body'    => "Hola {{nombre}},\n\nTu solicitud para unirte a Vitrinexo fue aprobada.\n\nHaz clic aquí para activar tu cuenta:\n{{link}}",
+                'default_body'    => "Hola {{nombre}},\n\nTu solicitud para unirte a Vitrinexo fue aprobada. Activa tu cuenta con el botón de abajo:\n\n{{link}}",
             ],
             'rechazo' => [
                 'label'   => 'Solicitud rechazada',
@@ -50,10 +50,14 @@ class VX_Admin_Emails
         ];
     }
 
+    /** Administradores que reciben las pruebas de email. */
+    private const TEST_RECIPIENTS = [ 'joao@vitrinexo.com', 'marcia@vitrinexo.com' ];
+
     public static function init(): void
     {
         add_action( 'admin_menu', [ self::class, 'register_page' ], 20 );
         add_action( 'admin_init', [ self::class, 'handle_save' ] );
+        add_action( 'admin_init', [ self::class, 'handle_test_send' ] );
     }
 
     public static function register_page(): void
@@ -85,12 +89,55 @@ class VX_Admin_Emails
         exit;
     }
 
+    /**
+     * Envía una prueba de la plantilla actual (tal como está guardada) a los
+     * administradores, usando el mismo pipeline que los emails reales.
+     */
+    public static function handle_test_send(): void
+    {
+        if ( ! isset( $_POST['vx_email_test'] ) ) return;
+        if ( ! check_admin_referer( 'vx_email_templates' ) ) return;
+        if ( ! current_user_can( 'manage_options' ) ) return;
+
+        $slug = sanitize_key( $_POST['vx_tpl_slug'] ?? '' );
+        $tpls = self::templates();
+        if ( ! isset( $tpls[ $slug ] ) ) return;
+
+        // Datos de ejemplo para reemplazar las variables de la plantilla.
+        $sample_link = add_query_arg( [
+            'uid'    => 0,
+            'token'  => 'token-de-ejemplo',
+            'accion' => 'confirmar',
+        ], rest_url( VX_REST_NAMESPACE . '/activar' ) );
+
+        $data = [
+            'nombre'        => 'Marcia',
+            'apellido'      => 'Maggi',
+            'link'          => $sample_link,
+            'empresa'       => 'Vitrinexo',
+            'cargo'         => 'Administradora',
+            'pais'          => 'Chile',
+            'email_usuario' => 'ejemplo@empresa.com',
+        ];
+
+        $sent = 0;
+        foreach ( self::TEST_RECIPIENTS as $to ) {
+            if ( VX_Mailer::send( $to, '', $slug, $data ) ) {
+                $sent++;
+            }
+        }
+
+        wp_redirect( add_query_arg( [ 'page' => 'vx-email-templates', 'tested' => $sent, 'tpl' => $slug ], admin_url( 'admin.php' ) ) );
+        exit;
+    }
+
     public static function render_page(): void
     {
         $tpls    = self::templates();
         $active  = sanitize_key( $_GET['tpl'] ?? array_key_first( $tpls ) );
         if ( ! isset( $tpls[ $active ] ) ) $active = array_key_first( $tpls );
         $saved   = ! empty( $_GET['saved'] );
+        $tested  = isset( $_GET['tested'] ) ? (int) $_GET['tested'] : null;
         $current = $tpls[ $active ];
         $subject = get_option( 'vx_email_tpl_subject_' . $active, $current['default_subject'] );
         $body    = get_option( 'vx_email_tpl_body_'    . $active, $current['default_body'] );
@@ -98,6 +145,7 @@ class VX_Admin_Emails
         <div class="wrap">
             <h1>Plantillas de Email</h1>
             <?php if ( $saved ) : ?><div class="notice notice-success is-dismissible"><p>Plantilla guardada.</p></div><?php endif; ?>
+            <?php if ( null !== $tested ) : ?><div class="notice notice-<?php echo $tested > 0 ? 'success' : 'error'; ?> is-dismissible"><p><?php echo $tested > 0 ? 'Prueba enviada a joao@vitrinexo.com y marcia@vitrinexo.com.' : 'No se pudo enviar la prueba. Revisa la configuración SMTP.'; ?></p></div><?php endif; ?>
 
             <div style="display:flex;gap:24px;margin-top:20px;align-items:flex-start">
                 <div style="width:220px;flex-shrink:0">
@@ -141,6 +189,16 @@ class VX_Admin_Emails
                             <a href="<?php echo esc_url( add_query_arg( [ 'page' => 'vx-email-templates', 'tpl' => $active, 'reset' => 1 ], admin_url( 'admin.php' ) ) ); ?>" class="button" style="margin-left:8px">Restaurar por defecto</a>
                         </p>
                     </form>
+
+                    <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e0e0e0">
+                        <form method="post" onsubmit="return confirm('Se enviará una prueba de esta plantilla a joao@vitrinexo.com y marcia@vitrinexo.com. ¿Continuar?');">
+                            <?php wp_nonce_field( 'vx_email_templates' ); ?>
+                            <input type="hidden" name="vx_email_test" value="1">
+                            <input type="hidden" name="vx_tpl_slug"  value="<?php echo esc_attr( $active ); ?>">
+                            <button type="submit" class="button">Enviar prueba a administradores</button>
+                            <span class="description" style="margin-left:8px">Envía la versión guardada de esta plantilla a joao@ y marcia@vitrinexo.com.</span>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
