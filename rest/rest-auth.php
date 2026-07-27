@@ -142,6 +142,7 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
     $telefono = $request->get_param( 'telefono' ) ?? '';
     $cargo    = $request->get_param( 'cargo' )    ?? '';
     $linkedin = $request->get_param( 'linkedin' ) ?? '';
+    $rubro    = $request->get_param( 'rubro' )    ?? '';
 
     if ( empty( trim( $pais ) ) ) {
         return new WP_REST_Response( [ 'success' => false, 'error' => 'pais_requerido', 'message' => 'El país es obligatorio.' ], 400 );
