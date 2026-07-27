@@ -341,7 +341,7 @@ class VX_Email_Templates
         $approve_url = esc_url( $d['approve_url'] ?? '' );
 
         $content = self::h1( 'Solicitud de verificación Senior' )
-            . self::p( "<strong>$nombre</strong> ($email) solicita el badge de la comunidad Senior." )
+            . self::p( "<strong>$nombre</strong> ($email) solicita el distintivo de la comunidad Senior." )
             . '<div style="text-align:center;margin:28px 0;">'
             . self::btn( $approve_url, 'Aprobar verificación Senior' )
             . '</div>';
@@ -676,8 +676,8 @@ class VX_Email_Templates
             . self::p( 'Tu solicitud para unirte a la comunidad <strong>Vitrinexo Senior</strong> fue aprobada. Ahora tienes acceso al directorio vertical de ejecutivos con trayectoria consolidada.' )
             . '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">'
             . '<div style="font-size:36px;margin-bottom:8px;">🏆</div>'
-            . '<p style="margin:0;font-size:18px;font-weight:700;color:#78350f;">Badge Senior activado</p>'
-            . '<p style="margin:6px 0 0;font-size:13px;color:#92400e;">Tu insignia es visible en tu ficha de Vitrinexo.</p>'
+            . '<p style="margin:0;font-size:18px;font-weight:700;color:#78350f;">Distintivo Senior activado</p>'
+            . '<p style="margin:6px 0 0;font-size:13px;color:#92400e;">Tu distintivo es visible en tu ficha de Vitrinexo.</p>'
             . '</div>'
             . self::p( 'Explora los perfiles de tu comunidad, conecta con otros ejecutivos senior y participa en los próximos 4Dinners exclusivos.' )
             . '<div style="text-align:center;margin:28px 0;">'
