@@ -286,7 +286,7 @@ add_action( 'admin_bar_menu', function ( $bar ) {
 add_action( 'admin_menu', function () {
     add_submenu_page(
         null,                        // sin padre → no aparece en el menú lateral
-        'Manual de activación Stripe — Vitrinexo',
+        'Manual de activación Stripe | Vitrinexo',
         'Manual Stripe',
         'manage_options',
         'vx-stripe-manual',
@@ -310,7 +310,7 @@ function vx_admin_stripe_manual_page(): void {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Manual de activación Stripe — Vitrinexo</title>
+<title>Manual de activación Stripe | Vitrinexo</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.7; color: #1a2335; background: #f8fafc; }
@@ -364,7 +364,7 @@ function vx_admin_stripe_manual_page(): void {
 <div class="doc">
 
   <div class="doc-header">
-    <h1>Manual de activación — Integración Stripe</h1>
+    <h1>Manual de activación: Integración Stripe</h1>
     <p>Plataforma Vitrinexo · <?php echo esc_html( get_site_url() ); ?></p>
     <span class="badge">Generado <?php echo date_i18n( 'j \d\e F \d\e Y' ); ?></span>
   </div>
@@ -413,7 +413,7 @@ function vx_admin_stripe_manual_page(): void {
     </tbody>
   </table>
 
-  <p>Tras crear cada producto, <strong>copiar el Price ID</strong> (formato <code>price_1ABC...</code>) — se necesita en el paso 6.</p>
+  <p>Tras crear cada producto, <strong>copiar el Price ID</strong> (formato <code>price_1ABC...</code>), se necesita en el paso 6.</p>
   <div class="info-box">
     En modo Test, los Price IDs empiezan con <code>price_</code> pero usan el mismo formato que en Live. Puedes crear los productos una vez y usar el mismo ID para test y live si los montos son iguales.
   </div>
@@ -430,10 +430,10 @@ function vx_admin_stripe_manual_page(): void {
     <li>En "Select events", seleccionar estos 4 eventos:</li>
   </ol>
   <ul>
-    <li><code>checkout.session.completed</code> — activa el plan al pagar</li>
-    <li><code>invoice.payment_succeeded</code> — renueva el vencimiento mensual/anual</li>
-    <li><code>invoice.payment_failed</code> — notifica al usuario de pago fallido</li>
-    <li><code>customer.subscription.deleted</code> — cancela el plan</li>
+    <li><code>checkout.session.completed</code>: activa el plan al pagar</li>
+    <li><code>invoice.payment_succeeded</code>: renueva el vencimiento mensual/anual</li>
+    <li><code>invoice.payment_failed</code>: notifica al usuario de pago fallido</li>
+    <li><code>customer.subscription.deleted</code>: cancela el plan</li>
   </ul>
   <ol start="4">
     <li>Hacer click en <strong>Add endpoint</strong>.</li>
@@ -472,12 +472,12 @@ php composer.phar require stripe/stripe-php</div>
   </ol>
   <p>Los 3 bloques a activar son:</p>
   <ul>
-    <li><code>vx_rest_stripe_checkout()</code> — crea sesiones de pago</li>
-    <li><code>vx_rest_stripe_webhook()</code> — procesa eventos de Stripe</li>
-    <li><code>vx_rest_stripe_portal()</code> — acceso al portal de facturación</li>
+    <li><code>vx_rest_stripe_checkout()</code>: crea sesiones de pago</li>
+    <li><code>vx_rest_stripe_webhook()</code>: procesa eventos de Stripe</li>
+    <li><code>vx_rest_stripe_portal()</code>: acceso al portal de facturación</li>
   </ul>
   <div class="info-box">
-    Todo el código ya está escrito y documentado. Solo hay que descomentar — no hay que escribir nada nuevo.
+    Todo el código ya está escrito y documentado. Solo hay que descomentar, no hay que escribir nada nuevo.
   </div>
 
   <!-- PASO 6 -->
@@ -636,7 +636,7 @@ add_action( 'admin_menu', function () {
 
     add_submenu_page(
         'vitrinexo-core',
-        'Validaciones — Vitrinexo',
+        'Validaciones | Vitrinexo',
         'Validaciones' . $badge_html,
         'manage_options',
         'vx-validaciones',
@@ -645,7 +645,7 @@ add_action( 'admin_menu', function () {
 
     add_submenu_page(
         'vitrinexo-core',
-        'Tags sugeridos — Vitrinexo',
+        'Tags sugeridos | Vitrinexo',
         'Tags sugeridos',
         'manage_options',
         'vx-tags',
@@ -817,7 +817,7 @@ function vx_admin_validaciones_page(): void {
     $mensajes = [
         'cuenta_aprobada'  => [ 'success', '✅ Cuenta aprobada. El usuario recibirá un email para activarla.' ],
         'cuenta_rechazada' => [ 'warning', '⛔ Cuenta rechazada.' ],
-        'senior_aprobado'  => [ 'success', '✅ Badge Senior activado. El usuario recibió un email de confirmación.' ],
+        'senior_aprobado'  => [ 'success', '✅ Distintivo Senior activado. El usuario recibió un email de confirmación.' ],
         'senior_rechazado' => [ 'warning', '⛔ Solicitud Senior rechazada.' ],
     ];
     $ok = sanitize_key( $_GET['vx_ok'] ?? '' );
@@ -970,7 +970,7 @@ function vx_admin_validaciones_page(): void {
                 <td style="font-size:12px;color:#646970;white-space:nowrap">
                     <?php
                     $ubicacion_parts = array_filter( [ $ciudad, $pais ] );
-                    echo $ubicacion_parts ? esc_html( implode( ', ', $ubicacion_parts ) ) : '<span style="color:#bbb;font-style:italic">—</span>';
+                    echo $ubicacion_parts ? esc_html( implode( ', ', $ubicacion_parts ) ) : '<span style="color:#bbb;font-style:italic">-</span>';
                     ?>
                 </td>
                 <td class="vx-val-date"><?php echo esc_html( $reg_date ); ?></td>
@@ -1056,13 +1056,13 @@ function vx_admin_validaciones_page(): void {
                 <td>
                     <div><?php echo esc_html( $wp_user->user_email ); ?></div>
                 </td>
-                <td><?php echo esc_html( $industria ?: '—' ); ?></td>
+                <td><?php echo esc_html( $industria ?: '-' ); ?></td>
                 <td><?php echo esc_html( ucfirst( $plan ?: 'gratuito' ) ); ?></td>
                 <td>
                     <div class="vx-val-actions">
                         <a href="<?php echo esc_url( $url_aprobar ); ?>"
                            class="vx-val-btn-approve"
-                           onclick="return confirm('¿Aprobar badge Senior para <?php echo esc_js( $nombre ?: $wp_user->user_email ); ?>?')">
+                           onclick="return confirm('¿Aprobar distintivo Senior para <?php echo esc_js( $nombre ?: $wp_user->user_email ); ?>?')">
                             🏆 Aprobar Senior
                         </a>
                         <a href="<?php echo esc_url( $url_rechazar ); ?>"
@@ -1191,7 +1191,7 @@ function vx_admin_ajustes_page(): void {
                             Asignar badge de <strong>Miembro Pionero</strong> a cada usuario que completa el onboarding
                         </label>
                         <p class="description">
-                            El badge es <strong>permanente</strong> — una vez asignado, no se quita aunque cambien de plan.<br>
+                            El distintivo es <strong>permanente</strong>, una vez asignado, no se quita aunque cambien de plan.<br>
                             Desactívalo cuando quieras cerrar la fase fundador (nuevos miembros = usuarios regulares).
                         </p>
                     </td>
@@ -1208,7 +1208,7 @@ function vx_admin_ajustes_page(): void {
                                 📅 Los Fundadores en plan gratuito vencen el <?php echo date_i18n( 'd/m/Y', $fin_ts ); ?>
                             </span>
                         <?php else : ?>
-                            <span style="color:#6b7280">Sin fecha definida — acceso gratuito indefinido</span>
+                            <span style="color:#6b7280">Sin fecha definida, acceso gratuito indefinido</span>
                         <?php endif; ?>
                         <p class="description">
                             Cuando llegue esta fecha, los Fundadores en plan gratuito quedarán con <em>plan_estado = vencido</em>
@@ -1273,9 +1273,9 @@ function vx_admin_ajustes_page(): void {
                     'vx_stripe_publishable_key'    => 'Stripe Publishable Key (pk_live_...)',
                     'vx_stripe_secret_key'          => 'Stripe Secret Key (sk_live_...)',
                     'vx_stripe_webhook_secret'      => 'Stripe Webhook Secret (whsec_...)',
-                    'vx_stripe_price_mensual'       => 'Stripe Price ID — Mensual',
-                    'vx_stripe_price_anual'         => 'Stripe Price ID — Anual',
-                    'vx_stripe_price_preferencial'  => 'Stripe Price ID — Fundador',
+                    'vx_stripe_price_mensual'       => 'Stripe Price ID: Mensual',
+                    'vx_stripe_price_anual'         => 'Stripe Price ID: Anual',
+                    'vx_stripe_price_preferencial'  => 'Stripe Price ID: Fundador',
                 ];
                 foreach ( $stripe_fields as $opt => $label ) :
                     $val = get_option( $opt, '' );
@@ -1287,7 +1287,7 @@ function vx_admin_ajustes_page(): void {
                         <input type="<?php echo $is_secret ? 'password' : 'text'; ?>"
                                name="<?php echo esc_attr($opt); ?>"
                                value="<?php echo $val ? esc_attr( $val ) : ''; ?>"
-                               placeholder="<?php echo $val ? '(guardada — escribe para cambiar)' : 'Sin configurar'; ?>"
+                               placeholder="<?php echo $val ? '(guardada, escribe para cambiar)' : 'Sin configurar'; ?>"
                                class="regular-text"
                                autocomplete="off">
                         <?php if ( $val ) : ?>
@@ -1308,7 +1308,7 @@ function vx_admin_ajustes_page(): void {
             <li><strong>Cuando decidas cobrar</strong>: fija una fecha de fin del plan gratuito y marca "Aplicar a todos". Los Fundadores reciben aviso y pueden suscribirse al precio preferencial desde su configuración.</li>
             <li><strong>Usuarios nuevos post-fundador</strong>: no reciben distintivo (auto-pionero desactivado) → plan gratuito con acceso limitado → para acceso completo deben suscribirse al plan mensual o anual.</li>
         </ol>
-        <p>Para modificar el plan o badge de un miembro individual → <a href="<?php echo esc_url( admin_url( 'users.php' ) ); ?>">Usuarios</a> → columna <em>Plan</em>.</p>
+        <p>Para modificar el plan o distintivo de un miembro individual → <a href="<?php echo esc_url( admin_url( 'users.php' ) ); ?>">Usuarios</a> → columna <em>Plan</em>.</p>
     </div>
     <?php
 }
@@ -1375,7 +1375,7 @@ function vx_create_pages(): void {
         'conexion-rechazada'       => [ 'title' => 'Conexión rechazada',         'shortcode' => '[vx_conexion_rechazada]' ],
         'notificaciones'           => [ 'title' => 'Notificaciones',             'shortcode' => '[vx_notificaciones]' ],
         'configuracion'            => [ 'title' => 'Configuración',              'shortcode' => '[vx_configuracion]' ],
-        'landing-4dinner'           => [ 'title' => '4Dinner — Sobre el evento',   'shortcode' => '[vx_landing_4dinner]' ],
+        'landing-4dinner'           => [ 'title' => '4Dinner: Sobre el evento',   'shortcode' => '[vx_landing_4dinner]' ],
         '4dinner'                  => [ 'title' => '4Dinner',                    'shortcode' => '[vx_4dinner]' ],
         'comunidad-out2b'          => [ 'title' => 'Comunidad Out2B',            'shortcode' => '[vx_comunidad slug="out2b"]' ],
         'comunidad-woman'          => [ 'title' => 'Comunidad Woman',            'shortcode' => '[vx_comunidad slug="woman"]' ],
