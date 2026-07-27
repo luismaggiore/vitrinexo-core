@@ -61,7 +61,7 @@ class VX_Admin_Connections
 
             case 'vx_fecha_envio':
                 $ts = (int) get_post_meta( $post_id, VX_Connection_Meta::FECHA_ENVIO, true );
-                echo $ts ? esc_html( date_i18n( 'd/m/Y H:i', $ts ) ) : '—';
+                echo $ts ? esc_html( date_i18n( 'd/m/Y H:i', $ts ) ) : '-';
                 break;
         }
     }

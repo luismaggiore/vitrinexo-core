@@ -22,8 +22,8 @@ class VX_Admin_Membership
         if ( ! current_user_can( 'manage_options' ) ) return;
 
         $membresia   = VX_Membership::get( $user->ID );
-        $plan        = $membresia->get_plan() ?: '—';
-        $estado      = $membresia->get_plan_estado() ?: '—';
+        $plan        = $membresia->get_plan() ?: '-';
+        $estado      = $membresia->get_plan_estado() ?: '-';
         $vencimiento = $membresia->get_expiry();
         $precio_pref = get_user_meta( $user->ID, VX_User_Meta::PRECIO_PREFERENTE, true );
         ?>
@@ -35,7 +35,7 @@ class VX_Admin_Membership
             </tr>
             <tr>
                 <th>Vencimiento</th>
-                <td><?php echo $vencimiento ? esc_html( date_i18n( 'd/m/Y', $vencimiento ) ) : '—'; ?></td>
+                <td><?php echo $vencimiento ? esc_html( date_i18n( 'd/m/Y', $vencimiento ) ) : '-'; ?></td>
             </tr>
             <tr>
                 <th>Precio preferente</th>
@@ -55,7 +55,7 @@ class VX_Admin_Membership
                 <td>
                     <?php wp_nonce_field( 'vx_activar_plan_' . $user->ID, 'vx_plan_nonce' ); ?>
                     <select name="vx_plan_manual">
-                        <option value="">— seleccionar —</option>
+                        <option value="">Seleccionar</option>
                         <?php foreach ( VX_Plans::all() as $id => $info ) : ?>
                             <option value="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $info['nombre'] ); ?></option>
                         <?php endforeach; ?>

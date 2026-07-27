@@ -101,11 +101,11 @@ class VX_Admin_Users
     {
         switch ( $column ) {
             case 'vx_empresa':
-                return esc_html( get_user_meta( $user_id, 'vx_empresa_inicial', true ) ?: '—' );
+                return esc_html( get_user_meta( $user_id, 'vx_empresa_inicial', true ) ?: '-' );
             case 'vx_cargo':
-                return esc_html( get_user_meta( $user_id, VX_User_Meta::CARGO, true ) ?: '—' );
+                return esc_html( get_user_meta( $user_id, VX_User_Meta::CARGO, true ) ?: '-' );
             case 'vx_telefono':
-                return esc_html( get_user_meta( $user_id, VX_User_Meta::TELEFONO, true ) ?: '—' );
+                return esc_html( get_user_meta( $user_id, VX_User_Meta::TELEFONO, true ) ?: '-' );
             case 'vx_estado':
                 $estado = get_user_meta( $user_id, VX_User_Meta::ESTADO, true );
                 $labels = [
@@ -139,12 +139,12 @@ class VX_Admin_Users
                 $user = get_userdata( $user_id );
                 return $user
                     ? '<span style="font-size:12px;color:#374151">' . date_i18n( 'd/m/Y', strtotime( $user->user_registered ) ) . '</span>'
-                    : '—';
+                    : '-';
 
             // ── Plan (dropdown configurable) ───────────────────────────────────
             case 'vx_plan':
                 $user = get_userdata( $user_id );
-                if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">—</span>';
+                if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">-</span>';
                 $plan_actual = get_user_meta( $user_id, VX_User_Meta::PLAN, true ) ?: 'Gratuito';
                 $planes      = vx_get_planes();
                 $html  = '<span style="font-size:12px;font-weight:600;color:#1a2335">' . esc_html( $plan_actual ) . '</span>';
@@ -160,7 +160,7 @@ class VX_Admin_Users
             // ── Fecha de vencimiento (editable) ───────────────────────────────
             case 'vx_vencimiento':
                 $user = get_userdata( $user_id );
-                if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">—</span>';
+                if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">-</span>';
 
                 $expiry_ts   = (int) get_user_meta( $user_id, VX_User_Meta::PLAN_VENCIMIENTO, true );
                 $meta_exists = metadata_exists( 'user', $user_id, VX_User_Meta::PLAN_VENCIMIENTO );
@@ -174,7 +174,7 @@ class VX_Admin_Users
                 $diff        = $expiry_ts > 86400 ? ( $expiry_ts - time() ) : 0;
 
                 if ( ! $expiry_date ) {
-                    $label = '—'; $color = '#9ca3af';
+                    $label = '-'; $color = '#9ca3af';
                 } elseif ( $diff < 0 ) {
                     $label = '⚠ ' . date_i18n( 'd/m/Y', $expiry_ts ); $color = '#dc2626';
                 } elseif ( $diff < 7 * DAY_IN_SECONDS ) {
@@ -193,7 +193,7 @@ class VX_Admin_Users
             // ── Distintivo Pionero ─────────────────────────────────────────────
             case 'vx_pionero':
                 $user = get_userdata( $user_id );
-                if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">—</span>';
+                if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) return '<span style="color:#9ca3af;font-size:12px">-</span>';
                 $es_fundador = (bool) get_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
                 if ( $es_fundador ) {
                     $rm_url = wp_nonce_url( admin_url( 'users.php?action=vx_quitar_pionero&user_id=' . $user_id ), 'vx_quitar_pionero_' . $user_id );
@@ -201,7 +201,7 @@ class VX_Admin_Users
                          . '<a href="' . esc_url( $rm_url ) . '" style="font-size:10px;color:#dc2626;margin-top:3px;display:block" onclick="return confirm(\'¿Quitar distintivo Pionero?\')">✕ Quitar</a>';
                 }
                 $add_url = wp_nonce_url( admin_url( 'users.php?action=vx_dar_pionero&user_id=' . $user_id ), 'vx_dar_pionero_' . $user_id );
-                return '<span style="color:#9ca3af;font-size:12px">—</span><br>'
+                return '<span style="color:#9ca3af;font-size:12px">-</span><br>'
                      . '<a href="' . esc_url( $add_url ) . '" style="font-size:10px;color:#d97706;margin-top:3px;display:block">⭐ Dar</a>';
 
             case 'vx_plan':
@@ -256,21 +256,21 @@ class VX_Admin_Users
                 if ( get_user_meta( $user_id, VX_User_Meta::COMUNIDAD_OUT2B, true ) ) $coms[] = 'Out2B';
                 if ( get_user_meta( $user_id, VX_User_Meta::COMUNIDAD_WOMAN,  true ) ) $coms[] = 'Woman';
                 if ( get_user_meta( $user_id, VX_User_Meta::COMUNIDAD_SENIOR, true ) ) $coms[] = 'Senior';
-                return $coms ? esc_html( implode( ', ', $coms ) ) : '—';
+                return $coms ? esc_html( implode( ', ', $coms ) ) : '-';
 
             case 'vx_stat_sol':
                 if ( class_exists( 'VX_Stats' ) ) {
                     $n = VX_Stats::get_sol_recibidas( $user_id );
                     return $n > 0 ? '<strong>' . $n . '</strong>' : '<span style="color:#9ca3af">0</span>';
                 }
-                return '—';
+                return '-';
 
             case 'vx_stat_cnx':
                 if ( class_exists( 'VX_Stats' ) ) {
                     $n = VX_Stats::get_conexiones( $user_id );
                     return $n > 0 ? '<strong style="color:#16a34a">' . $n . '</strong>' : '<span style="color:#9ca3af">0</span>';
                 }
-                return '—';
+                return '-';
         }
 
         return $output;

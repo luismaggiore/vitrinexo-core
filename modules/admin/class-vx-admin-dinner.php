@@ -72,7 +72,7 @@ class VX_Admin_Dinner
 
             case 'vx_fecha':
                 $ts = (int) get_post_meta( $post_id, VX_Dinner_Meta::FECHA, true );
-                echo $ts ? esc_html( date_i18n( 'd/m/Y', $ts ) ) : '—';
+                echo $ts ? esc_html( date_i18n( 'd/m/Y', $ts ) ) : '-';
                 break;
 
             case 'vx_deadline':
@@ -148,7 +148,7 @@ class VX_Admin_Dinner
         // País (select)
         echo '<tr><th><label for="vx_dinner_pais">País</label></th><td>';
         echo '<select name="' . esc_attr( VX_Dinner_Meta::PAIS ) . '" id="vx_dinner_pais" class="regular-text">';
-        echo '<option value="">— Selecciona el país —</option>';
+        echo '<option value="">Selecciona el país</option>';
         foreach ( $paises_latam as $p ) {
             echo '<option value="' . esc_attr( $p ) . '"' . selected( $current_pais, $p, false ) . '>' . esc_html( $p ) . '</option>';
         }
@@ -162,7 +162,7 @@ class VX_Admin_Dinner
         if ( ! $current_pais ) {
             echo '<option value="">Selecciona primero el país</option>';
         } else {
-            echo '<option value="">— Selecciona la ciudad —</option>';
+            echo '<option value="">Selecciona la ciudad</option>';
             foreach ( $ciudades_pais as $c ) {
                 echo '<option value="' . esc_attr( $c ) . '"' . selected( $ciudad_es_otra ? '' : $current_ciudad, $c, false ) . '>' . esc_html( $c ) . '</option>';
             }
@@ -213,7 +213,7 @@ class VX_Admin_Dinner
                     if (customInput) customInput.style.display = 'none';
                     return;
                 }
-                var ph = document.createElement('option'); ph.value=''; ph.textContent='— Selecciona la ciudad —'; ciudadSel.appendChild(ph);
+                var ph = document.createElement('option'); ph.value=''; ph.textContent='Selecciona la ciudad'; ciudadSel.appendChild(ph);
                 ciudades.forEach(function(c){ var o=document.createElement('option'); o.value=c; o.textContent=c; ciudadSel.appendChild(o); });
                 var otra = document.createElement('option'); otra.value='__otra__'; otra.textContent='Otra ciudad...'; ciudadSel.appendChild(otra);
                 toggleCustom();
@@ -584,7 +584,7 @@ class VX_Admin_Dinner
         // ── Asignados ──
         $n_asig = count( $asignados );
         $status_label = $n_asig >= 4
-            ? '✅ ' . $n_asig . ' asistente' . ( $n_asig !== 1 ? 's' : '' ) . ' — CENA CONFIRMADA'
+            ? '✅ ' . $n_asig . ' asistente' . ( $n_asig !== 1 ? 's' : '' ) . ' · CENA CONFIRMADA'
             : '⏳ ' . $n_asig . ' asistente' . ( $n_asig !== 1 ? 's' : '' ) . ' (mín. 4 para confirmar)';
 
         $csv_url = wp_nonce_url(
@@ -615,9 +615,9 @@ class VX_Admin_Dinner
                 $perfil_url = get_edit_user_link( $uid );
                 echo '<tr>';
                 echo '<td><a href="' . esc_url( $perfil_url ) . '" target="_blank"><strong>' . esc_html( $u->get_nombre_completo() ) . '</strong></a></td>';
-                echo '<td>' . esc_html( $emp ? $emp->post_title : '—' ) . '</td>';
-                echo '<td>' . ( $u->get_email() ? '<a href="mailto:' . esc_attr( $u->get_email() ) . '">' . esc_html( $u->get_email() ) . '</a>' : '—' ) . '</td>';
-                echo '<td>' . ( $u->get_telefono() ? '<a href="tel:' . esc_attr( $u->get_telefono() ) . '">' . esc_html( $u->get_telefono() ) . '</a>' : '—' ) . '</td>';
+                echo '<td>' . esc_html( $emp ? $emp->post_title : '-' ) . '</td>';
+                echo '<td>' . ( $u->get_email() ? '<a href="mailto:' . esc_attr( $u->get_email() ) . '">' . esc_html( $u->get_email() ) . '</a>' : '-' ) . '</td>';
+                echo '<td>' . ( $u->get_telefono() ? '<a href="tel:' . esc_attr( $u->get_telefono() ) . '">' . esc_html( $u->get_telefono() ) . '</a>' : '-' ) . '</td>';
                 echo '<td><a href="' . esc_url( $rm_url ) . '" style="color:#dc2626" onclick="return confirm(\'¿Desasignar?\')">✕ Quitar</a></td>';
                 echo '</tr>';
             }
@@ -644,7 +644,7 @@ class VX_Admin_Dinner
                 echo '<tr>';
                 echo '<td><strong>' . $nombre . '</strong>' . ( $u ? '<br><small style="color:#6b7280">' . esc_html( $u->get_email() ) . '</small>' : '' ) . '</td>';
                 echo '<td>' . $tipo_label . '</td>';
-                echo '<td>' . ( $inv['mensaje'] ? esc_html( wp_trim_words( $inv['mensaje'], 10 ) ) : '—' ) . '</td>';
+                echo '<td>' . ( $inv['mensaje'] ? esc_html( wp_trim_words( $inv['mensaje'], 10 ) ) : '-' ) . '</td>';
                 echo '<td>' . date_i18n( 'd/m/Y', $inv['fecha'] ) . '</td>';
                 echo '<td><a href="' . esc_url( $asig_url ) . '" class="button button-primary button-small" onclick="return confirm(\'¿Asignar?\')">✓</a> ';
                 echo '<a href="' . esc_url( $rech_url ) . '" class="button button-small" style="color:#dc2626" onclick="return confirm(\'¿Rechazar?\')">✕</a></td>';
@@ -666,7 +666,7 @@ class VX_Admin_Dinner
                 $badge = 'aceptado' === $inv['estado']
                     ? '<span style="color:#16a34a">✓ Aceptado</span>'
                     : '<span style="color:#dc2626">✕ Rechazado</span>';
-                echo '<li>' . $nom . ' — ' . $badge . '</li>';
+                echo '<li>' . $nom . ' · ' . $badge . '</li>';
             }
             echo '</ul></details>';
         }
