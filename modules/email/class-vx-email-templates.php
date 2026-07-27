@@ -87,7 +87,7 @@ class VX_Email_Templates
 <tr><td align="center" style="padding:32px 16px;">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;">
 <tr><td style="background:#ffffff;padding:24px 32px;border-bottom:3px solid #00aeb8;">
-<img src="https://vitrinexo.com/wp-content/themes/vitrinexo-theme/assets/img/vitrinexo-email.png"
+<img src="' . esc_url( VX_PLUGIN_URL . 'assets/img/vitrinexo-email.png' ) . '"
      alt="Vitrinexo" width="144" height="52" style="display:block;">
 </td></tr>
 <tr><td style="padding:32px;">' . $content . '</td></tr>
