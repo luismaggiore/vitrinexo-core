@@ -156,7 +156,7 @@ add_shortcode( 'vx_onboarding', function (): string {
 
       <div class="mb-3">
         <label class="form-label-vx">Bio profesional <span class="form-hint d-inline">(opcional · máx. 300 caracteres)</span></label>
-        <textarea id="ob2-bio" class="form-control-vx" rows="3" maxlength="300" placeholder="Ej: Especialista en marketing B2B con 8 años de experiencia en LATAM..."><?php echo esc_textarea( $bio ); ?></textarea>
+        <textarea id="ob2-bio" class="form-control-vx" rows="3" maxlength="300" placeholder="Ej: Especialista en marketing B2B con 8 años de experiencia en mercados internacionales..."><?php echo esc_textarea( $bio ); ?></textarea>
       </div>
 
       <div class="row g-3 mb-3">
