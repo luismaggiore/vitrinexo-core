@@ -2,10 +2,10 @@
 /**
  * Plugin Name: Vitrinexo Core
  * Plugin URI:  https://vitrinexo.com
- * Description: Lógica de negocio de la plataforma Vitrinexo — directorio B2B hispanohablante.
+ * Description: Lógica de negocio de la plataforma Vitrinexo: directorio B2B hispanohablante.
  * Version:     1.0.0
- * Author:      Maggiore Marketing
- * Author URI:  https://maggiore.cl
+ * Author:      Vitrinexo SpA
+ * Author URI:  https://vitrinexo.com
  * Text Domain: vitrinexo-core
  * Requires at least: 6.0
  * Requires PHP: 8.0
@@ -577,8 +577,8 @@ php composer.phar require stripe/stripe-php</div>
   </ul>
 
   <div class="footer-doc">
-    <p>Vitrinexo · Desarrollado por <a href="https://www.maggiore.cl" style="color:#0e8f98">Maggiore</a> · <?php echo esc_html( get_site_url() ); ?></p>
-    <p style="margin-top:4px">Manual generado automáticamente — siempre refleja la configuración actual del sitio</p>
+    <p>Vitrinexo · <?php echo esc_html( get_site_url() ); ?></p>
+    <p style="margin-top:4px">Manual generado automáticamente, siempre refleja la configuración actual del sitio</p>
   </div>
 
 </div>
