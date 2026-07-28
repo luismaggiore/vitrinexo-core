@@ -19,13 +19,12 @@ class VX_Verification
      */
     public static function start( int $user_id, string $email ): void
     {
-        if ( VX_Domain_Helper::is_institutional( $email ) ) {
-            update_user_meta( $user_id, VX_User_Meta::TIPO_VERIFICACION, 'automatica' );
-            self::send_confirmation_email( $user_id );
-        } else {
-            update_user_meta( $user_id, VX_User_Meta::TIPO_VERIFICACION, 'manual' );
-            self::notify_admin_pending( $user_id );
-        }
+        // Política: TODAS las cuentas requieren aprobación manual de un
+        // administrador antes de tener acceso, sin importar el dominio del email
+        // (institucional o genérico). No se envía confirmación de auto-activación;
+        // la cuenta queda pendiente hasta que un administrador la apruebe.
+        update_user_meta( $user_id, VX_User_Meta::TIPO_VERIFICACION, 'manual' );
+        self::notify_admin_pending( $user_id );
     }
 
     /**
