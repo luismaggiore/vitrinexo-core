@@ -284,15 +284,15 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
         wp_mail( $admin, $asunto, $cuerpo, $headers );
     }
 
-    $tipo_verificacion = VX_Domain_Helper::is_institutional( $email ) ? 'automatica' : 'manual';
+    // Política: todas las cuentas quedan pendientes de aprobación manual de un
+    // administrador, sin importar el dominio del email.
+    $tipo_verificacion = 'manual';
 
     return new WP_REST_Response( [
         'success'            => true,
         'user_id'            => $user_id,
         'tipo_verificacion'  => $tipo_verificacion,
-        'redirect'           => 'automatica' === $tipo_verificacion
-            ? home_url( '/confirmar-correo/' )
-            : home_url( '/verificacion-pendiente/' ),
+        'redirect'           => home_url( '/verificacion-pendiente/' ),
     ], 201 );
 }
 
