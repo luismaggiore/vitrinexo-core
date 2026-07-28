@@ -167,6 +167,37 @@ add_filter( 'query_vars', function ( array $vars ): array {
     return $vars;
 } );
 
+// ── Migración única: política de aprobación manual para todos ─────────────────
+// Convierte a 'manual' cualquier cuenta pendiente antigua que haya quedado con
+// tipo 'automatica' (institucional auto-verificable), para que también requiera
+// aprobación de un administrador. Se ejecuta una sola vez (protegida por opción)
+// y es idempotente. Puede eliminarse en el futuro.
+add_action( 'init', function () {
+    if ( get_option( 'vx_migr_all_manual_v1' ) !== false ) {
+        return;
+    }
+    if ( ! class_exists( 'VX_User_Meta' ) ) {
+        return;
+    }
+
+    $ids = get_users( [
+        'fields'     => 'ids',
+        'number'     => -1,
+        'meta_query' => [
+            'relation' => 'AND',
+            [ 'key' => VX_User_Meta::ESTADO,            'value' => 'pendiente'  ],
+            [ 'key' => VX_User_Meta::TIPO_VERIFICACION, 'value' => 'automatica' ],
+        ],
+    ] );
+
+    foreach ( $ids as $uid ) {
+        update_user_meta( $uid, VX_User_Meta::TIPO_VERIFICACION, 'manual' );
+    }
+
+    // Guarda cuántas cuentas se migraron (0 si no había ninguna).
+    update_option( 'vx_migr_all_manual_v1', count( $ids ) );
+}, 20 );
+
 // ── Manual de activación Stripe (página oculta del admin, imprimible como PDF) ─
 
 // ── Planes disponibles ──────────────────────────────────────────────────────
