@@ -18,9 +18,14 @@ jobs:
       - name: Configurar SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # ssh-keyscan es best-effort: si falla (red/transitorio) NO debe tumbar el deploy.
+          # El rsync usa StrictHostKeyChecking=no de todas formas. Reintenta hasta 3 veces.
+          for i in 1 2 3; do
+            ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null && break || sleep 3
+          done
+          true
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
