@@ -92,6 +92,17 @@ function vx_rest_comunidad_salir( WP_REST_Request $request ): WP_REST_Response
         ], 403 );
     }
 
+    // La comunidad Senior es automática (45+ años o 20+ de experiencia): no se puede abandonar.
+    if ( 'senior' === $comunidad
+        && class_exists( 'VX_Senior_Verification' )
+        && VX_Senior_Verification::qualifies( $user_id ) ) {
+        return new WP_REST_Response( [
+            'success' => false,
+            'error'   => 'senior_obligatoria',
+            'message' => 'La comunidad Senior se asigna automáticamente por tu edad o experiencia y no puede desactivarse.',
+        ], 403 );
+    }
+
     VX_Community::deactivate( $user_id, $comunidad );
 
     return new WP_REST_Response( [ 'success' => true ], 200 );
