@@ -253,7 +253,7 @@ class VX_Admin_Users
 
             case 'vx_comunidades':
                 $coms = [];
-                if ( get_user_meta( $user_id, VX_User_Meta::COMUNIDAD_OUT2B, true ) ) $coms[] = 'Out2B';
+                if ( get_user_meta( $user_id, VX_User_Meta::COMUNIDAD_OUT2B, true ) ) $coms[] = 'LGBTQ+';
                 if ( get_user_meta( $user_id, VX_User_Meta::COMUNIDAD_WOMAN,  true ) ) $coms[] = 'Woman';
                 if ( get_user_meta( $user_id, VX_User_Meta::COMUNIDAD_SENIOR, true ) ) $coms[] = 'Senior';
                 return $coms ? esc_html( implode( ', ', $coms ) ) : '-';
@@ -749,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'Ofrece (texto)', 'Busca (texto)',
             'Offer tags', 'Seek tags', 'Profile tags',
             // Comunidades
-            'Comunidad Out2B', 'Comunidad Woman', 'Comunidad Senior',
+            'Comunidad LGBTQ+', 'Comunidad Woman', 'Comunidad Senior',
             // Estadísticas de conexiones
             'Solicitudes recibidas (histórico)', 'Conexiones efectivas (histórico)',
             // 4Dinner
