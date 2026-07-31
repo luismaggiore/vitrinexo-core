@@ -58,6 +58,9 @@ class VX_User_Meta
 
     // Género (masculino | femenino | otro | no_contesta)
     const GENERO = 'vx_genero';
+    const FECHA_NACIMIENTO = 'vx_fecha_nacimiento';
+    const ANOS_EXPERIENCIA = 'vx_anos_experiencia';
+    const CONSENTIMIENTO_CONTACTO = 'vx_consentimiento_contacto';
 
     // Tags de perfil independientes (aparecen bajo el nombre en la ficha pública)
     const PROFILE_TAGS = 'vx_profile_tags';
