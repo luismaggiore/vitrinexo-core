@@ -22,9 +22,9 @@ add_shortcode( 'vx_onboarding', function (): string {
     $foto_id     = (int) get_user_meta( $user_id, VX_User_Meta::FOTO, true );
     $foto_url    = $foto_id ? wp_get_attachment_image_url( $foto_id, 'vx-avatar' ) : '';
     $genero      = $user ? $user->get_genero() : '';
-    $fecha_nacimiento = get_user_meta( $user_id, VX_User_Meta::FECHA_NACIMIENTO, true );
-    $anos_experiencia = get_user_meta( $user_id, VX_User_Meta::ANOS_EXPERIENCIA, true );
-    $consentimiento   = get_user_meta( $user_id, VX_User_Meta::CONSENTIMIENTO_CONTACTO, true );
+    $fecha_nacimiento = get_user_meta( $user_id, 'vx_fecha_nacimiento', true );
+    $anos_experiencia = get_user_meta( $user_id, 'vx_anos_experiencia', true );
+    $consentimiento   = get_user_meta( $user_id, 'vx_consentimiento_contacto', true );
 
     // Pre-rellenar paso 3: empresa activa → campo vx_empresa_inicial del registro
     $empresa_activa       = $user ? $user->get_empresa_activa() : null;
