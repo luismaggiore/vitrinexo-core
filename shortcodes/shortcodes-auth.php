@@ -3267,9 +3267,21 @@ add_shortcode( 'vx_perfil', function (): string {
           </p>
           <?php endif; ?>
 
-          <!-- Comunidades activas -->
+          <!-- Comunidades activas (solo visibles si el visitante comparte la comunidad) -->
           <?php
           $coms_activas = $user->get_comunidades_activas();
+          // Las etiquetas de comunidad son privadas: solo las ve quien pertenece a la
+          // misma comunidad. El dueño del perfil y los admins ven todas.
+          if ( ! $is_owner && ! $is_wp_admin ) {
+              $viewer_com = ( $viewer && class_exists( 'VX_User' ) ) ? VX_User::get( $viewer ) : null;
+              if ( $viewer_com ) {
+                  $coms_activas = array_values( array_filter( $coms_activas, function ( $c ) use ( $viewer_com ) {
+                      return $viewer_com->is_in_community( $c );
+                  } ) );
+              } else {
+                  $coms_activas = [];
+              }
+          }
           if ( $coms_activas ) :
             $com_labels = [
               'out2b'  => [ 'LGBTQ+',  '#a78bfa' ],
