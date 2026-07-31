@@ -248,7 +248,8 @@ add_shortcode( 'vx_landing', function (): string {
                             </div>
                             <div class="mb-2">
                                 <label class="form-label-vx">Teléfono celular *</label>
-                                <input type="tel" class="form-control-vx" name="telefono" required autocomplete="tel" />
+                                <input type="tel" class="form-control-vx" name="telefono" required autocomplete="tel" placeholder="+56 9 1234 5678" pattern="\+[0-9][0-9 ]{5,}" inputmode="tel" />
+                                <p style="font-size:11px;color:var(--color-text-secondary);margin:4px 0 0"><i class="ti ti-info-circle" style="font-size:10px"></i> Incluye el prefijo del país con "+" (ej: +56). Es necesario para el botón de WhatsApp.</p>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
@@ -369,6 +370,14 @@ add_shortcode( 'vx_landing', function (): string {
 
             var data = {};
             new FormData(form).forEach(function(v, k) { data[k] = v; });
+
+            // El celular debe incluir el prefijo de país con "+" (para WhatsApp).
+            var telVal = (data.telefono || '').trim();
+            if (!/^\+\d[\d\s]{5,}$/.test(telVal)) {
+                btn.innerHTML = orig; btn.disabled = false;
+                if (errBox) { errBox.textContent = 'Incluye el prefijo de país con "+" en tu celular (ej: +56 9 1234 5678).'; errBox.style.display = 'block'; }
+                return;
+            }
 
             try {
                 var res  = await fetch('/wp-json/vitrinexo/v1/registrar', {
