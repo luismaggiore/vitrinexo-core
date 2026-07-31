@@ -406,7 +406,7 @@ add_shortcode( 'vx_onboarding', function (): string {
 
       <div class="community-toggle" id="com-out2b" onclick="obToggleCom(this)">
         <div class="community-toggle__icon community-toggle__icon--out2b"><i class="ti ti-rainbow ob-community-icon-i"></i></div>
-        <div><div class="community-toggle__title">Out2B</div><div class="community-toggle__desc">Comunidad LGBTQ+ en el mundo empresarial</div></div>
+        <div><div class="community-toggle__title">LGBTQ+</div><div class="community-toggle__desc">Comunidad LGBTQ+ en el mundo empresarial</div></div>
         <i class="ti ti-circle community-toggle__check"></i>
       </div>
       <?php $es_femenino = ( 'femenino' === $genero ); ?>
@@ -1605,7 +1605,7 @@ add_shortcode( 'vx_dashboard', function (): string {
           </div>
           <?php
           $coms_display = [
-              'out2b'  => [ 'Out2B',  'Comunidad LGBTQ+', 'comunidad-icon--out2b', 'ti-rainbow',       'comunidad-card--out2b' ],
+              'out2b'  => [ 'LGBTQ+',  'Comunidad LGBTQ+', 'comunidad-icon--out2b', 'ti-rainbow',       'comunidad-card--out2b' ],
               'woman'  => [ 'Woman',  'Empresarias líderes', 'comunidad-icon--woman', 'ti-gender-female', 'comunidad-card--woman' ],
               'senior' => [ 'Senior', 'Trayectoria verificada', 'comunidad-icon--senior', 'ti-award',    'comunidad-card--senior' ],
           ];
@@ -2819,7 +2819,7 @@ add_shortcode( 'vx_configuracion', function (): string {
               <p class="cta-card__desc mb-4">Comunidades a las que perteneces en Vitrinexo.</p>
               <?php
               $coms_map = [
-                  'out2b'  => [ 'Out2B',  'ti-rainbow',       'color:#a855f7' ],
+                  'out2b'  => [ 'LGBTQ+',  'ti-rainbow',       'color:#a855f7' ],
                   'woman'  => [ 'Woman',  'ti-gender-female', 'color:#ec4899' ],
                   'senior' => [ 'Senior', 'ti-award',         'color:#d97706' ],
               ];
@@ -2840,10 +2840,7 @@ add_shortcode( 'vx_configuracion', function (): string {
               <?php endforeach; ?>
               <?php if ( ! $user->is_in_community( 'senior' ) ) : ?>
               <div class="mt-4 pt-3 border-top">
-                <p class="cta-card__desc mb-2">¿Tienes más de 15 años de trayectoria empresarial? Solicita tu verificación Senior.</p>
-                <button id="vx-solicitar-senior" class="btn-vx btn-ghost-vx btn-vx-sm">
-                  <i class="ti ti-award me-1"></i>Solicitar verificación Senior
-                </button>
+                <p class="cta-card__desc mb-0"><i class="ti ti-award me-1"></i>La comunidad Senior se asigna automáticamente a partir de 45 años o 20 de experiencia.</p>
               </div>
               <?php endif; ?>
             </div>
@@ -3266,7 +3263,7 @@ add_shortcode( 'vx_perfil', function (): string {
           $coms_activas = $user->get_comunidades_activas();
           if ( $coms_activas ) :
             $com_labels = [
-              'out2b'  => [ 'Out2B',  '#a78bfa' ],
+              'out2b'  => [ 'LGBTQ+',  '#a78bfa' ],
               'woman'  => [ 'Woman',  '#f9a8d4' ],
               'senior' => [ 'Senior', '#fcd34d' ],
             ];
@@ -3722,18 +3719,18 @@ add_shortcode( 'vx_editor_perfil', function (): string {
                     <?php checked( $is_out2b ); ?>>
                   <div>
                     <span class="fw-medium" style="font-size:14px">Soy parte de la comunidad LGBTQ+</span>
-                    <p class="text-sm-muted" style="margin:2px 0 0">Aparecer en la comunidad OUT2B</p>
+                    <p class="text-sm-muted" style="margin:2px 0 0">Aparecer en la comunidad LGBTQ+</p>
                   </div>
                 </label>
               </div>
               <div>
-                <label class="d-flex align-items-start gap-3" style="cursor:pointer">
-                  <input type="checkbox" name="comunidad_senior"
+                <label class="d-flex align-items-start gap-3" style="cursor:not-allowed;opacity:.7">
+                  <input type="checkbox" disabled
                     style="margin-top:3px;accent-color:var(--color-green-500);width:16px;height:16px;flex-shrink:0"
                     <?php checked( $is_senior ); ?>>
                   <div>
-                    <span class="fw-medium" style="font-size:14px">Soy ejecutivo/a Senior</span>
-                    <p class="text-sm-muted" style="margin:2px 0 0">Requiere verificación manual</p>
+                    <span class="fw-medium" style="font-size:14px">Ejecutivo/a Senior</span>
+                    <p class="text-sm-muted" style="margin:2px 0 0"><i class="ti ti-lock" style="font-size:11px"></i> Se asigna automáticamente con 45+ años o 20+ de experiencia</p>
                   </div>
                 </label>
               </div>
@@ -5066,7 +5063,7 @@ add_shortcode( 'vx_comunidad', function ( $atts ): string {
 
     $meta = [
         'out2b'  => [
-            'titulo'      => 'Vitrinexo Out2B',
+            'titulo'      => 'Vitrinexo LGBTQ+',
             'descripcion' => 'Un espacio de networking seguro para profesionales LGBTQ+ en el mundo de los negocios hispanohablante. Conecta con pares que comparten tu experiencia y tu visión.',
             'label'       => 'Comunidad vertical',
         ],
