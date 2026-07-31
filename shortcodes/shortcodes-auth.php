@@ -397,20 +397,23 @@ add_shortcode( 'vx_onboarding', function (): string {
         <div><div class="community-toggle__title">Out2B</div><div class="community-toggle__desc">Comunidad LGBTQ+ en el mundo empresarial</div></div>
         <i class="ti ti-circle community-toggle__check"></i>
       </div>
-      <div class="community-toggle <?php echo 'femenino' !== $genero ? 'community-toggle--locked' : ''; ?>"
+      <?php $es_femenino = ( 'femenino' === $genero ); ?>
+      <div class="community-toggle <?php echo $es_femenino ? 'community-toggle--selected community-toggle--forced' : 'community-toggle--locked'; ?>"
            id="com-woman" onclick="obToggleWoman(this)"
-           style="<?php echo 'femenino' !== $genero ? 'opacity:.5;cursor:not-allowed' : ''; ?>">
+           style="cursor:not-allowed<?php echo $es_femenino ? '' : ';opacity:.5'; ?>">
         <div class="community-toggle__icon community-toggle__icon--woman"><i class="ti ti-gender-female ob-community-icon-i"></i></div>
         <div>
           <div class="community-toggle__title">Woman</div>
           <div class="community-toggle__desc">
             Mujeres en posiciones de liderazgo empresarial
-            <?php if ( 'femenino' !== $genero ) : ?>
+            <?php if ( $es_femenino ) : ?>
+            <br><span style="color:var(--color-text-secondary);font-size:12px"><i class="ti ti-lock" style="font-size:11px"></i> Incluida automáticamente por tu género</span>
+            <?php else : ?>
             <br><span style="color:var(--color-text-secondary);font-size:12px"><i class="ti ti-lock" style="font-size:11px"></i> Disponible solo para mujeres</span>
             <?php endif; ?>
           </div>
         </div>
-        <i class="ti ti-circle community-toggle__check"></i>
+        <i class="ti <?php echo $es_femenino ? 'ti-circle-check' : 'ti-circle'; ?> community-toggle__check"></i>
       </div>
       <div class="community-toggle" id="com-senior" onclick="obToggleCom(this)">
         <div class="community-toggle__icon community-toggle__icon--senior"><i class="ti ti-award ob-community-icon-i"></i></div>
@@ -459,6 +462,8 @@ add_shortcode( 'vx_onboarding', function (): string {
     var next = document.getElementById('panel-' + current);
     if (next) next.classList.add('ob-panel--active');
     obUpdateIndicators();
+    // Al llegar al paso de comunidades, refrescar el estado de Woman según el género elegido.
+    if (step === 5 && typeof window.vxSyncWoman === 'function') { window.vxSyncWoman(); }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -523,23 +528,31 @@ add_shortcode( 'vx_onboarding', function (): string {
     if (icon) { icon.classList.toggle('ti-circle-check', on); icon.classList.toggle('ti-circle', !on); }
   };
 
-  // Woman solo disponible si el género es femenino
+  // Woman: obligatoria para género femenino, bloqueada para el resto.
   window._vxGenero = <?php echo wp_json_encode( $genero ); ?>;
 
-  // Inicializar estado visual del toggle Woman basado en el género guardado
-  (function(){
+  // Sincroniza el estado visual del toggle Woman con el género actual.
+  // Para femenino: seleccionada y bloqueada (no se puede desmarcar).
+  // Para el resto: deshabilitada (no se puede marcar).
+  window.vxSyncWoman = function(){
     var womanEl = document.getElementById('com-woman');
     if (!womanEl) return;
-    if (window._vxGenero !== 'femenino') {
+    var icon = womanEl.querySelector('.community-toggle__check');
+    if (window._vxGenero === 'femenino') {
+      womanEl.classList.add('community-toggle--selected', 'community-toggle--forced');
+      womanEl.classList.remove('community-toggle--locked');
+      womanEl.style.opacity = '';
+      womanEl.style.cursor  = 'not-allowed';
+      if (icon) { icon.classList.add('ti-circle-check'); icon.classList.remove('ti-circle'); }
+    } else {
+      womanEl.classList.remove('community-toggle--selected', 'community-toggle--forced');
+      womanEl.classList.add('community-toggle--locked');
       womanEl.style.opacity = '.5';
       womanEl.style.cursor  = 'not-allowed';
-      womanEl.classList.add('community-toggle--locked');
-    } else {
-      womanEl.style.opacity = '';
-      womanEl.style.cursor  = '';
-      womanEl.classList.remove('community-toggle--locked');
+      if (icon) { icon.classList.add('ti-circle'); icon.classList.remove('ti-circle-check'); }
     }
-  })();
+  };
+  vxSyncWoman();
 
   window.obToggleWoman = function(el) {
     var genero = window._vxGenero || (function(){
@@ -550,7 +563,8 @@ add_shortcode( 'vx_onboarding', function (): string {
       alert('La comunidad Woman es exclusiva para mujeres. Indica tu género en el paso anterior para habilitarla.');
       return;
     }
-    obToggleCom(el);
+    // Obligatoria para femenino: siempre queda seleccionada, no se puede desmarcar.
+    vxSyncWoman();
   };
 
   // ── Upload foto ───────────────────────────────────────────────────────────────
