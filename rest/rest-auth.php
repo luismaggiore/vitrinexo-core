@@ -152,7 +152,10 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
         return new WP_REST_Response( [ 'success' => false, 'error' => 'empresa_requerida', 'message' => 'El nombre de empresa es obligatorio.' ], 400 );
     }
 
-    // telefono es opcional — no se valida
+    // El celular es obligatorio y debe incluir el prefijo de país con "+" (para WhatsApp).
+    if ( ! preg_match( '/^\+\d[\d\s]{5,}$/', trim( $telefono ) ) ) {
+        return new WP_REST_Response( [ 'success' => false, 'error' => 'telefono_invalido', 'message' => 'Incluye el prefijo de país con "+" en tu celular (ej: +56 9 1234 5678).' ], 400 );
+    }
 
     if ( ! is_email( $email ) ) {
         return new WP_REST_Response( [ 'success' => false, 'error' => 'email_invalido' ], 400 );
