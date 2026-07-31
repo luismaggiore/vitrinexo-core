@@ -77,8 +77,8 @@ class VX_User
             if ( $url ) return $url;
         }
         // Sin foto: avatar generado (círculo Vitrinexo + iniciales), nunca un enlace roto.
-        if ( function_exists( 'vx_avatar_placeholder_datauri' ) ) {
-            return vx_avatar_placeholder_datauri( $this->get_iniciales() );
+        if ( function_exists( 'vx_avatar_placeholder_url' ) ) {
+            return vx_avatar_placeholder_url( $this->get_iniciales() );
         }
         return get_template_directory_uri() . '/assets/img/placeholder.webp';
     }
