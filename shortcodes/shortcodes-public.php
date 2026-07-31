@@ -248,8 +248,12 @@ add_shortcode( 'vx_landing', function (): string {
                             </div>
                             <div class="mb-2">
                                 <label class="form-label-vx">Teléfono celular *</label>
-                                <input type="tel" class="form-control-vx" name="telefono" required autocomplete="tel" placeholder="+56 9 1234 5678" pattern="\+[0-9][0-9 ]{5,}" inputmode="tel" />
-                                <p style="font-size:11px;color:var(--color-text-secondary);margin:4px 0 0"><i class="ti ti-info-circle" style="font-size:10px"></i> Incluye el prefijo del país con "+" (ej: +56). Es necesario para el botón de WhatsApp.</p>
+                                <div class="d-flex gap-2">
+                                    <?php echo vx_dial_code_select( 'telefono_prefijo', '+56', [ 'style' => 'max-width:180px;flex-shrink:0' ] ); ?>
+                                    <input type="tel" class="form-control-vx" id="founderTelNum" name="telefono_numero" required autocomplete="tel" placeholder="9 1234 5678" inputmode="tel" style="flex:1" />
+                                </div>
+                                <input type="hidden" name="telefono" id="founderTelFull" />
+                                <p style="font-size:11px;color:var(--color-text-secondary);margin:4px 0 0"><i class="ti ti-info-circle" style="font-size:10px"></i> Elige tu país; el número se guarda con prefijo internacional para el botón de WhatsApp.</p>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-6">
@@ -368,16 +372,21 @@ add_shortcode( 'vx_landing', function (): string {
             btn.disabled  = true;
             if (errBox) errBox.style.display = 'none';
 
-            var data = {};
-            new FormData(form).forEach(function(v, k) { data[k] = v; });
+            // Combinar prefijo de país + número en el campo oculto "telefono".
+            var pref = (form.querySelector('[name="telefono_prefijo"]') || {}).value || '';
+            var num  = ((form.querySelector('[name="telefono_numero"]') || {}).value || '').replace(/[^\d\s]/g, '').trim();
+            var telFull = num ? (pref + ' ' + num) : '';
+            var hid = document.getElementById('founderTelFull');
+            if (hid) hid.value = telFull;
 
-            // El celular debe incluir el prefijo de país con "+" (para WhatsApp).
-            var telVal = (data.telefono || '').trim();
-            if (!/^\+\d[\d\s]{5,}$/.test(telVal)) {
+            if (!num) {
                 btn.innerHTML = orig; btn.disabled = false;
-                if (errBox) { errBox.textContent = 'Incluye el prefijo de país con "+" en tu celular (ej: +56 9 1234 5678).'; errBox.style.display = 'block'; }
+                if (errBox) { errBox.textContent = 'Ingresa tu número de celular.'; errBox.style.display = 'block'; }
                 return;
             }
+
+            var data = {};
+            new FormData(form).forEach(function(v, k) { data[k] = v; });
 
             try {
                 var res  = await fetch('/wp-json/vitrinexo/v1/registrar', {

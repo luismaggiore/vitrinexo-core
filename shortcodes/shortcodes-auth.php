@@ -1157,19 +1157,24 @@ function vx_parse_telefono( string $telefono ): array {
  */
 function vx_phone_input_html( string $id, string $name, string $value = '', string $placeholder = 'Ej: 9 1234 5678' ): string {
     [ $prefijo, $numero ] = vx_parse_telefono( $value );
-    $prefijos  = vx_get_prefijos_telefonicos();
     $select_id = $id . '-prefix';
     $number_id = $id . '-number';
 
     $options = '<option value="">Prefijo</option>';
-    foreach ( $prefijos as $code => $label ) {
-        $sel      = selected( $prefijo, $code, false );
-        $short    = $code; // solo el código en la opción
-        $options .= '<option value="' . esc_attr( $code ) . '" ' . $sel . ' title="' . esc_attr( $label ) . '">' . esc_html( $short ) . '</option>';
+    if ( function_exists( 'vx_get_dial_codes' ) ) {
+        foreach ( vx_get_dial_codes() as $c ) {
+            $sel      = selected( $prefijo, $c['dial'], false );
+            $options .= '<option value="' . esc_attr( $c['dial'] ) . '" ' . $sel . ' title="' . esc_attr( $c['name'] . ' (' . $c['dial'] . ')' ) . '">' . esc_html( $c['flag'] . ' ' . $c['dial'] ) . '</option>';
+        }
+    } else {
+        foreach ( vx_get_prefijos_telefonicos() as $code => $label ) {
+            $sel      = selected( $prefijo, $code, false );
+            $options .= '<option value="' . esc_attr( $code ) . '" ' . $sel . ' title="' . esc_attr( $label ) . '">' . esc_html( $code ) . '</option>';
+        }
     }
 
     return '<div class="input-group-vx" id="' . esc_attr( $id ) . '-group">'
-        . '<select id="' . esc_attr( $select_id ) . '" style="border:none;background:transparent;padding:9px 8px;min-width:80px;font-size:14px;color:var(--color-text-primary);cursor:pointer;flex-shrink:0;border-right:1px solid var(--color-border)" onchange="vxUpdatePhone(\'' . esc_js( $id ) . '\')">'
+        . '<select id="' . esc_attr( $select_id ) . '" style="border:none;background:transparent;padding:9px 8px;min-width:104px;font-size:14px;color:var(--color-text-primary);cursor:pointer;flex-shrink:0;border-right:1px solid var(--color-border)" onchange="vxUpdatePhone(\'' . esc_js( $id ) . '\')">'
         . $options
         . '</select>'
         . '<input type="tel" id="' . esc_attr( $number_id ) . '" placeholder="' . esc_attr( $placeholder ) . '"'
