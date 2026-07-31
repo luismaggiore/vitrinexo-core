@@ -28,6 +28,7 @@ $vx_modules = [
     'helpers/helper-tags.php',
     'helpers/helper-pagination.php',
     'helpers/helper-slugs.php',
+    'helpers/dial-codes.php',
 
     // Meta keys (sin dependencias)
     'modules/users/class-vx-user-meta.php',
