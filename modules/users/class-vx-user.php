@@ -76,7 +76,19 @@ class VX_User
             $url = wp_get_attachment_image_url( $id, $size );
             if ( $url ) return $url;
         }
+        // Sin foto: avatar generado (círculo Vitrinexo + iniciales), nunca un enlace roto.
+        if ( function_exists( 'vx_avatar_placeholder_datauri' ) ) {
+            return vx_avatar_placeholder_datauri( $this->get_iniciales() );
+        }
         return get_template_directory_uri() . '/assets/img/placeholder.webp';
+    }
+
+    /** Iniciales del usuario (nombre + apellido) para el avatar placeholder. */
+    public function get_iniciales(): string {
+        if ( function_exists( 'vx_iniciales_de' ) ) {
+            return vx_iniciales_de( $this->get_nombre(), $this->get_apellido() );
+        }
+        return mb_strtoupper( mb_substr( trim( $this->get_nombre() ), 0, 1 ) . mb_substr( trim( $this->get_apellido() ), 0, 1 ) ) ?: 'V';
     }
 
     public function get_bio(): string
