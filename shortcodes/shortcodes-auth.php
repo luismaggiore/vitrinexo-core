@@ -1322,7 +1322,6 @@ add_shortcode( 'vx_dashboard', function (): string {
       <div class="container">
         <div class="page-header-vx__inner">
           <div>
-            <p class="dashboard-date"><?php echo esc_html( $fecha_hoy ); ?></p>
             <h1 class="page-header-vx__title">Bienvenido, <strong><?php echo esc_html( $user->get_nombre() ); ?></strong></h1>
             <p class="page-header-vx__lead">
               <?php
@@ -3120,6 +3119,11 @@ add_shortcode( 'vx_perfil', function (): string {
     }
 
     if ( ! $user->is_active() && ! $is_owner && ! $is_wp_admin ) {
+        return '<div class="container py-5"><p class="text-muted">Este perfil no está disponible.</p></div>';
+    }
+
+    // Bloqueo: si hay relación de bloqueo (en cualquier dirección) no se puede ver el perfil.
+    if ( ! $is_owner && ! $is_wp_admin && function_exists( 'vx_hay_bloqueo' ) && vx_hay_bloqueo( $viewer, $user_id ) ) {
         return '<div class="container py-5"><p class="text-muted">Este perfil no está disponible.</p></div>';
     }
 
