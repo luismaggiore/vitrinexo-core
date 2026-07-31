@@ -137,6 +137,9 @@ class VX_Onboarding
                 if ( empty( trim( $datos['nombre']   ?? '' ) ) ) $errors[] = 'nombre_requerido';
                 if ( empty( trim( $datos['apellido'] ?? '' ) ) ) $errors[] = 'apellido_requerido';
                 if ( empty( trim( $datos['pais']     ?? '' ) ) ) $errors[] = 'pais_requerido';
+                if ( empty( trim( (string) ( $datos['fecha_nacimiento'] ?? '' ) ) ) ) $errors[] = 'fecha_nacimiento_requerida';
+                if ( '' === trim( (string) ( $datos['anos_experiencia'] ?? '' ) ) )   $errors[] = 'anos_experiencia_requerido';
+                if ( empty( $datos['consentimiento_contacto'] ) ) $errors[] = 'consentimiento_requerido';
                 break;
 
             case 3:
@@ -172,11 +175,21 @@ class VX_Onboarding
                 update_user_meta( $user_id, VX_User_Meta::BIO,                sanitize_textarea_field( $datos['bio']            ?? '' ) );
                 update_user_meta( $user_id, VX_User_Meta::CIUDAD,             sanitize_text_field( $datos['ciudad']             ?? '' ) );
                 update_user_meta( $user_id, VX_User_Meta::PAIS,               sanitize_text_field( $datos['pais']               ?? '' ) );
-                update_user_meta( $user_id, VX_User_Meta::CONTACTO_PREFERIDO, sanitize_text_field( $datos['contacto_preferido'] ?? 'email' ) );
                 $genero = sanitize_key( $datos['genero'] ?? '' );
                 if ( in_array( $genero, [ 'masculino', 'femenino', 'otro', 'no_contesta' ], true ) ) {
                     update_user_meta( $user_id, VX_User_Meta::GENERO, $genero );
                 }
+                // Fecha de nacimiento (formato YYYY-MM-DD)
+                $fnac = sanitize_text_field( $datos['fecha_nacimiento'] ?? '' );
+                if ( '' !== $fnac && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $fnac ) ) {
+                    update_user_meta( $user_id, VX_User_Meta::FECHA_NACIMIENTO, $fnac );
+                }
+                // Años de experiencia en el mercado (entero 0-80)
+                if ( isset( $datos['anos_experiencia'] ) && '' !== trim( (string) $datos['anos_experiencia'] ) ) {
+                    update_user_meta( $user_id, VX_User_Meta::ANOS_EXPERIENCIA, min( 80, max( 0, (int) $datos['anos_experiencia'] ) ) );
+                }
+                // Consentimiento explícito para ser contactado
+                update_user_meta( $user_id, VX_User_Meta::CONSENTIMIENTO_CONTACTO, empty( $datos['consentimiento_contacto'] ) ? '' : '1' );
                 if ( ! empty( $datos['foto_id'] ) ) {
                     update_user_meta( $user_id, VX_User_Meta::FOTO, absint( $datos['foto_id'] ) );
                 }
