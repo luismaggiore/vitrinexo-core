@@ -91,7 +91,6 @@ class VX_Onboarding
         // Paso 5 = comunidades (paso 4 = tags)
         $state = self::get_state( $user_id );
         $coms  = $state['datos'][5] ?? [];
-        if ( ! empty( $coms['senior'] ) ) VX_Senior_Verification::request( $user_id );
         if ( ! empty( $coms['out2b'] ) )  VX_Community::activate( $user_id, 'out2b' );
         if ( ! empty( $coms['woman'] ) )  VX_Community::activate( $user_id, 'woman' );
 
@@ -100,6 +99,9 @@ class VX_Onboarding
         if ( 'femenino' === get_user_meta( $user_id, VX_User_Meta::GENERO, true ) ) {
             VX_Community::activate( $user_id, 'woman' );
         }
+
+        // Senior es automático: 45+ años y/o 20+ de experiencia. Sin verificación manual.
+        VX_Senior_Verification::apply_auto( $user_id );
 
         // Auto-fundador: activo por defecto en fase beta, desactivable desde wp-admin → Vitrinexo → Ajustes.
         if ( get_option( 'vx_auto_fundador', '1' ) === '1' ) {
