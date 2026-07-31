@@ -53,7 +53,12 @@ add_shortcode( 'vx_login', function (): string {
                                 Contraseña
                                 <a href="<?php echo esc_url( home_url( '/recuperar-contrasena/' ) ); ?>" class="vx-form__label-link">¿Olvidaste tu contraseña?</a>
                             </label>
-                            <input type="password" id="login-password" name="password" class="vx-form__input" required autocomplete="current-password">
+                            <div style="position:relative">
+                                <input type="password" id="login-password" name="password" class="vx-form__input" required autocomplete="current-password" style="padding-right:40px">
+                                <button type="button" id="login-pwd-toggle" tabindex="-1" aria-label="Mostrar u ocultar contraseña" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:4px">
+                                    <i class="ti ti-eye" id="login-pwd-icon" style="font-size:16px"></i>
+                                </button>
+                            </div>
                         </div>
                         <!-- Recordar + recuperar -->
                         <div class="d-flex align-items-center justify-content-between mt-3 mb-1">
@@ -63,7 +68,7 @@ add_shortcode( 'vx_login', function (): string {
                             </label>
                         </div>
                         <div id="vx-login-error" class="vx-alert vx-alert--error d-none"></div>
-                        <button type="submit" class="btn-vx btn-vx--primary w-100 mt-2">Iniciar sesión</button>
+                        <button type="submit" class="btn-vx btn-vx--primary btn-vx-md w-100 mt-2">Iniciar sesión</button>
                     </form>
                 </div>
 
@@ -146,7 +151,7 @@ add_shortcode( 'vx_login', function (): string {
                             </label>
                         </div>
                         <div id="vx-registro-error" class="vx-alert vx-alert--error d-none"></div>
-                        <button type="submit" class="btn-vx btn-vx--primary w-100 mt-3">Crear cuenta</button>
+                        <button type="submit" class="btn-vx btn-vx--primary btn-vx-md w-100 mt-3">Crear cuenta</button>
                     </form>
 
                     <!-- Modal Términos y Condiciones -->
@@ -329,7 +334,7 @@ add_shortcode( 'vx_recuperar_contrasena', function (): string {
                         <input type="email" id="rec-email" name="email" class="vx-form__input" required>
                     </div>
                     <div id="vx-recuperar-msg" class="vx-alert d-none mt-2"></div>
-                    <button type="submit" class="btn-vx btn-vx--primary w-100 mt-3">Enviar enlace</button>
+                    <button type="submit" class="btn-vx btn-vx--primary btn-vx-md w-100 mt-3">Enviar enlace</button>
                 </form>
             </div>
         </div>
@@ -369,7 +374,7 @@ add_shortcode( 'vx_nueva_contrasena', function (): string {
                             <input type="password" id="new-pass-confirm" name="password_confirm" class="vx-form__input" required minlength="8">
                         </div>
                         <div id="vx-nueva-pass-msg" class="vx-alert d-none mt-2"></div>
-                        <button type="submit" class="btn-vx btn-vx--primary w-100 mt-3">Guardar contraseña</button>
+                        <button type="submit" class="btn-vx btn-vx--primary btn-vx-md w-100 mt-3">Guardar contraseña</button>
                     </form>
                 </div>
             </div>
@@ -391,7 +396,7 @@ add_shortcode( 'vx_conexion_aceptada', function (): string {
                 </div>
                 <h1 class="vx-flow-card__title">¡Conexión aceptada!</h1>
                 <p class="vx-flow-card__desc">Se notificó al otro miembro. Ahora pueden ver sus datos de contacto mutuamente.</p>
-                <a href="<?php echo esc_url( home_url( '/conexiones/' ) ); ?>" class="btn-vx btn-vx--primary mt-4">Ver mis conexiones</a>
+                <a href="<?php echo esc_url( home_url( '/conexiones/' ) ); ?>" class="btn-vx btn-vx--primary btn-vx-md mt-4">Ver mis conexiones</a>
             </div>
         </div>
     </div>

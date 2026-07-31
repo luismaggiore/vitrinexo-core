@@ -22,6 +22,9 @@ add_shortcode( 'vx_onboarding', function (): string {
     $foto_id     = (int) get_user_meta( $user_id, VX_User_Meta::FOTO, true );
     $foto_url    = $foto_id ? wp_get_attachment_image_url( $foto_id, 'vx-avatar' ) : '';
     $genero      = $user ? $user->get_genero() : '';
+    $fecha_nacimiento = get_user_meta( $user_id, VX_User_Meta::FECHA_NACIMIENTO, true );
+    $anos_experiencia = get_user_meta( $user_id, VX_User_Meta::ANOS_EXPERIENCIA, true );
+    $consentimiento   = get_user_meta( $user_id, VX_User_Meta::CONSENTIMIENTO_CONTACTO, true );
 
     // Pre-rellenar paso 3: empresa activa → campo vx_empresa_inicial del registro
     $empresa_activa       = $user ? $user->get_empresa_activa() : null;
@@ -66,7 +69,7 @@ add_shortcode( 'vx_onboarding', function (): string {
 
   <div class="ob-steps d-none d-md-flex" id="ob-steps-indicator">
     <?php for ( $i = 1; $i <= 6; $i++ ) : ?>
-    <div class="ob-step <?php echo $paso_actual > $i ? 'ob-step--done' : ( $paso_actual === $i ? 'ob-step--active' : '' ); ?>" id="dot-<?php echo $i; ?>">
+    <div class="ob-step <?php echo $paso_actual > $i ? 'ob-step--done' : ( $paso_actual === $i ? 'ob-step--active' : '' ); ?>" id="dot-<?php echo $i; ?>" onclick="obStepClick(<?php echo $i; ?>)">
       <div class="ob-step-dot">
         <?php echo $paso_actual > $i ? '<i class="ti ti-check" style="font-size:11px"></i>' : $i; ?>
       </div>
@@ -193,15 +196,6 @@ add_shortcode( 'vx_onboarding', function (): string {
       <?php /* JSON de ciudades para el cascade JS */ ?>
       <script>window.vxCiudadesPorPais = <?php echo wp_json_encode( vx_get_ciudades_por_pais() ); ?>;</script>
 
-      <div class="mb-3">
-        <label class="form-label-vx">Preferencia de contacto</label>
-        <select id="ob2-contacto" class="form-control-vx ob-select-sm">
-          <option value="email" <?php selected( $contacto, 'email' ); ?>>Email</option>
-          <option value="telefono" <?php selected( $contacto, 'telefono' ); ?>>Teléfono</option>
-          <option value="linkedin" <?php selected( $contacto, 'linkedin' ); ?>>LinkedIn</option>
-        </select>
-      </div>
-
       <div class="row g-3 mb-3">
         <div class="col-md-6">
           <label class="form-label-vx">Teléfono <span class="form-hint d-inline">(opcional, incluye prefijo de país)</span></label>
@@ -231,6 +225,24 @@ add_shortcode( 'vx_onboarding', function (): string {
           </label>
           <?php endforeach; ?>
         </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="form-label-vx">Fecha de nacimiento</label>
+          <input type="date" id="ob2-fecha-nacimiento" class="form-control-vx" value="<?php echo esc_attr( $fecha_nacimiento ); ?>" max="<?php echo esc_attr( date( 'Y-m-d' ) ); ?>" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label-vx">Años de experiencia en el mercado</label>
+          <input type="number" id="ob2-experiencia" class="form-control-vx" value="<?php echo esc_attr( $anos_experiencia ); ?>" min="0" max="80" step="1" placeholder="Ej: 12" required>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="d-flex align-items-start gap-2" style="cursor:pointer;font-size:14px;line-height:1.5">
+          <input type="checkbox" id="ob2-consentimiento" <?php checked( $consentimiento, '1' ); ?> style="accent-color:var(--color-primary);margin-top:3px">
+          <span>Autorizo que otros miembros verificados de Vitrinexo me contacten a través de la plataforma.</span>
+        </label>
       </div>
 
       <div id="ob2-error" class="alert-vx alert-error d-none mb-3"></div>
@@ -454,17 +466,24 @@ add_shortcode( 'vx_onboarding', function (): string {
   var NONCE = <?php echo wp_json_encode( $nonce ); ?>;
   var TOTAL = 6;
   var current = <?php echo $paso_actual; ?>;
+  var maxReached = current; // paso más avanzado alcanzado (para navegar con los indicadores)
 
   window.obGoTo = function(step) {
     var prev = document.getElementById('panel-' + current);
     if (prev) prev.classList.remove('ob-panel--active');
     current = step;
+    if (current > maxReached) maxReached = current;
     var next = document.getElementById('panel-' + current);
     if (next) next.classList.add('ob-panel--active');
     obUpdateIndicators();
     // Al llegar al paso de comunidades, refrescar el estado de Woman según el género elegido.
     if (step === 5 && typeof window.vxSyncWoman === 'function') { window.vxSyncWoman(); }
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Navegación con los indicadores de paso: solo se puede ir a un paso ya alcanzado.
+  window.obStepClick = function(i) {
+    if (i !== current && i <= maxReached) obGoTo(i);
   };
 
   function obUpdateIndicators() {
@@ -481,6 +500,7 @@ add_shortcode( 'vx_onboarding', function (): string {
       else if (i === current) dot.classList.add('ob-step--active');
       var dotEl = dot.querySelector('.ob-step-dot');
       if (dotEl) dotEl.innerHTML = i < current ? '<i class="ti ti-check" style="font-size:11px"></i>' : i;
+      dot.style.cursor = (i <= maxReached && i !== current) ? 'pointer' : 'default';
       var line = document.getElementById('line-' + i);
       if (line) line.classList.toggle('ob-step-line--done', i < current);
     }
@@ -644,6 +664,9 @@ add_shortcode( 'vx_onboarding', function (): string {
       nombre_requerido:          'El nombre es obligatorio.',
       apellido_requerido:        'El apellido es obligatorio.',
       pais_requerido:            'El país es obligatorio.',
+      fecha_nacimiento_requerida:'La fecha de nacimiento es obligatoria.',
+      anos_experiencia_requerido:'Los años de experiencia son obligatorios.',
+      consentimiento_requerido:  'Debes autorizar que otros miembros te contacten para continuar.',
       empresa_nombre_requerido:  'El nombre de la empresa es obligatorio.',
       empresa_cargo_requerido:   'Tu cargo en la empresa es obligatorio.',
       paso_invalido:             'Paso no válido. Recarga la página.',
@@ -658,17 +681,32 @@ add_shortcode( 'vx_onboarding', function (): string {
     var generoEl = document.querySelector('#ob2-genero-group input[name="ob2-genero"]:checked');
     var generoVal = generoEl ? generoEl.value : '';
     window._vxGenero = generoVal; // persist across steps
+    var fechaNac    = document.getElementById('ob2-fecha-nacimiento').value;
+    var experiencia = document.getElementById('ob2-experiencia').value.trim();
+    var consiente   = document.getElementById('ob2-consentimiento').checked;
+    // Fecha de nacimiento y años de experiencia son obligatorios
+    if (!fechaNac || experiencia === '') {
+      if (errEl) { errEl.textContent = 'Indica tu fecha de nacimiento y tus años de experiencia en el mercado.'; errEl.classList.remove('d-none'); }
+      return;
+    }
+    // Consentimiento explícito obligatorio
+    if (!consiente) {
+      if (errEl) { errEl.textContent = 'Debes autorizar que otros miembros te contacten para continuar.'; errEl.classList.remove('d-none'); }
+      return;
+    }
     obSave(2, {
       nombre:             document.getElementById('ob2-nombre').value.trim(),
       apellido:           document.getElementById('ob2-apellido').value.trim(),
       bio:                document.getElementById('ob2-bio').value.trim(),
       ciudad:             (function(){ var s=document.getElementById('ob2-ciudad'); var c=document.getElementById('ob2-ciudad-custom'); return s && s.value==='__otra__' ? (c ? c.value.trim() : '') : (s ? s.value.trim() : ''); })(),
       pais:               document.getElementById('ob2-pais').value,
-      contacto_preferido: document.getElementById('ob2-contacto').value,
       telefono:           document.getElementById('ob2-telefono').value.trim(),
       linkedin:           document.getElementById('ob2-linkedin').value.trim(),
       foto_id:            document.getElementById('foto-id').value,
       genero:             generoVal,
+      fecha_nacimiento:   fechaNac,
+      anos_experiencia:   experiencia,
+      consentimiento_contacto: consiente ? '1' : '',
     }, function(){ obGoTo(3); });
   };
 
