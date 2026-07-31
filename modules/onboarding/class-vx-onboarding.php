@@ -95,6 +95,12 @@ class VX_Onboarding
         if ( ! empty( $coms['out2b'] ) )  VX_Community::activate( $user_id, 'out2b' );
         if ( ! empty( $coms['woman'] ) )  VX_Community::activate( $user_id, 'woman' );
 
+        // La comunidad Woman es obligatoria para género femenino: no es opcional
+        // y no puede desmarcarse. Se fuerza aquí aunque no venga el flag.
+        if ( 'femenino' === get_user_meta( $user_id, VX_User_Meta::GENERO, true ) ) {
+            VX_Community::activate( $user_id, 'woman' );
+        }
+
         // Auto-fundador: activo por defecto en fase beta, desactivable desde wp-admin → Vitrinexo → Ajustes.
         if ( get_option( 'vx_auto_fundador', '1' ) === '1' ) {
             // Asignar badge PERMANENTE de Fundador
