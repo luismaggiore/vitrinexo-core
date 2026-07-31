@@ -197,18 +197,24 @@ class VX_Email_Templates
         $emisor       = esc_html( $d['emisor_nombre'] ?? '' );
         $empresa      = esc_html( $d['emisor_empresa'] ?? '' );
         $pitch        = esc_html( $d['pitch'] ?? '' );
+        $perfil_url   = esc_url( $d['emisor_perfil_url'] ?? '' );
         $url_aceptar  = esc_url( add_query_arg( 'token', $d['token_aceptar']  ?? '', rest_url( VX_REST_NAMESPACE . '/conexiones/aceptar' ) ) );
         $url_rechazar = esc_url( add_query_arg( 'token', $d['token_rechazar'] ?? '', rest_url( VX_REST_NAMESPACE . '/conexiones/rechazar' ) ) );
+
+        $ver_perfil = $perfil_url
+            ? '<p style="margin:16px 0 0;font-size:14px;"><a href="' . $perfil_url . '" style="color:#2cced6;text-decoration:none;font-weight:600;">Ver el perfil de ' . $emisor . ' →</a></p>'
+            : '';
 
         $content = self::h1( "$receptor, tienes una solicitud de conexión" )
             . self::p( "<strong>$emisor</strong>" . ( $empresa ? " de <strong>$empresa</strong>" : '' ) . " quiere conectar contigo." )
             . '<div style="background:#f8fafc;border-left:4px solid #2cced6;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;">'
             . '<p style="margin:0;font-size:14px;color:#3d444e;font-style:italic;">"' . $pitch . '"</p></div>'
-            . '<p style="font-size:13px;color:#8ea5b8;margin:0 0 24px;">Sus datos de contacto se revelarán <strong>solo si aceptas</strong>.</p>'
+            . '<p style="font-size:13px;color:#8ea5b8;margin:0 0 24px;">Sus datos de contacto se revelarán <strong>solo si aceptas</strong>. Puedes revisar su perfil público antes de decidir.</p>'
             . '<table cellpadding="0" cellspacing="0"><tr>'
             . '<td style="padding-right:12px;">' . self::btn( $url_aceptar, '✓ Aceptar', '#2ead6e' ) . '</td>'
             . '<td><a href="' . $url_rechazar . '" style="display:inline-block;color:#8ea5b8;text-decoration:none;padding:13px 24px;border:1.5px solid #d7e4ef;border-radius:999px;font-size:14px;">Rechazar</a></td>'
-            . '</tr></table>';
+            . '</tr></table>'
+            . $ver_perfil;
 
         return self::wrapper( $content );
     }
