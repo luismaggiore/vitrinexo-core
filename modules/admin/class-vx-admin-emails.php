@@ -24,7 +24,7 @@ class VX_Admin_Emails
                 'desc'    => 'Se envía al usuario cuando el administrador aprueba su solicitud.',
                 'vars'    => '{{nombre}}, {{link}}',
                 'default_subject' => '¡Tu cuenta en Vitrinexo fue aprobada!',
-                'default_body'    => "Hola {{nombre}},\n\nTu solicitud para unirte a Vitrinexo fue aprobada. Activa tu cuenta con el botón de abajo:\n\n{{link}}",
+                'default_body'    => "Hola {{nombre}},\n\nTu solicitud para unirte a Vitrinexo fue aprobada y tu cuenta ya está activa. Ingresa con el botón de abajo:\n\n{{link}}",
             ],
             'rechazo' => [
                 'label'   => 'Solicitud rechazada',
