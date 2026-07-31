@@ -310,17 +310,10 @@ function vx_rest_perfil_guardar( WP_REST_Request $request ): WP_REST_Response
             VX_Community::deactivate( $user_id, 'out2b' );
         }
     }
-    if ( array_key_exists( 'comunidad_senior', $data ) ) {
-        if ( $data['comunidad_senior'] ) {
-            // Activar directamente (auto-declaración) + solicitar verificación si aún no lo hizo
-            VX_Community::activate( $user_id, 'senior' );
-            $ya_solicitado = get_user_meta( $user_id, VX_User_Meta::SENIOR_SOLICITADO, true );
-            if ( ! $ya_solicitado && class_exists( 'VX_Senior_Verification' ) ) {
-                VX_Senior_Verification::request( $user_id );
-            }
-        } else {
-            VX_Community::deactivate( $user_id, 'senior' );
-        }
+    // Senior es AUTOMÁTICO (edad 45+ o experiencia 20+): se ignora cualquier
+    // intento manual de marcarla/desmarcarla y se reevalúa la calificación.
+    if ( class_exists( 'VX_Senior_Verification' ) ) {
+        VX_Senior_Verification::apply_auto( $user_id );
     }
 
     if ( ! empty( $data['empresas'] ) && is_array( $data['empresas'] ) ) {
