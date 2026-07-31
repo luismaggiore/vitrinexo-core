@@ -349,7 +349,7 @@ add_shortcode( 'vx_onboarding', function (): string {
       <div class="mb-4">
         <div class="d-flex align-items-center gap-2 mb-2">
           <span class="badge-vx" style="background:#e8f8f0;color:#166534;font-size:11px;font-weight:700">OFRECES</span>
-          <span style="font-size:12px;color:var(--color-text-secondary)">Elige hasta 5. ¿En qué puedes ayudar a otros?</span>
+          <span style="font-size:12px;color:var(--color-text-secondary)">Elige los que apliquen.¿En qué puedes ayudar a otros?</span>
         </div>
         <div class="d-flex flex-wrap gap-2 mb-2" id="tags-offer">
           <?php foreach ( $tags_preset_ob as $tag ) :
@@ -371,7 +371,7 @@ add_shortcode( 'vx_onboarding', function (): string {
       <div class="mb-4">
         <div class="d-flex align-items-center gap-2 mb-2">
           <span class="badge-vx" style="background:#fce8f4;color:#831843;font-size:11px;font-weight:700">BUSCAS</span>
-          <span style="font-size:12px;color:var(--color-text-secondary)">Elige hasta 5. ¿Qué necesitas de la red?</span>
+          <span style="font-size:12px;color:var(--color-text-secondary)">Elige los que apliquen.¿Qué necesitas de la red?</span>
         </div>
         <div class="d-flex flex-wrap gap-2 mb-2" id="tags-seek">
           <?php foreach ( $tags_preset_ob as $tag ) :
@@ -427,9 +427,15 @@ add_shortcode( 'vx_onboarding', function (): string {
         </div>
         <i class="ti <?php echo $es_femenino ? 'ti-circle-check' : 'ti-circle'; ?> community-toggle__check"></i>
       </div>
-      <div class="community-toggle" id="com-senior" onclick="obToggleCom(this)">
+      <div class="community-toggle community-toggle--locked" id="com-senior" onclick="obToggleSenior(this)" style="cursor:not-allowed">
         <div class="community-toggle__icon community-toggle__icon--senior"><i class="ti ti-award ob-community-icon-i"></i></div>
-        <div><div class="community-toggle__title">Senior</div><div class="community-toggle__desc">Ejecutivos con trayectoria consolidada, requiere verificación</div></div>
+        <div>
+          <div class="community-toggle__title">Senior</div>
+          <div class="community-toggle__desc">
+            Ejecutivos con trayectoria consolidada
+            <br><span style="color:var(--color-text-secondary);font-size:12px"><i class="ti ti-lock" style="font-size:11px"></i> Se asigna automáticamente con 45+ años o 20+ de experiencia</span>
+          </div>
+        </div>
         <i class="ti ti-circle community-toggle__check"></i>
       </div>
 
@@ -477,7 +483,10 @@ add_shortcode( 'vx_onboarding', function (): string {
     if (next) next.classList.add('ob-panel--active');
     obUpdateIndicators();
     // Al llegar al paso de comunidades, refrescar el estado de Woman según el género elegido.
-    if (step === 5 && typeof window.vxSyncWoman === 'function') { window.vxSyncWoman(); }
+    if (step === 5) {
+      if (typeof window.vxSyncWoman === 'function') window.vxSyncWoman();
+      if (typeof window.vxSyncSenior === 'function') window.vxSyncSenior();
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -510,8 +519,8 @@ add_shortcode( 'vx_onboarding', function (): string {
   window.obToggleTag = function(el, type) {
     var cls = type === 'offer' ? 'tag-option--selected-offer' : 'tag-option--selected-seek';
     if (el.classList.contains(cls)) { el.classList.remove(cls); return; }
-    var container = document.getElementById('tags-' + type);
-    if (container && container.querySelectorAll('.' + cls).length < 5) el.classList.add(cls);
+    // Sin límite de tags
+    el.classList.add(cls);
   };
 
   window.obAddCustomTag = function(e, type) {
@@ -521,7 +530,7 @@ add_shortcode( 'vx_onboarding', function (): string {
     if (!val) return;
     var container = document.getElementById('tags-' + type);
     var cls = type === 'offer' ? 'tag-option--selected-offer' : 'tag-option--selected-seek';
-    if (!container || container.querySelectorAll('.' + cls).length >= 5) return;
+    if (!container) return; // sin límite de tags
     // Check not duplicate
     var existing = Array.from(container.querySelectorAll('.tag-option')).map(function(t){ return t.textContent.toLowerCase(); });
     if (existing.includes(val.toLowerCase())) { e.target.value = ''; return; }
@@ -586,6 +595,37 @@ add_shortcode( 'vx_onboarding', function (): string {
     // Obligatoria para femenino: siempre queda seleccionada, no se puede desmarcar.
     vxSyncWoman();
   };
+
+  // Senior: automática por edad (45+) o experiencia (20+). Bloqueada, no seleccionable a mano.
+  window.vxSeniorCalifica = function(){
+    var fnac = (document.getElementById('ob2-fecha-nacimiento') || {}).value || '';
+    var exp  = parseInt( ( (document.getElementById('ob2-experiencia') || {}).value || '0' ), 10 ) || 0;
+    var edad = 0;
+    if ( /^\d{4}-\d{2}-\d{2}$/.test( fnac ) ) {
+      var d = new Date( fnac ), n = new Date();
+      edad = n.getFullYear() - d.getFullYear();
+      var m = n.getMonth() - d.getMonth();
+      if ( m < 0 || ( m === 0 && n.getDate() < d.getDate() ) ) edad--;
+    }
+    return edad >= 45 || exp >= 20;
+  };
+  window.vxSyncSenior = function(){
+    var el = document.getElementById('com-senior');
+    if ( !el ) return;
+    var icon = el.querySelector('.community-toggle__check');
+    if ( window.vxSeniorCalifica() ) {
+      el.classList.add('community-toggle--selected');
+      if ( icon ) { icon.classList.add('ti-circle-check'); icon.classList.remove('ti-circle'); }
+    } else {
+      el.classList.remove('community-toggle--selected');
+      if ( icon ) { icon.classList.add('ti-circle'); icon.classList.remove('ti-circle-check'); }
+    }
+  };
+  window.obToggleSenior = function(){
+    // No es seleccionable a mano: se define por edad/experiencia.
+    vxSyncSenior();
+  };
+  vxSyncSenior();
 
   // ── Upload foto ───────────────────────────────────────────────────────────────
   document.getElementById('foto-input').addEventListener('change', function() {
@@ -4093,7 +4133,6 @@ add_shortcode( 'vx_editor_perfil', function (): string {
           if ( type === 'offer' ) window._vxOfferTags = arr.filter( function(t){ return t !== tag; } );
           else window._vxSeekTags = arr.filter( function(t){ return t !== tag; } );
         } else {
-          if ( arr.length >= 5 ) return;
           el.classList.add( cls );
           arr.push( tag );
         }
