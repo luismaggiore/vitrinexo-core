@@ -198,6 +198,23 @@ add_action( 'init', function () {
     update_option( 'vx_migr_all_manual_v1', count( $ids ) );
 }, 20 );
 
+// ── Migración: sanear plantilla 'aprobacion' guardada en el admin ─────────────
+// Si un admin guardó el cuerpo con el texto viejo ("Activa tu cuenta") lo
+// reemplaza por el nuevo ("ya está activa. Ingresa..."). Idempotente y una vez.
+add_action( 'init', function () {
+    if ( get_option( 'vx_migr_aprobacion_login_v1' ) !== false ) {
+        return;
+    }
+
+    $body = get_option( 'vx_email_tpl_body_aprobacion', '' );
+    if ( is_string( $body ) && $body !== '' && strpos( $body, 'Activa tu cuenta' ) !== false ) {
+        $nuevo = "Hola {{nombre}},\n\nTu solicitud para unirte a Vitrinexo fue aprobada y tu cuenta ya está activa. Ingresa con el botón de abajo:\n\n{{link}}";
+        update_option( 'vx_email_tpl_body_aprobacion', $nuevo );
+    }
+
+    update_option( 'vx_migr_aprobacion_login_v1', 1 );
+}, 20 );
+
 // ── Manual de activación Stripe (página oculta del admin, imprimible como PDF) ─
 
 // ── Planes disponibles ──────────────────────────────────────────────────────
