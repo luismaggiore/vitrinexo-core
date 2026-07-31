@@ -266,6 +266,26 @@ function vx_rest_conexion_responder( WP_REST_Request $request ): WP_REST_Respons
     return new WP_REST_Response( [ 'success' => true ], 200 );
 }
 
+/**
+ * IDs de usuarios que deben ocultarse mutuamente respecto a $user_id:
+ * los que $user_id bloqueó + los que bloquearon a $user_id.
+ * Se usa para excluirlos del directorio, matches y perfil público.
+ */
+function vx_hidden_user_ids( int $user_id ): array
+{
+    if ( ! $user_id ) return [];
+    $blocked   = (array) ( get_user_meta( $user_id, 'vx_bloqueados',   true ) ?: [] );
+    $blockedby = (array) ( get_user_meta( $user_id, 'vx_bloqueado_por', true ) ?: [] );
+    return array_values( array_unique( array_map( 'intval', array_merge( $blocked, $blockedby ) ) ) );
+}
+
+/** ¿Hay relación de bloqueo (en cualquier dirección) entre A y B? */
+function vx_hay_bloqueo( int $a, int $b ): bool
+{
+    if ( ! $a || ! $b ) return false;
+    return in_array( $b, vx_hidden_user_ids( $a ), true );
+}
+
 function vx_rest_conexion_bloquear( WP_REST_Request $request ): WP_REST_Response
 {
     $user_id    = get_current_user_id();
@@ -279,6 +299,13 @@ function vx_rest_conexion_bloquear( WP_REST_Request $request ): WP_REST_Response
     if ( ! in_array( $usuario_id, $bloqueados, true ) ) {
         $bloqueados[] = $usuario_id;
         update_user_meta( $user_id, 'vx_bloqueados', array_values( $bloqueados ) );
+    }
+
+    // Índice inverso: el bloqueado guarda quién lo bloqueó (para ocultarse mutuamente).
+    $porb = (array) ( get_user_meta( $usuario_id, 'vx_bloqueado_por', true ) ?: [] );
+    if ( ! in_array( $user_id, $porb, true ) ) {
+        $porb[] = $user_id;
+        update_user_meta( $usuario_id, 'vx_bloqueado_por', array_values( $porb ) );
     }
 
     // Cancelar conexiones existentes entre ambos usuarios
@@ -303,6 +330,11 @@ function vx_rest_conexion_desbloquear( WP_REST_Request $request ): WP_REST_Respo
     $bloqueados = (array) ( get_user_meta( $user_id, 'vx_bloqueados', true ) ?: [] );
     $bloqueados = array_values( array_filter( $bloqueados, fn( $id ) => (int) $id !== $usuario_id ) );
     update_user_meta( $user_id, 'vx_bloqueados', $bloqueados );
+
+    // Quitar el índice inverso del otro usuario.
+    $porb = (array) ( get_user_meta( $usuario_id, 'vx_bloqueado_por', true ) ?: [] );
+    $porb = array_values( array_filter( $porb, fn( $id ) => (int) $id !== $user_id ) );
+    update_user_meta( $usuario_id, 'vx_bloqueado_por', $porb );
 
     return new WP_REST_Response( [ 'success' => true ], 200 );
 }
