@@ -146,11 +146,10 @@ class VX_Email_Templates
         $link   = esc_url( $d['link'] ?? '' );
 
         $content = self::h1( "¡Buenas noticias, $nombre!" )
-            . self::p( "Tu cuenta en Vitrinexo ha sido revisada y aprobada por nuestro equipo. Ya puedes activarla y completar tu perfil." )
+            . self::p( "Tu cuenta en Vitrinexo ha sido revisada y aprobada por nuestro equipo. Ya está activa: ingresa y completa tu perfil." )
             . '<div style="text-align:center;margin:28px 0;">'
-            . self::btn( $link, 'Activar mi cuenta' )
-            . '</div>'
-            . self::p( '<small style="color:#8ea5b8;">Este enlace expira en 72 horas.</small>' );
+            . self::btn( $link, 'Ingresar a Vitrinexo' )
+            . '</div>';
 
         return self::wrapper( $content );
     }

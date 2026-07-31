@@ -87,7 +87,7 @@ class VX_Mailer
             case 'confirmacion':
                 return 'Confirmar mi email';
             case 'aprobacion':
-                return 'Activar mi cuenta';
+                return 'Ingresar a Vitrinexo';
             default:
                 return 'Continuar';
         }
