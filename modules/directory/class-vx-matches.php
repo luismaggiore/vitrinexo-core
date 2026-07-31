@@ -100,12 +100,13 @@ class VX_Matches
 
         $meta_key = 'offer' === $match_meta_key_type ? VX_User_Meta::OFFER_TAGS : VX_User_Meta::SEEK_TAGS;
 
-        // Obtener todos los candidatos activos (excepto el usuario actual)
+        // Obtener todos los candidatos activos (excepto el usuario actual y los bloqueados en cualquier dirección)
+        $excluir = array_merge( [ $user_id ], function_exists( 'vx_hidden_user_ids' ) ? vx_hidden_user_ids( $user_id ) : [] );
         $all_ids = get_users( [
             'role'       => 'subscriber',
             'fields'     => 'ids',
             'number'     => -1,
-            'exclude'    => [ $user_id ],
+            'exclude'    => $excluir,
             'meta_query' => [
                 'relation' => 'AND',
                 [ 'key' => VX_User_Meta::ESTADO,              'value' => 'activo' ],

@@ -54,6 +54,9 @@ class VX_Directory
             $meta_query[] = [ 'key' => VX_User_Meta::ES_FUNDADOR, 'value' => '1' ];
         }
 
+        // Ocultar usuarios con relación de bloqueo (en cualquier dirección).
+        $excluir = function_exists( 'vx_hidden_user_ids' ) ? vx_hidden_user_ids( get_current_user_id() ) : [];
+
         $all_ids = get_users( [
             'role'       => 'subscriber',
             'number'     => -1,
@@ -62,6 +65,7 @@ class VX_Directory
             'meta_key'   => VX_User_Meta::APELLIDO,
             'orderby'    => 'meta_value',
             'order'      => 'ASC',
+            'exclude'    => $excluir,
         ] );
 
         // ── Búsqueda de texto libre ──────────────────────────────────────────
