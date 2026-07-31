@@ -220,7 +220,12 @@ class VX_Admin_Emails
         $body    = get_option( 'vx_email_tpl_body_'    . $slug, $tpl['default_body']    ?? '' );
 
         // Reemplazar variables {{nombre}}, {{link}}, etc.
+        // Solo valores escalares: si llega un array/objeto se ignora (evita fatal en str_replace).
         foreach ( $data as $k => $v ) {
+            if ( ! is_scalar( $v ) ) {
+                continue;
+            }
+            $v       = (string) $v;
             $body    = str_replace( '{{' . $k . '}}', $v, $body );
             $subject = str_replace( '{{' . $k . '}}', $v, $subject );
         }
