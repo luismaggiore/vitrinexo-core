@@ -82,18 +82,23 @@ class VX_Connection_Flow
             $empresa_str    = $empresa_activa ? $empresa_activa->post_title : '';
         }
 
+        // URL del perfil público del emisor (para el botón "Ver perfil" del email)
+        $emisor_slug       = get_user_meta( $emisor_id, 'vx_perfil_slug', true );
+        $emisor_perfil_url = $emisor_slug ? home_url( '/perfil/' . $emisor_slug . '/' ) : '';
+
         // Email al receptor
         VX_Mailer::send(
             $receptor->get_email(),
             $receptor->get_nombre() . ', ' . $emisor->get_nombre_completo() . ' quiere conectar contigo',
             'conexion_recibida',
             [
-                'receptor_nombre' => $receptor->get_nombre_completo(),
-                'emisor_nombre'   => $emisor->get_nombre_completo(),
-                'emisor_empresa'  => $empresa_str,
-                'pitch'           => $pitch,
-                'token_aceptar'   => $token_aceptar,
-                'token_rechazar'  => $token_rechazar,
+                'receptor_nombre'   => $receptor->get_nombre_completo(),
+                'emisor_nombre'     => $emisor->get_nombre_completo(),
+                'emisor_empresa'    => $empresa_str,
+                'emisor_perfil_url' => $emisor_perfil_url,
+                'pitch'             => $pitch,
+                'token_aceptar'     => $token_aceptar,
+                'token_rechazar'    => $token_rechazar,
             ]
         );
 
