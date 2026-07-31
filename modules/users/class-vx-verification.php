@@ -126,7 +126,7 @@ class VX_Verification
             $user->get_email(),
             '¡Bienvenido a Vitrinexo, ' . $user->get_nombre() . '!',
             'aprobacion',
-            [ 'nombre' => $user->get_nombre(), 'link' => home_url( '/ingresar/' ) ]
+            [ 'nombre' => $user->get_nombre(), 'link' => home_url( '/login/' ) ]
         );
 
         do_action( 'vx_account_activated', $user_id );
@@ -200,25 +200,12 @@ class VX_Verification
         $user = VX_User::get( $user_id );
         if ( ! $user ) return;
 
-        // Fix: no regenerar token si ya está activo (previene doble email por doble clic)
+        // La aprobación del admin ES la activación: no hay segundo paso.
+        // Evita doble activación/email si ya está activo (p. ej. doble clic).
         if ( 'activo' === $user->get_estado() ) return;
 
-        $token = self::generate_token( $user_id, 72 ); // 72h para manual
-        $link  = add_query_arg( [
-            'uid'    => $user_id,
-            'token'  => $token,
-            'accion' => 'confirmar',
-        ], rest_url( VX_REST_NAMESPACE . '/activar' ) );
-
-        VX_Mailer::send(
-            $user->get_email(),
-            '¡Tu cuenta en Vitrinexo fue aprobada!',
-            'aprobacion',
-            [
-                'nombre' => $user->get_nombre(),
-                'link'   => $link,
-            ]
-        );
+        // Activa la cuenta y envía UN solo email de bienvenida con botón "Ingresar".
+        self::activate_account( $user_id );
     }
 
     /**
