@@ -82,6 +82,16 @@ function vx_rest_comunidad_salir( WP_REST_Request $request ): WP_REST_Response
         return new WP_REST_Response( [ 'success' => false, 'error' => 'comunidad_invalida' ], 400 );
     }
 
+    // La comunidad Woman es obligatoria para género femenino: no se puede abandonar.
+    if ( 'woman' === $comunidad
+        && 'femenino' === get_user_meta( $user_id, VX_User_Meta::GENERO, true ) ) {
+        return new WP_REST_Response( [
+            'success' => false,
+            'error'   => 'woman_obligatoria',
+            'message' => 'La comunidad Woman es parte de tu membresía por tu género y no puede desactivarse.',
+        ], 403 );
+    }
+
     VX_Community::deactivate( $user_id, $comunidad );
 
     return new WP_REST_Response( [ 'success' => true ], 200 );
