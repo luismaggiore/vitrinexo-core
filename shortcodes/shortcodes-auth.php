@@ -146,65 +146,29 @@ add_shortcode( 'vx_onboarding', function (): string {
         </div>
       </div>
 
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label class="form-label-vx">Nombre *</label>
-          <input type="text" id="ob2-nombre" class="form-control-vx" value="<?php echo esc_attr( $nombre ); ?>" placeholder="Tu nombre">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label-vx">Apellido *</label>
-          <input type="text" id="ob2-apellido" class="form-control-vx" value="<?php echo esc_attr( $apellido ); ?>" placeholder="Tu apellido">
-        </div>
-      </div>
-
       <div class="mb-3">
         <label class="form-label-vx">Bio profesional <span class="form-hint d-inline">(opcional · máx. 300 caracteres)</span></label>
         <textarea id="ob2-bio" class="form-control-vx" rows="3" maxlength="300" placeholder="Ej: Especialista en marketing B2B con 8 años de experiencia en mercados internacionales..."><?php echo esc_textarea( $bio ); ?></textarea>
       </div>
 
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label class="form-label-vx">País *</label>
-          <select id="ob2-pais" class="form-control-vx" required>
-            <option value="">Selecciona tu país</option>
-            <?php foreach ( vx_get_paises_latam() as $p ) : ?>
-            <option value="<?php echo esc_attr( $p ); ?>" <?php selected( $pais, $p ); ?>><?php echo esc_html( $p ); ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label-vx">Ciudad</label>
-          <?php
-          $ciudades_pais  = vx_get_ciudades_por_pais()[ $pais ] ?? [];
-          $ciudad_es_otra = $ciudad && ! in_array( $ciudad, $ciudades_pais, true );
-          ?>
-          <select id="ob2-ciudad" class="form-control-vx">
-            <option value="">Selecciona primero el país</option>
-            <?php foreach ( $ciudades_pais as $c ) : ?>
-            <option value="<?php echo esc_attr( $c ); ?>" <?php selected( $ciudad, $c ); ?>><?php echo esc_html( $c ); ?></option>
-            <?php endforeach; ?>
-            <?php if ( $ciudades_pais ) : ?>
-            <option value="__otra__" <?php echo $ciudad_es_otra ? 'selected' : ''; ?>>Otra ciudad...</option>
-            <?php endif; ?>
-          </select>
-          <input type="text" id="ob2-ciudad-custom" class="form-control-vx mt-2"
-                 placeholder="Escribe tu ciudad"
-                 value="<?php echo $ciudad_es_otra ? esc_attr( $ciudad ) : ''; ?>"
-                 style="<?php echo $ciudad_es_otra ? '' : 'display:none'; ?>">
-        </div>
-      </div>
-      <?php /* JSON de ciudades para el cascade JS */ ?>
-      <script>window.vxCiudadesPorPais = <?php echo wp_json_encode( vx_get_ciudades_por_pais() ); ?>;</script>
-
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label class="form-label-vx">Teléfono <span class="form-hint d-inline">(opcional, incluye prefijo de país)</span></label>
-          <?php echo vx_phone_input_html( 'ob2-telefono', 'telefono', $telefono ); ?>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label-vx">LinkedIn <span class="form-hint d-inline">(opcional)</span></label>
-          <input type="url" id="ob2-linkedin" class="form-control-vx vx-linkedin-input" value="<?php echo esc_attr( $linkedin ); ?>" placeholder="https://linkedin.com/in/tu-nombre">
-        </div>
+      <?php
+      // La ciudad se pide aquí; el país ya viene del registro y define las opciones.
+      $ciudades_pais  = vx_get_ciudades_por_pais()[ $pais ] ?? [];
+      $ciudad_es_otra = $ciudad && ! in_array( $ciudad, $ciudades_pais, true );
+      ?>
+      <div class="mb-3">
+        <label class="form-label-vx">Ciudad<?php echo $pais ? ' <span class="form-hint d-inline">(' . esc_html( $pais ) . ')</span>' : ''; ?></label>
+        <select id="ob2-ciudad" class="form-control-vx" onchange="var c=document.getElementById('ob2-ciudad-custom'); if(this.value==='__otra__'){c.style.display='';c.focus();}else{c.style.display='none';c.value='';}">
+          <option value="">Selecciona tu ciudad</option>
+          <?php foreach ( $ciudades_pais as $c ) : ?>
+          <option value="<?php echo esc_attr( $c ); ?>" <?php selected( $ciudad, $c ); ?>><?php echo esc_html( $c ); ?></option>
+          <?php endforeach; ?>
+          <option value="__otra__" <?php echo $ciudad_es_otra ? 'selected' : ''; ?>>Otra ciudad...</option>
+        </select>
+        <input type="text" id="ob2-ciudad-custom" class="form-control-vx mt-2"
+               placeholder="Escribe tu ciudad"
+               value="<?php echo $ciudad_es_otra ? esc_attr( $ciudad ) : ''; ?>"
+               style="<?php echo $ciudad_es_otra ? '' : 'display:none'; ?>">
       </div>
 
       <div class="mb-3">
@@ -279,13 +243,15 @@ add_shortcode( 'vx_onboarding', function (): string {
       </div>
 
       <div class="mb-3">
-        <label class="form-label-vx">Nombre de la empresa *</label>
-        <input type="text" id="ob3-empresa-nombre" class="form-control-vx" placeholder="Ej: BrandLab Internacional"
+        <label class="form-label-vx">Nombre de la empresa <span class="form-hint d-inline">(desde tu registro)</span></label>
+        <input type="text" id="ob3-empresa-nombre" class="form-control-vx" readonly
+               style="background:var(--color-surface-2, #f5f7fa);cursor:not-allowed"
                value="<?php echo esc_attr( $ob3_empresa_nombre ); ?>">
       </div>
       <div class="mb-3">
-        <label class="form-label-vx">Tu cargo / rol *</label>
-        <input type="text" id="ob3-empresa-cargo" class="form-control-vx" placeholder="Ej: Directora de Estrategia"
+        <label class="form-label-vx">Tu cargo / rol <span class="form-hint d-inline">(desde tu registro)</span></label>
+        <input type="text" id="ob3-empresa-cargo" class="form-control-vx" readonly
+               style="background:var(--color-surface-2, #f5f7fa);cursor:not-allowed"
                value="<?php echo esc_attr( $ob3_empresa_cargo ); ?>">
       </div>
       <div class="mb-3">
@@ -722,13 +688,9 @@ add_shortcode( 'vx_onboarding', function (): string {
       return;
     }
     obSave(2, {
-      nombre:             document.getElementById('ob2-nombre').value.trim(),
-      apellido:           document.getElementById('ob2-apellido').value.trim(),
+      // nombre, apellido, país, teléfono y LinkedIn ya vienen del registro: no se re-piden.
       bio:                document.getElementById('ob2-bio').value.trim(),
       ciudad:             (function(){ var s=document.getElementById('ob2-ciudad'); var c=document.getElementById('ob2-ciudad-custom'); return s && s.value==='__otra__' ? (c ? c.value.trim() : '') : (s ? s.value.trim() : ''); })(),
-      pais:               document.getElementById('ob2-pais').value,
-      telefono:           document.getElementById('ob2-telefono').value.trim(),
-      linkedin:           document.getElementById('ob2-linkedin').value.trim(),
       foto_id:            document.getElementById('foto-id').value,
       genero:             generoVal,
       fecha_nacimiento:   fechaNac,
