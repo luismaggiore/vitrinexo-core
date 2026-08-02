@@ -238,13 +238,6 @@ add_shortcode( 'vx_onboarding', function (): string {
         </div>
       </div>
 
-      <div class="mb-3">
-        <label class="d-flex align-items-start gap-2" style="cursor:pointer;font-size:14px;line-height:1.5">
-          <input type="checkbox" id="ob2-consentimiento" <?php checked( $consentimiento, '1' ); ?> style="accent-color:var(--color-primary);margin-top:3px">
-          <span>Autorizo que otros miembros verificados de Vitrinexo me contacten a través de la plataforma.</span>
-        </label>
-      </div>
-
       <div id="ob2-error" class="alert-vx alert-error d-none mb-3"></div>
       <div class="ob-footer">
         <button class="btn-vx btn-ghost-vx btn-vx-md" onclick="obGoTo(1)"><i class="ti ti-arrow-left me-1"></i> Atrás</button>
@@ -723,15 +716,9 @@ add_shortcode( 'vx_onboarding', function (): string {
     window._vxGenero = generoVal; // persist across steps
     var fechaNac    = document.getElementById('ob2-fecha-nacimiento').value;
     var experiencia = document.getElementById('ob2-experiencia').value.trim();
-    var consiente   = document.getElementById('ob2-consentimiento').checked;
     // Fecha de nacimiento y años de experiencia son obligatorios
     if (!fechaNac || experiencia === '') {
       if (errEl) { errEl.textContent = 'Indica tu fecha de nacimiento y tus años de experiencia en el mercado.'; errEl.classList.remove('d-none'); }
-      return;
-    }
-    // Consentimiento explícito obligatorio
-    if (!consiente) {
-      if (errEl) { errEl.textContent = 'Debes autorizar que otros miembros te contacten para continuar.'; errEl.classList.remove('d-none'); }
       return;
     }
     obSave(2, {
@@ -746,7 +733,6 @@ add_shortcode( 'vx_onboarding', function (): string {
       genero:             generoVal,
       fecha_nacimiento:   fechaNac,
       anos_experiencia:   experiencia,
-      consentimiento_contacto: consiente ? '1' : '',
     }, function(){ obGoTo(3); });
   };
 

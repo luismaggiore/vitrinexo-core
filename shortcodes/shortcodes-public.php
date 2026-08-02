@@ -275,6 +275,12 @@ add_shortcode( 'vx_landing', function (): string {
                                     </select>
                                 </div>
                             </div>
+                            <div class="mb-3">
+                                <label class="d-flex align-items-start gap-2" style="cursor:pointer;font-size:13px;line-height:1.5">
+                                    <input type="checkbox" name="consentimiento" id="founderConsent" style="accent-color:var(--color-primary);margin-top:3px;flex-shrink:0">
+                                    <span>Autorizo que otros miembros verificados de Vitrinexo me contacten a través de la plataforma.</span>
+                                </label>
+                            </div>
                             <button type="submit" class="btn-vx btn-primary-vx btn-vx-md w-100 justify-content-center">
                                 <i class="ti ti-arrow-right"></i> Empieza a Vitrinear
                             </button>
@@ -385,8 +391,17 @@ add_shortcode( 'vx_landing', function (): string {
                 return;
             }
 
+            // Consentimiento obligatorio para registrarse.
+            var consentEl = document.getElementById('founderConsent');
+            if (!consentEl || !consentEl.checked) {
+                btn.innerHTML = orig; btn.disabled = false;
+                if (errBox) { errBox.textContent = 'Debes autorizar que otros miembros te contacten para registrarte.'; errBox.style.display = 'block'; }
+                return;
+            }
+
             var data = {};
             new FormData(form).forEach(function(v, k) { data[k] = v; });
+            data.consentimiento = '1';
 
             try {
                 var res  = await fetch('/wp-json/vitrinexo/v1/registrar', {
