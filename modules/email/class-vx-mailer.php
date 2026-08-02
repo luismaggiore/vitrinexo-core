@@ -90,6 +90,12 @@ class VX_Mailer
                 return 'Ingresar a Vitrinexo';
             case 'foto_recordatorio':
                 return 'Subir mi foto';
+            case 'blog_pendiente_admin':
+                return 'Ir a moderar';
+            case 'blog_aprobado':
+                return 'Ver mi artículo';
+            case 'blog_rechazado':
+                return 'Editar mi artículo';
             default:
                 return 'Continuar';
         }
