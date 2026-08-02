@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// Seguridad: no mostrar trazas de error PHP a los visitantes del sitio público.
+// Los errores se siguen registrando (WP_DEBUG_LOG) y siguen visibles en el admin.
+if ( ! is_admin() ) {
+    @ini_set( 'display_errors', '0' );
+    @ini_set( 'display_startup_errors', '0' );
+}
+
 define( 'VX_VERSION',        '1.0.5' );
 define( 'VX_PLUGIN_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'VX_PLUGIN_URL',     plugin_dir_url( __FILE__ ) );
