@@ -141,7 +141,6 @@ class VX_Onboarding
                 if ( empty( trim( $datos['pais']     ?? '' ) ) ) $errors[] = 'pais_requerido';
                 if ( empty( trim( (string) ( $datos['fecha_nacimiento'] ?? '' ) ) ) ) $errors[] = 'fecha_nacimiento_requerida';
                 if ( '' === trim( (string) ( $datos['anos_experiencia'] ?? '' ) ) )   $errors[] = 'anos_experiencia_requerido';
-                if ( empty( $datos['consentimiento_contacto'] ) ) $errors[] = 'consentimiento_requerido';
                 break;
 
             case 3:
@@ -190,8 +189,7 @@ class VX_Onboarding
                 if ( isset( $datos['anos_experiencia'] ) && '' !== trim( (string) $datos['anos_experiencia'] ) ) {
                     update_user_meta( $user_id, 'vx_anos_experiencia', min( 80, max( 0, (int) $datos['anos_experiencia'] ) ) );
                 }
-                // Consentimiento explícito para ser contactado
-                update_user_meta( $user_id, 'vx_consentimiento_contacto', empty( $datos['consentimiento_contacto'] ) ? '' : '1' );
+                // El consentimiento se pide y guarda en el registro, no en el onboarding.
                 if ( ! empty( $datos['foto_id'] ) ) {
                     update_user_meta( $user_id, VX_User_Meta::FOTO, absint( $datos['foto_id'] ) );
                 }
