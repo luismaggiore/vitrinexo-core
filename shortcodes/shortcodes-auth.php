@@ -1515,7 +1515,7 @@ add_shortcode( 'vx_dashboard', function (): string {
           <div class="contact-reveal">
             <img src="<?php echo esc_url( $other_user->get_foto_url( 'vx-avatar' ) ); ?>" alt="" class="contact-reveal-avatar">
             <div class="flex-grow-1">
-              <div class="contact-reveal-name"><?php echo esc_html( $other_user->get_nombre_completo() ); ?></div>
+              <a href="<?php echo esc_url( home_url( '/perfil/' . $other_user->get_slug() . '/' ) ); ?>" class="contact-reveal-name"><?php echo esc_html( $other_user->get_nombre_completo() ); ?></a>
               <?php if ( $role_str ) : ?><div class="contact-reveal-role"><?php echo esc_html( $role_str ); ?></div><?php endif; ?>
               <?php echo vx_render_contact_links( $other_user, $contacto_pref ); ?>
             </div>
