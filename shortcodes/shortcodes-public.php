@@ -658,8 +658,12 @@ add_shortcode( 'vx_blog', function (): string {
                     <p class="page-header-vx__lead">Ensayos, entrevistas y data sobre el ecosistema de servicios B2B en Hispanoamérica.</p>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn-vx btn-ghost-vx btn-vx-sm"><i class="ti ti-filter"></i> Categoría</button>
-                    <button class="btn-vx btn-ghost-vx btn-vx-sm"><i class="ti ti-world"></i> País</button>
+                    <?php if ( is_user_logged_in() ) : ?>
+                    <a href="<?php echo esc_url( home_url( '/blog-nuevo/' ) ); ?>" class="btn-vx btn-primary-vx btn-vx-sm"><i class="ti ti-pencil-plus"></i> Escribir artículo</a>
+                    <?php endif; ?>
+                    <?php if ( current_user_can( 'manage_options' ) ) : ?>
+                    <a href="<?php echo esc_url( home_url( '/blog-moderacion/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm"><i class="ti ti-shield-check"></i> Moderar</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -710,8 +714,12 @@ add_shortcode( 'vx_blog', function (): string {
                     <p class="page-header-vx__lead">Ensayos, entrevistas y data sobre el ecosistema de servicios B2B en Hispanoamérica.</p>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn-vx btn-ghost-vx btn-vx-sm"><i class="ti ti-filter"></i> Categoría</button>
-                    <button class="btn-vx btn-ghost-vx btn-vx-sm"><i class="ti ti-world"></i> País</button>
+                    <?php if ( is_user_logged_in() ) : ?>
+                    <a href="<?php echo esc_url( home_url( '/blog-nuevo/' ) ); ?>" class="btn-vx btn-primary-vx btn-vx-sm"><i class="ti ti-pencil-plus"></i> Escribir artículo</a>
+                    <?php endif; ?>
+                    <?php if ( current_user_can( 'manage_options' ) ) : ?>
+                    <a href="<?php echo esc_url( home_url( '/blog-moderacion/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm"><i class="ti ti-shield-check"></i> Moderar</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
