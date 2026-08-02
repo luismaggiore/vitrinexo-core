@@ -3633,17 +3633,6 @@ add_shortcode( 'vx_editor_perfil', function (): string {
               </div>
             </div>
 
-            <!-- Preferencia de contacto -->
-            <div class="mb-4 pb-4 border-bottom-vx">
-              <label class="form-label-vx">Método de contacto preferido</label>
-              <select name="contacto_preferido" class="form-control-vx input-md-vx">
-                <?php foreach ( [ 'email' => 'Email', 'telefono' => 'Teléfono', 'linkedin' => 'LinkedIn' ] as $val => $lbl ) : ?>
-                <option value="<?php echo esc_attr( $val ); ?>" <?php selected( $user->get_contacto_preferido(), $val ); ?>><?php echo esc_html( $lbl ); ?></option>
-                <?php endforeach; ?>
-              </select>
-              <p class="text-sm-muted mt-1">El método preferido aparece destacado cuando alguien ve tus datos de contacto tras conectar.</p>
-            </div>
-
             <!-- Tags de perfil (aparecen bajo el nombre en la ficha pública) -->
             <div class="mb-4 pb-4 border-bottom-vx">
               <label class="form-label-vx">Tags de perfil <span class="text-sm-muted">(aparecen en tu ficha pública)</span></label>
@@ -3657,10 +3646,6 @@ add_shortcode( 'vx_editor_perfil', function (): string {
                 <?php endforeach; ?>
               </div>
               <div class="d-flex flex-wrap gap-2 mb-2" id="vx-profile-tags-custom"></div>
-              <div class="input-group-vx">
-                <span class="input-icon"><i class="ti ti-plus"></i></span>
-                <input type="text" id="vx-profile-tag-custom-input" placeholder="Agregar otro tag..." onkeydown="vxAddProfileTagCustom(event)">
-              </div>
             </div>
 
             <!-- Tags que ofreces -->
