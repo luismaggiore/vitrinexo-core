@@ -26,6 +26,13 @@ class VX_Admin_Emails
                 'default_subject' => '¡Tu cuenta en Vitrinexo fue aprobada!',
                 'default_body'    => "Hola {{nombre}},\n\nTu solicitud para unirte a Vitrinexo fue aprobada y tu cuenta ya está activa. Ingresa con el botón de abajo:\n\n{{link}}",
             ],
+            'foto_recordatorio' => [
+                'label'   => 'Recordatorio de foto',
+                'desc'    => 'Se envía cada semana a los miembros activos que aún no han subido foto de perfil.',
+                'vars'    => '{{nombre}}, {{link}}',
+                'default_subject' => '{{nombre}}, tu perfil luce mejor con foto',
+                'default_body'    => "Hola {{nombre}},\n\nNotamos que aún no has subido una foto de perfil. Los perfiles con foto reciben muchas más conexiones y generan más confianza.\n\nSúbela en un minuto con el botón de abajo:\n\n{{link}}\n\nSi ya la subiste, ignora este mensaje.",
+            ],
             'rechazo' => [
                 'label'   => 'Solicitud rechazada',
                 'desc'    => 'Se envía al usuario cuando el administrador rechaza su solicitud.',
