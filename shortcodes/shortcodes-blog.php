@@ -31,20 +31,6 @@ add_shortcode( 'vx_blog_nuevo', function (): string {
           </div>
 
           <div class="mb-3">
-            <label class="form-label-vx">Imagen de portada *</label>
-            <div id="vxb-cover-zone" onclick="document.getElementById('vxb-cover-input').click()" style="cursor:pointer;border:1.5px dashed var(--color-border);border-radius:12px;height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--color-surface-2,#f5f7fa)">
-              <img id="vxb-cover-preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
-              <span id="vxb-cover-placeholder" style="color:var(--color-text-secondary);font-size:14px"><i class="ti ti-photo-up"></i> Sube una imagen (recomendado 1400×400)</span>
-            </div>
-            <input type="file" id="vxb-cover-input" accept="image/*" style="display:none">
-            <input type="hidden" id="vxb-cover-id" value="">
-            <div class="vx-upload-progress d-none" id="vxb-cover-progress" style="margin-top:6px">
-              <div style="height:3px;background:var(--color-border);border-radius:2px;overflow:hidden"><div class="vx-progress-fill" style="height:100%;width:0%;background:var(--color-primary)"></div></div>
-              <span class="vx-progress-label" style="font-size:11px;color:var(--color-text-secondary)">Subiendo...</span>
-            </div>
-          </div>
-
-          <div class="mb-3">
             <label class="form-label-vx">Categoría</label>
             <select id="vxb-categoria" class="form-control-vx">
               <option value="">Sin categoría</option>
@@ -77,24 +63,6 @@ add_shortcode( 'vx_blog_nuevo', function (): string {
       var API = <?php echo wp_json_encode( $api ); ?>;
       var NONCE = <?php echo wp_json_encode( $nonce ); ?>;
 
-      var coverInput = document.getElementById('vxb-cover-input');
-      coverInput.addEventListener('change', function(){
-        var file = this.files[0]; if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function(e){
-          var p = document.getElementById('vxb-cover-preview');
-          p.src = e.target.result; p.style.display = '';
-          document.getElementById('vxb-cover-placeholder').style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-        var prog = document.getElementById('vxb-cover-progress');
-        if (typeof window.vxUploadXHR === 'function') {
-          window.vxUploadXHR(file, 'banner', null, prog,
-            function(json){ if (json.attachment_id) document.getElementById('vxb-cover-id').value = json.attachment_id; },
-            function(msg){ alert(msg || 'Error al subir la imagen.'); });
-        }
-      });
-
       var form = document.getElementById('vx-blog-form');
       form.addEventListener('submit', function(e){
         e.preventDefault();
@@ -102,16 +70,14 @@ add_shortcode( 'vx_blog_nuevo', function (): string {
         msg.className = 'alert-vx d-none mb-3';
         var titulo = document.getElementById('vxb-titulo').value.trim();
         var contenido = document.getElementById('vxb-contenido').value.trim();
-        var coverId = document.getElementById('vxb-cover-id').value;
         if (!titulo || !contenido) { msg.textContent='Completa título y contenido.'; msg.className='alert-vx alert-error mb-3'; return; }
-        if (!coverId) { msg.textContent='Sube una imagen de portada.'; msg.className='alert-vx alert-error mb-3'; return; }
 
         var btn = document.getElementById('vxb-submit');
         btn.disabled = true; btn.textContent = 'Enviando...';
         fetch(API + 'blog/crear', {
           method:'POST',
           headers:{'Content-Type':'application/json','X-WP-Nonce':NONCE},
-          body: JSON.stringify({ titulo: titulo, contenido: contenido, cover_id: coverId, categoria: document.getElementById('vxb-categoria').value })
+          body: JSON.stringify({ titulo: titulo, contenido: contenido, categoria: document.getElementById('vxb-categoria').value })
         }).then(function(r){ return r.json(); }).then(function(d){
           if (d.success) {
             form.style.display='none';
@@ -164,12 +130,8 @@ add_shortcode( 'vx_blog_moderacion', function (): string {
         <div class="d-flex flex-column gap-3">
           <?php foreach ( $pendientes as $p ) :
             $autor = get_userdata( $p->post_author );
-            $cover = get_the_post_thumbnail_url( $p->ID, 'medium' );
           ?>
           <div class="card-vx vx-mod-item" data-id="<?php echo (int) $p->ID; ?>" style="padding:16px;display:flex;gap:14px;align-items:flex-start">
-            <?php if ( $cover ) : ?>
-            <img src="<?php echo esc_url( $cover ); ?>" alt="" style="width:120px;height:80px;object-fit:cover;border-radius:8px;flex-shrink:0">
-            <?php endif; ?>
             <div style="flex:1;min-width:0">
               <h3 style="margin:0 0 4px;font-size:16px"><?php echo esc_html( $p->post_title ); ?></h3>
               <p style="margin:0 0 8px;font-size:12px;color:var(--color-text-secondary)">Por <?php echo esc_html( $autor ? $autor->display_name : '—' ); ?> · <?php echo esc_html( get_the_date( '', $p ) ); ?></p>
