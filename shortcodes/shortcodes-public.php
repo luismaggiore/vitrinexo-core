@@ -727,37 +727,27 @@ add_shortcode( 'vx_blog', function (): string {
 
     <div class="container py-4">
 
-        <!-- Artículo destacado -->
-        <div class="card-vx mb-4 p-0 overflow-hidden">
-            <div class="row g-0">
-                <div class="col-12 col-md-5">
-                    <div style="height:100%;min-height:200px;<?php echo esc_attr( $feat_style ); ?>;display:flex;align-items:flex-end;padding:1.5rem;position:relative;">
-                        <span class="badge-vx" style="position:absolute;top:14px;left:14px;background:rgba(255,255,255,0.2);color:#fff">
-                            <i class="ti ti-star me-1"></i> Destacado
-                        </span>
-                        <div>
-                            <div style="font-size:11px;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:4px"><?php echo esc_html( $feat_cat ); ?></div>
-                            <div style="font-size:1.35rem;font-weight:600;color:#fff;line-height:1.25"><?php echo esc_html( $featured['title'] ); ?></div>
-                        </div>
-                    </div>
+        <!-- Artículo destacado (texto, sin imagen) -->
+        <div class="card-vx mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                <span class="badge-vx"><i class="ti ti-star me-1"></i> Destacado</span>
+                <span class="section-landing-label" style="margin:0"><?php echo esc_html( $feat_cat ); ?></span>
+            </div>
+            <h2 style="font-size:clamp(1.4rem,2.5vw,1.9rem);font-weight:700;color:var(--color-text-primary);line-height:1.2;margin:0 0 .75rem"><?php echo esc_html( $featured['title'] ); ?></h2>
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <img src="<?php echo esc_url( $featured['avatar'] ); ?>" class="avatar-sm" alt="" />
+                <span class="text-sm-muted"><?php echo esc_html( $featured['author_name'] ); ?> · <?php echo esc_html( $featured['date'] ); ?> · <?php echo esc_html( $featured['read_time'] ); ?> min</span>
+            </div>
+            <p class="text-body-muted" style="line-height:1.7;margin-bottom:1rem"><?php echo esc_html( $featured['excerpt'] ); ?></p>
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex gap-1 flex-wrap">
+                    <?php foreach ( $featured['categories'] as $cat ) : ?>
+                    <span class="tag-vx"><?php echo esc_html( $cat ); ?></span>
+                    <?php endforeach; ?>
                 </div>
-                <div class="col-12 col-md-7 d-flex flex-column" style="padding:1.5rem">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <img src="<?php echo esc_url( $featured['avatar'] ); ?>" class="avatar-sm" alt="" />
-                        <span class="text-sm-muted"><?php echo esc_html( $featured['author_name'] ); ?> · <span><?php echo esc_html( $featured['date'] ); ?></span> · <?php echo esc_html( $featured['read_time'] ); ?> min</span>
-                    </div>
-                    <p class="text-body-muted" style="line-height:1.7;flex-grow:1;margin-bottom:1rem"><?php echo esc_html( $featured['excerpt'] ); ?></p>
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                        <div class="d-flex gap-1 flex-wrap">
-                            <?php foreach ( $featured['categories'] as $cat ) : ?>
-                            <span class="tag-vx"><?php echo esc_html( $cat ); ?></span>
-                            <?php endforeach; ?>
-                        </div>
-                        <a href="<?php echo esc_url( $featured['permalink'] ); ?>" class="btn-vx btn-soft-primary btn-vx-sm">
-                            Leer artículo <i class="ti ti-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                </div>
+                <a href="<?php echo esc_url( $featured['permalink'] ); ?>" class="btn-vx btn-soft-primary btn-vx-sm">
+                    Leer artículo <i class="ti ti-arrow-right ms-1"></i>
+                </a>
             </div>
         </div>
 
@@ -770,30 +760,17 @@ add_shortcode( 'vx_blog', function (): string {
 
         <div class="row g-3 mb-5">
             <?php foreach ( $posts_list as $i => $post ) :
-                $cat_name  = $post['categories'][0] ?? 'Blog';
-                $grad      = $gradients[ $i % count( $gradients ) ];
-                $img_style = $post['thumbnail']
-                    ? 'background:url(' . esc_url( $post['thumbnail'] ) . ') center/cover no-repeat'
-                    : 'background:' . $grad;
+                $cat_name = $post['categories'][0] ?? 'Blog';
             ?>
             <div class="col-12 col-md-6 col-lg-4">
                 <a href="<?php echo esc_url( $post['permalink'] ); ?>" class="text-decoration-none d-block h-100">
-                    <div class="card-vx p-0 h-100 overflow-hidden">
-                        <div class="blog-card-img-wrap" style="<?php echo esc_attr( $img_style ); ?>">
-                            <div class="blog-card-cat"><?php echo esc_html( $cat_name ); ?></div>
-                        </div>
-                        <div class="blog-card-body">
-                            <h3 class="blog-card-title"><?php echo esc_html( $post['title'] ); ?></h3>
-                            <p class="blog-card-excerpt"><?php echo esc_html( $post['excerpt'] ); ?></p>
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="<?php echo esc_url( $post['avatar'] ); ?>" class="avatar-22" alt="" />
-                                    <span class="text-xs-muted"><?php echo esc_html( $post['date'] ); ?> · <?php echo esc_html( $post['read_time'] ); ?> min</span>
-                                </div>
-                                <?php if ( $post['categories'] ) : ?>
-                                <span class="tag-vx"><?php echo esc_html( $post['categories'][0] ); ?></span>
-                                <?php endif; ?>
-                            </div>
+                    <div class="card-vx h-100 d-flex flex-column">
+                        <span class="section-landing-label" style="margin:0 0 .5rem;display:inline-block"><?php echo esc_html( $cat_name ); ?></span>
+                        <h3 class="blog-card-title" style="margin-bottom:.5rem"><?php echo esc_html( $post['title'] ); ?></h3>
+                        <p class="blog-card-excerpt" style="flex-grow:1"><?php echo esc_html( $post['excerpt'] ); ?></p>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="<?php echo esc_url( $post['avatar'] ); ?>" class="avatar-22" alt="" />
+                            <span class="text-xs-muted"><?php echo esc_html( $post['date'] ); ?> · <?php echo esc_html( $post['read_time'] ); ?> min</span>
                         </div>
                     </div>
                 </a>
