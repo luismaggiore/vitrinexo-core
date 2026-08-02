@@ -32,7 +32,91 @@ add_action( 'rest_api_init', function () {
         'callback'            => 'vx_rest_blog_reaccion',
         'permission_callback' => function () { return is_user_logged_in(); },
     ] );
+
+    // Reacción (me gusta) a un comentario — toggle. Requiere sesión iniciada.
+    register_rest_route( VX_REST_NAMESPACE, '/blog/comentario/(?P<id>\d+)/reaccion', [
+        'methods'             => 'POST',
+        'callback'            => 'vx_rest_comentario_reaccion',
+        'permission_callback' => function () { return is_user_logged_in(); },
+    ] );
 } );
+
+/** Toggle de reacción (me gusta) de un comentario. Guarda IDs en comment meta 'vx_reacciones'. */
+function vx_rest_comentario_reaccion( WP_REST_Request $request ): WP_REST_Response
+{
+    $comment_id = absint( $request->get_param( 'id' ) );
+    $comment    = get_comment( $comment_id );
+    if ( ! $comment || '1' !== (string) $comment->comment_approved ) {
+        return new WP_REST_Response( [ 'success' => false, 'error' => 'no_encontrado' ], 404 );
+    }
+    $user_id = get_current_user_id();
+    $users   = array_map( 'intval', (array) ( get_comment_meta( $comment_id, 'vx_reacciones', true ) ?: [] ) );
+    $pos = array_search( $user_id, $users, true );
+    if ( false !== $pos ) { unset( $users[ $pos ] ); $reacted = false; }
+    else { $users[] = $user_id; $reacted = true; }
+    $users = array_values( array_unique( $users ) );
+    update_comment_meta( $comment_id, 'vx_reacciones', $users );
+    return new WP_REST_Response( [ 'success' => true, 'reacted' => $reacted, 'count' => count( $users ) ], 200 );
+}
+
+function vx_comentario_reacciones_count( int $comment_id ): int
+{
+    return count( (array) ( get_comment_meta( $comment_id, 'vx_reacciones', true ) ?: [] ) );
+}
+function vx_usuario_reacciono_comentario( int $comment_id, int $user_id ): bool
+{
+    if ( ! $user_id ) return false;
+    $users = array_map( 'intval', (array) ( get_comment_meta( $comment_id, 'vx_reacciones', true ) ?: [] ) );
+    return in_array( $user_id, $users, true );
+}
+
+/**
+ * Comentarios en hilo: forzar comentarios anidados (respuestas) hasta 4 niveles,
+ * sin depender de la configuración guardada en Ajustes → Comentarios.
+ */
+add_filter( 'option_thread_comments',       '__return_true' );
+add_filter( 'option_thread_comments_depth', function () { return 4; } );
+
+/**
+ * Avatar = foto de perfil de Vitrinexo (vx_foto). Si no hay foto, usa el
+ * placeholder (círculo teal + iniciales). Aplica a comentarios, autor, etc.
+ */
+add_filter( 'pre_get_avatar_data', function ( $args, $id_or_email ) {
+    $user = null;
+    $fallback_name = '';
+
+    if ( is_numeric( $id_or_email ) ) {
+        $user = get_user_by( 'id', (int) $id_or_email );
+    } elseif ( $id_or_email instanceof WP_User ) {
+        $user = $id_or_email;
+    } elseif ( $id_or_email instanceof WP_Post ) {
+        $user = get_user_by( 'id', (int) $id_or_email->post_author );
+    } elseif ( $id_or_email instanceof WP_Comment ) {
+        if ( ! empty( $id_or_email->user_id ) ) {
+            $user = get_user_by( 'id', (int) $id_or_email->user_id );
+        } else {
+            $fallback_name = (string) $id_or_email->comment_author;
+        }
+    } elseif ( is_string( $id_or_email ) && is_email( $id_or_email ) ) {
+        $user = get_user_by( 'email', $id_or_email );
+    }
+
+    if ( $user ) {
+        $foto_id = (int) get_user_meta( $user->ID, 'vx_foto', true );
+        if ( $foto_id ) {
+            $url = wp_get_attachment_image_url( $foto_id, 'thumbnail' );
+            if ( $url ) { $args['url'] = $url; return $args; }
+        }
+        $nombre   = (string) get_user_meta( $user->ID, 'vx_nombre', true );
+        $apellido = (string) get_user_meta( $user->ID, 'vx_apellido', true );
+        $fallback_name = trim( $nombre . ' ' . $apellido ) ?: $user->display_name;
+    }
+
+    if ( '' !== $fallback_name && function_exists( 'vx_avatar_placeholder_url' ) && function_exists( 'vx_iniciales_de' ) ) {
+        $args['url'] = vx_avatar_placeholder_url( vx_iniciales_de( $fallback_name ) );
+    }
+    return $args;
+}, 10, 2 );
 
 /**
  * Toggle de reacción (aplauso) de un artículo.
