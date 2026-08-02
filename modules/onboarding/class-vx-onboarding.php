@@ -136,9 +136,7 @@ class VX_Onboarding
 
         switch ( $paso ) {
             case 2:
-                if ( empty( trim( $datos['nombre']   ?? '' ) ) ) $errors[] = 'nombre_requerido';
-                if ( empty( trim( $datos['apellido'] ?? '' ) ) ) $errors[] = 'apellido_requerido';
-                if ( empty( trim( $datos['pais']     ?? '' ) ) ) $errors[] = 'pais_requerido';
+                // nombre, apellido y país ya se validaron en el registro.
                 if ( empty( trim( (string) ( $datos['fecha_nacimiento'] ?? '' ) ) ) ) $errors[] = 'fecha_nacimiento_requerida';
                 if ( '' === trim( (string) ( $datos['anos_experiencia'] ?? '' ) ) )   $errors[] = 'anos_experiencia_requerido';
                 break;
@@ -171,11 +169,11 @@ class VX_Onboarding
     {
         switch ( $paso ) {
             case 2:
-                update_user_meta( $user_id, VX_User_Meta::NOMBRE,             sanitize_text_field( $datos['nombre']             ?? '' ) );
-                update_user_meta( $user_id, VX_User_Meta::APELLIDO,           sanitize_text_field( $datos['apellido']           ?? '' ) );
+                // nombre, apellido y país ya se guardaron en el registro: no se sobreescriben.
                 update_user_meta( $user_id, VX_User_Meta::BIO,                sanitize_textarea_field( $datos['bio']            ?? '' ) );
-                update_user_meta( $user_id, VX_User_Meta::CIUDAD,             sanitize_text_field( $datos['ciudad']             ?? '' ) );
-                update_user_meta( $user_id, VX_User_Meta::PAIS,               sanitize_text_field( $datos['pais']               ?? '' ) );
+                if ( isset( $datos['ciudad'] ) ) {
+                    update_user_meta( $user_id, VX_User_Meta::CIUDAD,         sanitize_text_field( $datos['ciudad'] ) );
+                }
                 $genero = sanitize_key( $datos['genero'] ?? '' );
                 if ( in_array( $genero, [ 'masculino', 'femenino', 'otro', 'no_contesta' ], true ) ) {
                     update_user_meta( $user_id, VX_User_Meta::GENERO, $genero );
@@ -193,9 +191,10 @@ class VX_Onboarding
                 if ( ! empty( $datos['foto_id'] ) ) {
                     update_user_meta( $user_id, VX_User_Meta::FOTO, absint( $datos['foto_id'] ) );
                 }
-                $nombre   = sanitize_text_field( $datos['nombre']   ?? '' );
-                $apellido = sanitize_text_field( $datos['apellido'] ?? '' );
-                if ( $nombre && $apellido ) {
+                // Slug del perfil: usar nombre/apellido ya guardados en el registro.
+                $nombre   = (string) get_user_meta( $user_id, VX_User_Meta::NOMBRE,   true );
+                $apellido = (string) get_user_meta( $user_id, VX_User_Meta::APELLIDO, true );
+                if ( $nombre && $apellido && ! get_user_meta( $user_id, VX_User_Meta::PERFIL_SLUG, true ) ) {
                     update_user_meta( $user_id, VX_User_Meta::PERFIL_SLUG,
                         VX_Slug_Helper::generate( $nombre, $apellido, $user_id ) );
                 }
