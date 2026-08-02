@@ -55,6 +55,7 @@ $vx_modules = [
     // Email (antes de flujos porque los flujos la usan)
     'modules/email/class-vx-email-templates.php',
     'modules/email/class-vx-mailer.php',
+    'modules/email/class-vx-foto-reminder.php',
 
     // Flujos
     'modules/users/class-vx-verification.php',
@@ -118,6 +119,10 @@ foreach ( $vx_modules as $file ) {
 // Inicializar SMTP de Resend — debe registrarse antes del hook init
 if ( class_exists( 'VX_Mailer' ) ) {
     VX_Mailer::init();
+
+    if ( class_exists( 'VX_Foto_Reminder' ) ) {
+        VX_Foto_Reminder::init();
+    }
 }
 
 add_action( 'init', function () {
