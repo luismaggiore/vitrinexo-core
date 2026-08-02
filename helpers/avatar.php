@@ -60,6 +60,33 @@ add_action( 'wp_ajax_vx_avatar', 'vx_avatar_ajax_render' );
 add_action( 'wp_ajax_nopriv_vx_avatar', 'vx_avatar_ajax_render' );
 
 /**
+ * URL del perfil público de un usuario a partir de su slug (o '' si no tiene).
+ */
+function vx_perfil_url_de( int $user_id ): string {
+    if ( ! $user_id ) return '';
+    $slug = (string) get_user_meta( $user_id, 'vx_perfil_slug', true );
+    return $slug ? home_url( '/perfil/' . $slug . '/' ) : '';
+}
+
+/**
+ * Devuelve el nombre de un usuario como enlace a su perfil.
+ * Si no tiene slug, devuelve el nombre en texto plano (span).
+ *
+ * @param int    $user_id  ID del usuario.
+ * @param string $nombre   Nombre a mostrar.
+ * @param string $class    Clases CSS opcionales para el <a>/<span>.
+ */
+function vx_nombre_enlazado( int $user_id, string $nombre, string $class = '' ): string {
+    $n   = esc_html( $nombre );
+    $url = vx_perfil_url_de( $user_id );
+    $cls = $class ? ' class="' . esc_attr( $class ) . '"' : '';
+    if ( ! $url ) {
+        return '<span' . $cls . '>' . $n . '</span>';
+    }
+    return '<a href="' . esc_url( $url ) . '"' . $cls . '>' . $n . '</a>';
+}
+
+/**
  * Iniciales a partir de nombre y apellido (o de un nombre completo).
  */
 function vx_iniciales_de( string $nombre, string $apellido = '' ): string {
