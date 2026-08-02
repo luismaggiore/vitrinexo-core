@@ -1307,32 +1307,32 @@ add_shortcode( 'vx_dashboard', function (): string {
       <!-- STATS RÁPIDAS -->
       <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
-          <a href="<?php echo esc_url( home_url( '/conexiones/' ) ); ?>" class="text-decoration-none d-block">
-            <div class="stat-card-vx stat-card-vx--link">
+          <a href="<?php echo esc_url( home_url( '/conexiones/' ) ); ?>" class="text-decoration-none d-block h-100">
+            <div class="stat-card-vx stat-card-vx--link h-100">
               <div class="stat-num-vx stat-num-vx--primary"><?php echo count( $conexiones ); ?></div>
               <div class="stat-label-vx">Conexiones activas <i class="ti ti-arrow-right stat-arrow"></i></div>
             </div>
           </a>
         </div>
         <div class="col-6 col-md-3">
-          <a href="<?php echo esc_url( home_url( '/matches/' ) ); ?>" class="text-decoration-none d-block">
-            <div class="stat-card-vx stat-card-vx--link">
+          <a href="<?php echo esc_url( home_url( '/matches/' ) ); ?>" class="text-decoration-none d-block h-100">
+            <div class="stat-card-vx stat-card-vx--link h-100">
               <div class="stat-num-vx stat-num-vx--accent"><?php echo $nm; ?></div>
               <div class="stat-label-vx">Matches nuevos <i class="ti ti-arrow-right stat-arrow"></i></div>
             </div>
           </a>
         </div>
         <div class="col-6 col-md-3">
-          <a href="<?php echo esc_url( home_url( '/conexiones/' ) ); ?>" class="text-decoration-none d-block">
-            <div class="stat-card-vx stat-card-vx--link">
+          <a href="<?php echo esc_url( home_url( '/conexiones/' ) ); ?>" class="text-decoration-none d-block h-100">
+            <div class="stat-card-vx stat-card-vx--link h-100">
               <div class="stat-num-vx stat-num-vx--secondary"><?php echo $np; ?></div>
               <div class="stat-label-vx">Solicitudes recibidas <i class="ti ti-arrow-right stat-arrow"></i></div>
             </div>
           </a>
         </div>
         <div class="col-6 col-md-3">
-          <a href="<?php echo esc_url( home_url( '/favoritos/' ) ); ?>" class="text-decoration-none d-block">
-            <div class="stat-card-vx stat-card-vx--link">
+          <a href="<?php echo esc_url( home_url( '/favoritos/' ) ); ?>" class="text-decoration-none d-block h-100">
+            <div class="stat-card-vx stat-card-vx--link h-100">
               <div class="stat-num-vx stat-num-vx--success"><?php echo count( $favoritos_ids ); ?></div>
               <div class="stat-label-vx">En favoritos <i class="ti ti-arrow-right stat-arrow"></i></div>
             </div>
