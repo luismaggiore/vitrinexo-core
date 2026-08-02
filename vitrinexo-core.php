@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'VX_VERSION',        '1.0.4' );
+define( 'VX_VERSION',        '1.0.5' );
 define( 'VX_PLUGIN_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'VX_PLUGIN_URL',     plugin_dir_url( __FILE__ ) );
 define( 'VX_REST_NAMESPACE', 'vitrinexo/v1' );
@@ -93,6 +93,7 @@ $vx_modules = [
     'rest/rest-stripe.php',
     'rest/rest-upload.php',
     'rest/rest-feed.php',
+    'rest/rest-blog.php',
 
     // Admin
     'modules/admin/class-vx-admin-emails.php',
@@ -104,6 +105,7 @@ $vx_modules = [
     // Shortcodes
     'shortcodes/shortcodes-public.php',
     'shortcodes/shortcodes-auth.php',
+    'shortcodes/shortcodes-blog.php',
     'shortcodes/shortcodes-feed.php',
     'shortcodes/shortcodes-flow.php',
     'shortcodes/shortcodes-fragments.php',
@@ -1439,6 +1441,8 @@ function vx_create_pages(): void {
         'notificaciones'           => [ 'title' => 'Notificaciones',             'shortcode' => '[vx_notificaciones]' ],
         'configuracion'            => [ 'title' => 'Configuración',              'shortcode' => '[vx_configuracion]' ],
         'ayuda'                    => [ 'title' => 'Ayuda',                      'shortcode' => '[vx_ayuda]' ],
+        'blog-nuevo'               => [ 'title' => 'Escribir artículo',          'shortcode' => '[vx_blog_nuevo]' ],
+        'blog-moderacion'          => [ 'title' => 'Moderación del blog',        'shortcode' => '[vx_blog_moderacion]' ],
         'landing-4dinner'           => [ 'title' => '4Dinner: Sobre el evento',   'shortcode' => '[vx_landing_4dinner]' ],
         '4dinner'                  => [ 'title' => '4Dinner',                    'shortcode' => '[vx_4dinner]' ],
         'comunidad-out2b'          => [ 'title' => 'Comunidad LGBTQ+',           'shortcode' => '[vx_comunidad slug="out2b"]' ],
