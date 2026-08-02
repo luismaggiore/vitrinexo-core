@@ -88,6 +88,8 @@ class VX_Mailer
                 return 'Confirmar mi email';
             case 'aprobacion':
                 return 'Ingresar a Vitrinexo';
+            case 'foto_recordatorio':
+                return 'Subir mi foto';
             default:
                 return 'Continuar';
         }
