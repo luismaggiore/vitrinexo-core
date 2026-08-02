@@ -5040,6 +5040,24 @@ add_shortcode( 'vx_comunidad', function ( $atts ): string {
     $user     = VX_User::get( $user_id );
     $is_member = $user && $user->is_in_community( $slug );
 
+    // Acceso restringido: solo miembros de la comunidad (o administradores) pueden verla,
+    // aunque tengan el enlace directo.
+    if ( ! $is_member && ! current_user_can( 'manage_options' ) ) {
+        $com_label = [ 'out2b' => 'LGBTQ+', 'woman' => 'Woman', 'senior' => 'Senior' ][ $slug ] ?? '';
+        ob_start();
+        ?>
+        <div class="container py-5" style="max-width:560px">
+          <div class="card-vx text-center" style="padding:36px 28px">
+            <div class="comunidad-icon comunidad-icon--inactive" style="margin:0 auto 1rem"><i class="ti ti-lock"></i></div>
+            <h2 style="font-size:1.3rem;font-weight:700;color:var(--color-text-primary);margin:0 0 .5rem">Comunidad privada</h2>
+            <p class="text-body-muted" style="margin-bottom:1.25rem">La comunidad <?php echo esc_html( $com_label ); ?> es solo para sus miembros. Las comunidades se asignan según tu perfil, no es posible unirse manualmente.</p>
+            <a href="<?php echo esc_url( home_url( '/dashboard/' ) ); ?>" class="btn-vx btn-primary-vx btn-vx-sm">Volver al dashboard</a>
+          </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
     $pagina     = max( 1, (int) ( $_GET['pagina'] ?? 1 ) );
     $result     = VX_Community::get_members( $slug, [ 'page' => $pagina ] );
     $members    = array_map( fn( $u ) => $u->to_card_array(), $result['users'] ?? [] );
