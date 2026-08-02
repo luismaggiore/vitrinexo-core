@@ -2675,21 +2675,35 @@ add_shortcode( 'vx_configuracion', function (): string {
               <div class="d-flex flex-column gap-3 mb-4" style="max-width:400px">
                 <div>
                   <label class="form-label-vx">Contraseña actual</label>
-                  <div class="input-group-vx">
+                  <div class="input-group-vx" style="position:relative">
                     <span class="input-icon"><i class="ti ti-lock"></i></span>
-                    <input type="password" id="vx-pass-actual" placeholder="Tu contraseña actual">
+                    <input type="password" id="vx-pass-actual" placeholder="Tu contraseña actual" style="padding-right:38px">
+                    <button type="button" class="vx-pass-eye" data-target="vx-pass-actual" tabindex="-1" aria-label="Mostrar u ocultar contraseña" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:4px"><i class="ti ti-eye"></i></button>
                   </div>
                 </div>
                 <div>
                   <label class="form-label-vx">Nueva contraseña</label>
-                  <div class="input-group-vx">
+                  <div class="input-group-vx" style="position:relative">
                     <span class="input-icon"><i class="ti ti-lock-plus"></i></span>
-                    <input type="password" id="vx-pass-nuevo" placeholder="Mínimo 8 caracteres">
+                    <input type="password" id="vx-pass-nuevo" placeholder="Mínimo 8 caracteres" style="padding-right:38px">
+                    <button type="button" class="vx-pass-eye" data-target="vx-pass-nuevo" tabindex="-1" aria-label="Mostrar u ocultar contraseña" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:4px"><i class="ti ti-eye"></i></button>
                   </div>
                 </div>
               </div>
               <div id="vx-pass-msg" class="mb-3 d-none small"></div>
               <button class="btn-vx btn-primary-vx btn-vx-sm" id="vx-btn-cambiar-pass">Actualizar contraseña</button>
+              <script>
+              document.querySelectorAll('.vx-pass-eye').forEach(function(b){
+                b.addEventListener('click', function(){
+                  var inp = document.getElementById(this.dataset.target);
+                  if (!inp) return;
+                  var show = inp.type === 'password';
+                  inp.type = show ? 'text' : 'password';
+                  var ic = this.querySelector('i');
+                  if (ic) ic.className = show ? 'ti ti-eye-off' : 'ti ti-eye';
+                });
+              });
+              </script>
             </div>
           </div>
 
@@ -3708,7 +3722,6 @@ add_shortcode( 'vx_editor_perfil', function (): string {
                 <?php endforeach; ?>
               </div>
               <div class="d-flex flex-wrap gap-2 mb-2" id="vx-offer-tags-container"></div>
-              <input type="text" id="vx-offer-tag-input" class="form-control-vx mb-3 input-md-vx" placeholder="Agregar tag personalizado y Enter...">
               <label class="form-label-vx">Descripción de tu oferta</label>
               <textarea name="offer_texto" class="form-control-vx" rows="2"><?php echo esc_textarea( $offer_texto ); ?></textarea>
             </div>
@@ -3725,7 +3738,6 @@ add_shortcode( 'vx_editor_perfil', function (): string {
                 <?php endforeach; ?>
               </div>
               <div class="d-flex flex-wrap gap-2 mb-2" id="vx-seek-tags-container"></div>
-              <input type="text" id="vx-seek-tag-input" class="form-control-vx mb-3 input-md-vx" placeholder="Agregar tag personalizado y Enter...">
               <label class="form-label-vx">Descripción de lo que buscas</label>
               <textarea name="seek_texto" class="form-control-vx" rows="2"><?php echo esc_textarea( $seek_texto ); ?></textarea>
             </div>
