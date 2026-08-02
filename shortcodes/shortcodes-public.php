@@ -736,7 +736,7 @@ add_shortcode( 'vx_blog', function (): string {
             <h2 style="font-size:clamp(1.4rem,2.5vw,1.9rem);font-weight:700;color:var(--color-text-primary);line-height:1.2;margin:0 0 .75rem"><?php echo esc_html( $featured['title'] ); ?></h2>
             <div class="d-flex align-items-center gap-2 mb-3">
                 <img src="<?php echo esc_url( $featured['avatar'] ); ?>" class="avatar-sm" alt="" />
-                <span class="text-sm-muted"><?php echo esc_html( $featured['author_name'] ); ?> · <?php echo esc_html( $featured['date'] ); ?> · <?php echo esc_html( $featured['read_time'] ); ?> min</span>
+                <span class="text-sm-muted"><?php echo vx_nombre_enlazado( (int) $featured['author_id'], $featured['author_name'], 'link-primary-color' ); ?> · <?php echo esc_html( $featured['date'] ); ?> · <?php echo esc_html( $featured['read_time'] ); ?> min</span>
             </div>
             <p class="text-body-muted" style="line-height:1.7;margin-bottom:1rem"><?php echo esc_html( $featured['excerpt'] ); ?></p>
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -763,17 +763,17 @@ add_shortcode( 'vx_blog', function (): string {
                 $cat_name = $post['categories'][0] ?? 'Blog';
             ?>
             <div class="col-12 col-md-6 col-lg-4">
-                <a href="<?php echo esc_url( $post['permalink'] ); ?>" class="text-decoration-none d-block h-100">
-                    <div class="card-vx h-100 d-flex flex-column">
-                        <span class="section-landing-label" style="margin:0 0 .5rem;display:inline-block"><?php echo esc_html( $cat_name ); ?></span>
-                        <h3 class="blog-card-title" style="margin-bottom:.5rem"><?php echo esc_html( $post['title'] ); ?></h3>
-                        <p class="blog-card-excerpt" style="flex-grow:1"><?php echo esc_html( $post['excerpt'] ); ?></p>
-                        <div class="d-flex align-items-center gap-2">
-                            <img src="<?php echo esc_url( $post['avatar'] ); ?>" class="avatar-22" alt="" />
-                            <span class="text-xs-muted"><?php echo esc_html( $post['date'] ); ?> · <?php echo esc_html( $post['read_time'] ); ?> min</span>
-                        </div>
+                <div class="card-vx h-100 d-flex flex-column">
+                    <span class="section-landing-label" style="margin:0 0 .5rem;display:inline-block"><?php echo esc_html( $cat_name ); ?></span>
+                    <h3 class="blog-card-title" style="margin-bottom:.5rem">
+                        <a href="<?php echo esc_url( $post['permalink'] ); ?>" class="text-decoration-none" style="color:var(--color-text-primary)"><?php echo esc_html( $post['title'] ); ?></a>
+                    </h3>
+                    <p class="blog-card-excerpt" style="flex-grow:1"><?php echo esc_html( $post['excerpt'] ); ?></p>
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="<?php echo esc_url( $post['avatar'] ); ?>" class="avatar-22" alt="" />
+                        <span class="text-xs-muted"><?php echo vx_nombre_enlazado( (int) $post['author_id'], $post['author_name'], 'link-primary-color' ); ?> · <?php echo esc_html( $post['date'] ); ?> · <?php echo esc_html( $post['read_time'] ); ?> min</span>
                     </div>
-                </a>
+                </div>
             </div>
             <?php endforeach; ?>
         </div>

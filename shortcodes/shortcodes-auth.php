@@ -3066,6 +3066,9 @@ add_shortcode( 'vx_perfil', function (): string {
     $slug   = get_query_var( 'vx_perfil_slug' );
     $viewer = get_current_user_id();
 
+    // Los perfiles son dinámicos (bloqueos + gating por sesión): nunca cachear.
+    do_action( 'litespeed_control_set_nocache', 'Vitrinexo: perfil dinámico' );
+
     if ( ! $slug ) {
         return '<div class="container py-5"><p class="text-muted">Perfil no encontrado.</p></div>';
     }
@@ -3097,6 +3100,28 @@ add_shortcode( 'vx_perfil', function (): string {
     // Bloqueo: si hay relación de bloqueo (en cualquier dirección) no se puede ver el perfil.
     if ( ! $is_owner && ! $is_wp_admin && function_exists( 'vx_hay_bloqueo' ) && vx_hay_bloqueo( $viewer, $user_id ) ) {
         return '<div class="container py-5"><p class="text-muted">Este perfil no está disponible.</p></div>';
+    }
+
+    // Gating del embudo: los perfiles son para miembros. Un visitante sin sesión
+    // ve un CTA para iniciar sesión o inscribirse (no el perfil completo).
+    if ( ! $viewer ) {
+        $nombre_pub = esc_html( $user->get_nombre_completo() );
+        $login_u    = esc_url( home_url( '/login/' ) );
+        ob_start();
+        ?>
+        <div class="container py-5" style="max-width:540px">
+          <div class="card-vx text-center" style="padding:36px 28px">
+            <?php echo get_avatar( $user_id, 76, '', $nombre_pub, [ 'style' => 'width:76px;height:76px;border-radius:var(--radius-md);object-fit:cover;margin:0 auto 1rem' ] ); ?>
+            <h2 style="font-size:1.3rem;font-weight:700;color:var(--color-text-primary);margin:0 0 .5rem">Para ver el perfil de <?php echo $nombre_pub; ?></h2>
+            <p class="text-body-muted" style="margin-bottom:1.25rem">Los perfiles de Vitrinexo son para miembros. Inicia sesión o inscríbete para conectar con la comunidad.</p>
+            <div class="d-flex gap-2 justify-content-center flex-wrap">
+              <a href="<?php echo $login_u; ?>" class="btn-vx btn-ghost-vx btn-vx-sm">Ingresar</a>
+              <a href="<?php echo $login_u; ?>" class="btn-vx btn-primary-vx btn-vx-sm">Inscríbete</a>
+            </div>
+          </div>
+        </div>
+        <?php
+        return ob_get_clean();
     }
 
     // Disparar visita
