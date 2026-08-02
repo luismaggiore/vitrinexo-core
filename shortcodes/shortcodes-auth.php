@@ -3192,9 +3192,6 @@ add_shortcode( 'vx_perfil', function (): string {
         <?php endif; ?>
       </div>
 
-      <!-- Banner (portada propia si existe; si no, degradado del tema) -->
-      <div class="banner-profile"<?php if ( $banner_url ) : ?> style="background-image:url('<?php echo esc_url( $banner_url ); ?>')"<?php endif; ?>></div>
-
       <!-- Avatar + info -->
       <div class="profile-row">
         <div class="img-profile">
