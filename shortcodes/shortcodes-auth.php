@@ -39,6 +39,10 @@ add_shortcode( 'vx_onboarding', function (): string {
     if ( $empresa_activa ) {
         $ob3_empresa_nombre    = $empresa_activa->post_title;
         $ob3_empresa_cargo     = (string) get_post_meta( $empresa_activa->ID, 'vx_cargo',     true );
+        if ( '' === $ob3_empresa_cargo ) {
+            // El registro guarda el cargo como user meta; usarlo si la empresa aún no lo tiene.
+            $ob3_empresa_cargo = (string) get_user_meta( $user_id, VX_User_Meta::CARGO, true );
+        }
         $ob3_empresa_web       = (string) get_post_meta( $empresa_activa->ID, 'vx_web',       true );
         $ob3_empresa_linkedin  = (string) get_post_meta( $empresa_activa->ID, 'vx_linkedin',  true );
         $ob3_empresa_desc      = (string) get_post_meta( $empresa_activa->ID, 'vx_descripcion', true );
@@ -48,6 +52,7 @@ add_shortcode( 'vx_onboarding', function (): string {
     } elseif ( $empresa_inicial = get_user_meta( $user_id, 'vx_empresa_inicial', true ) ) {
         // Fallback: texto guardado al momento del registro
         $ob3_empresa_nombre = (string) $empresa_inicial;
+        $ob3_empresa_cargo  = (string) get_user_meta( $user_id, VX_User_Meta::CARGO, true );
     }
 
     $industrias  = vx_get_industrias();
