@@ -8,6 +8,59 @@ add_shortcode( 'vx_landing', function (): string {
     $is_logged    = is_user_logged_in();
     $registro_url = home_url( '/login/?tab=registro' );
     $cta_label    = 'Quiero ser Pionero';
+
+    // ── Home para miembros con sesión iniciada ──────────────────────────────
+    // En vez de la landing de marketing (que es para prospectos), la persona
+    // logueada ve un saludo + buscador del directorio + accesos directos.
+    if ( $is_logged ) {
+        $vx_home_user = class_exists( 'VX_User' ) ? VX_User::get( get_current_user_id() ) : null;
+        $vx_nombre    = $vx_home_user ? $vx_home_user->get_nombre() : '';
+        ob_start();
+        ?>
+        <section class="network-hero light">
+          <div class="container">
+            <div class="hero-content" style="max-width:760px;margin:0 auto;text-align:center">
+              <img width="170" src="<?php echo esc_url( $logo_url ); ?>" alt="Vitrinexo" />
+              <h1 class="my-4">Hola de nuevo<?php echo $vx_nombre ? ', <strong>' . esc_html( $vx_nombre ) . '</strong>' : ''; ?>.</h1>
+              <p class="mb-4" style="font-size:1.05rem;color:var(--color-text-secondary)">Tu vitrina está activa. Explora el directorio, revisa tus matches y sigue construyendo nexos de negocio.</p>
+
+              <form action="<?php echo esc_url( home_url( '/directorio/' ) ); ?>" method="get" class="d-flex gap-2 justify-content-center flex-wrap mb-4" style="max-width:540px;margin-left:auto;margin-right:auto">
+                <input type="text" name="q" class="form-control-vx" placeholder="Buscar empresa, industria, tags..." style="flex:1;min-width:240px" />
+                <button type="submit" class="btn-vx btn-primary-vx btn-vx-md"><i class="ti ti-search me-1"></i> Buscar</button>
+              </form>
+
+              <div class="d-flex gap-2 justify-content-center flex-wrap mb-5">
+                <a href="<?php echo esc_url( home_url( '/directorio/' ) ); ?>" class="btn-vx btn-primary-vx btn-vx-lg rounded-pill"><i class="ti ti-layout-grid me-1"></i> Explorar el directorio</a>
+                <a href="<?php echo esc_url( home_url( '/dashboard/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-lg rounded-pill"><i class="ti ti-dashboard me-1"></i> Ir a mi dashboard</a>
+              </div>
+
+              <div class="row g-3 text-start">
+                <?php
+                $vx_home_links = [
+                    [ '/matches/',    'ti-sparkles',        'Mis matches',    'Personas que ofrecen lo que buscas y viceversa.' ],
+                    [ '/conexiones/', 'ti-users-group',     'Mis conexiones', 'Tu red y las solicitudes pendientes.' ],
+                    [ '/4dinner/',    'ti-tools-kitchen-2', '4Dinner',        'Cenas de networking en tu ciudad.' ],
+                    [ '/blog/',       'ti-news',            'Blog',           'Ideas y casos B2B de la comunidad.' ],
+                ];
+                foreach ( $vx_home_links as $vx_hl ) : ?>
+                <div class="col-12 col-sm-6 col-lg-3">
+                  <a href="<?php echo esc_url( home_url( $vx_hl[0] ) ); ?>" class="text-decoration-none d-block h-100">
+                    <div class="card-vx h-100">
+                      <div class="comunidad-icon comunidad-icon--vx" style="margin-bottom:.6rem"><i class="ti <?php echo esc_attr( $vx_hl[1] ); ?>"></i></div>
+                      <div class="comunidad-name"><?php echo esc_html( $vx_hl[2] ); ?></div>
+                      <p class="text-sm-muted" style="margin:.25rem 0 0;line-height:1.5"><?php echo esc_html( $vx_hl[3] ); ?></p>
+                    </div>
+                  </a>
+                </div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+          </div>
+        </section>
+        <?php
+        return ob_get_clean();
+    }
+
     ob_start();
     ?>
 
