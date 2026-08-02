@@ -1542,31 +1542,15 @@ add_shortcode( 'vx_dashboard', function (): string {
               </div>
             </a>
           </div>
-          <!-- 4Dinner — siempre visible -->
-          <div class="col-12 col-sm-6 col-lg-3">
-            <a href="<?php echo esc_url( home_url( '/4dinner/' ) ); ?>" class="text-decoration-none d-block">
-              <div class="card-vx d-flex align-items-center gap-3 comunidad-card comunidad-card--dinner">
-                <div class="comunidad-icon comunidad-icon--dinner text-white">🍽</div>
-                <div>
-                  <div class="comunidad-name">4Dinner</div>
-                  <?php
-                  $next_dinner = class_exists('VX_Dinner') ? (VX_Dinner::get_upcoming()[0] ?? null) : null;
-                  $dinner_status = $next_dinner
-                    ? 'Próx. ' . date_i18n('l j M', strtotime($next_dinner->get_fecha()))
-                    : 'Eventos presenciales';
-                  ?>
-                  <div class="comunidad-status"><?php echo esc_html($dinner_status); ?></div>
-                </div>
-              </div>
-            </a>
-          </div>
           <?php
+          // out2b es opt-in (se puede unir). woman/senior son automáticas
+          // (intrínsecas al perfil): no llevan botón "Unirse", solo una nota.
           $coms_display = [
-              'out2b'  => [ 'LGBTQ+',  'Comunidad LGBTQ+', 'comunidad-icon--out2b', 'ti-rainbow',       'comunidad-card--out2b' ],
-              'woman'  => [ 'Woman',  'Empresarias líderes', 'comunidad-icon--woman', 'ti-gender-female', 'comunidad-card--woman' ],
-              'senior' => [ 'Senior', 'Trayectoria verificada', 'comunidad-icon--senior', 'ti-award',    'comunidad-card--senior' ],
+              'out2b'  => [ 'LGBTQ+', 'Comunidad LGBTQ+',      'comunidad-icon--out2b',  'ti-rainbow',       'comunidad-card--out2b',  '' ],
+              'woman'  => [ 'Woman',  'Empresarias líderes',   'comunidad-icon--woman',  'ti-gender-female', 'comunidad-card--woman',  'Automática · solo para mujeres' ],
+              'senior' => [ 'Senior', 'Trayectoria verificada', 'comunidad-icon--senior', 'ti-award',        'comunidad-card--senior', 'Automática · 45+ años o 20+ de experiencia' ],
           ];
-          foreach ( $coms_display as $com_id => [ $com_name, $com_desc, $icon_cls, $icon, $card_cls ] ) :
+          foreach ( $coms_display as $com_id => [ $com_name, $com_desc, $icon_cls, $icon, $card_cls, $auto_hint ] ) :
               $es_miembro = $user->is_in_community( $com_id );
           ?>
           <div class="col-12 col-sm-6 col-lg-3">
@@ -1580,8 +1564,10 @@ add_shortcode( 'vx_dashboard', function (): string {
             <?php else : ?>
             <div class="card-vx d-flex align-items-center gap-3 comunidad-card comunidad-card--inactive">
               <div class="comunidad-icon comunidad-icon--inactive"><i class="ti <?php echo esc_attr($icon); ?>"></i></div>
-              <div class="flex-grow-1"><div class="comunidad-name"><?php echo esc_html($com_name); ?></div><div class="comunidad-status">No activa</div></div>
-              <a href="<?php echo esc_url( home_url( '/configuracion/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm">Unirse</a>
+              <div class="flex-grow-1"><div class="comunidad-name"><?php echo esc_html($com_name); ?></div><div class="comunidad-status"><?php echo $auto_hint ? esc_html($auto_hint) : 'No activa'; ?></div></div>
+              <?php if ( ! $auto_hint ) : ?>
+              <a href="<?php echo esc_url( home_url( '/editar-perfil/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm">Unirse</a>
+              <?php endif; ?>
             </div>
             <?php endif; ?>
           </div>
