@@ -26,6 +26,27 @@ class VX_Admin_Emails
                 'default_subject' => '¡Tu cuenta en Vitrinexo fue aprobada!',
                 'default_body'    => "Hola {{nombre}},\n\nTu solicitud para unirte a Vitrinexo fue aprobada y tu cuenta ya está activa. Ingresa con el botón de abajo:\n\n{{link}}",
             ],
+            'blog_pendiente_admin' => [
+                'label'   => 'Blog: nuevo artículo (admin)',
+                'desc'    => 'Se envía a joao@ y marcia@ cuando un miembro envía un artículo para revisión.',
+                'vars'    => '{{nombre}}, {{titulo}}, {{link}}',
+                'default_subject' => '[Vitrinexo] Nuevo artículo pendiente de aprobación',
+                'default_body'    => "{{nombre}} envió un artículo para revisión: \"{{titulo}}\".\n\nRevísalo y apruébalo o recházalo desde el panel de moderación:\n\n{{link}}",
+            ],
+            'blog_aprobado' => [
+                'label'   => 'Blog: artículo aprobado',
+                'desc'    => 'Se envía al autor cuando un admin aprueba y publica su artículo.',
+                'vars'    => '{{nombre}}, {{titulo}}, {{link}}',
+                'default_subject' => '¡Tu artículo fue publicado en Vitrinexo!',
+                'default_body'    => "Hola {{nombre}},\n\n¡Buenas noticias! Tu artículo \"{{titulo}}\" fue aprobado y ya está publicado en el blog de Vitrinexo.\n\nMíralo aquí:\n\n{{link}}",
+            ],
+            'blog_rechazado' => [
+                'label'   => 'Blog: artículo rechazado',
+                'desc'    => 'Se envía al autor cuando un admin no aprueba su artículo.',
+                'vars'    => '{{nombre}}, {{titulo}}, {{link}}',
+                'default_subject' => 'Sobre tu artículo en Vitrinexo',
+                'default_body'    => "Hola {{nombre}},\n\nRevisamos tu artículo \"{{titulo}}\" y por ahora no fue aprobado para publicación. Puedes ajustarlo y volver a enviarlo.\n\n{{link}}\n\nSi tienes dudas, escríbenos a hola@vitrinexo.com.",
+            ],
             'foto_recordatorio' => [
                 'label'   => 'Recordatorio de foto',
                 'desc'    => 'Se envía cada semana a los miembros activos que aún no han subido foto de perfil.',
