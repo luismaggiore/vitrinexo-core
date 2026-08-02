@@ -805,3 +805,29 @@ add_shortcode( 'vx_blog', function (): string {
     endif;
     return ob_get_clean();
 } );
+
+// [vx_ayuda] — página de Ayuda con formas de contacto
+add_shortcode( 'vx_ayuda', function (): string {
+    $wa_num  = '56963193574';
+    $wa_txt  = rawurlencode( 'Hola, necesito ayuda con Vitrinexo.' );
+    ob_start();
+    ?>
+    <section class="section-landing">
+      <div class="container" style="max-width:640px">
+        <div class="section-landing-head text-center">
+          <span class="section-landing-label">Ayuda</span>
+          <h1 class="section-landing-title">¿En qué te <strong>ayudamos?</strong></h1>
+          <p class="section-landing-lead">Escríbenos y te respondemos lo antes posible. Estamos para ayudarte a sacarle el máximo a Vitrinexo.</p>
+        </div>
+        <div class="card-vx" style="text-align:center;padding:28px">
+          <p style="margin:0 0 6px;font-size:13px;color:var(--color-text-secondary)">Correo</p>
+          <p style="margin:0 0 20px"><a href="mailto:hola@vitrinexo.com" style="font-size:18px;font-weight:600;color:var(--color-primary);text-decoration:none">hola@vitrinexo.com</a></p>
+          <p style="margin:0 0 6px;font-size:13px;color:var(--color-text-secondary)">WhatsApp</p>
+          <p style="margin:0 0 20px;font-size:18px;font-weight:600;color:var(--color-navy)">+56 9 6319 3574</p>
+          <a href="https://wa.me/<?php echo esc_attr( $wa_num ); ?>?text=<?php echo $wa_txt; ?>" target="_blank" rel="noopener" class="btn-vx btn-primary-vx btn-vx-md"><i class="ti ti-brand-whatsapp me-1"></i> Escribir por WhatsApp</a>
+        </div>
+      </div>
+    </section>
+    <?php
+    return ob_get_clean();
+} );
