@@ -1280,7 +1280,7 @@ add_shortcode( 'vx_dashboard', function (): string {
       <div class="container">
         <div class="page-header-vx__inner">
           <div>
-            <h1 class="page-header-vx__title">Bienvenido, <strong><?php echo esc_html( $user->get_nombre() ); ?></strong></h1>
+            <h1 class="page-header-vx__title">Bienvenido, <a href="<?php echo esc_url( home_url( '/perfil/' . $user->get_slug() . '/' ) ); ?>" style="color:inherit;text-decoration:none"><strong><?php echo esc_html( $user->get_nombre() ); ?></strong></a></h1>
             <p class="page-header-vx__lead">
               <?php
               $nm = count( $seeks_matches ) + count( $offers_matches );
