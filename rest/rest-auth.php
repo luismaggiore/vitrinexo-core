@@ -157,6 +157,11 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
         return new WP_REST_Response( [ 'success' => false, 'error' => 'telefono_invalido', 'message' => 'Incluye el prefijo de país con "+" en tu celular (ej: +56 9 1234 5678).' ], 400 );
     }
 
+    // Consentimiento explícito para ser contactado: obligatorio.
+    if ( empty( $request->get_param( 'consentimiento' ) ) ) {
+        return new WP_REST_Response( [ 'success' => false, 'error' => 'consentimiento_requerido', 'message' => 'Debes autorizar que otros miembros te contacten para registrarte.' ], 400 );
+    }
+
     if ( ! is_email( $email ) ) {
         return new WP_REST_Response( [ 'success' => false, 'error' => 'email_invalido' ], 400 );
     }
@@ -207,6 +212,7 @@ function vx_rest_registrar( WP_REST_Request $request ): WP_REST_Response
 
     // Guardar teléfono obligatorio
     update_user_meta( $user_id, VX_User_Meta::TELEFONO, sanitize_text_field( $telefono ) );
+    update_user_meta( $user_id, 'vx_consentimiento_contacto', '1' );
 
     // Fix Gap 3: generar slug desde el registro para que el perfil no quede huérfano
     // si el usuario abandona el onboarding antes del paso 2.
