@@ -3192,10 +3192,8 @@ add_shortcode( 'vx_perfil', function (): string {
         <?php endif; ?>
       </div>
 
-      <!-- Banner -->
-      <div class="banner-profile"
-           style="background-image:url('<?php echo esc_url( $banner_url ?: get_template_directory_uri() . '/assets/img/banner-default.jpg' ); ?>');background-size:cover;background-position:center">
-      </div>
+      <!-- Banner (portada propia si existe; si no, degradado del tema) -->
+      <div class="banner-profile"<?php if ( $banner_url ) : ?> style="background-image:url('<?php echo esc_url( $banner_url ); ?>')"<?php endif; ?>></div>
 
       <!-- Avatar + info -->
       <div class="profile-row">
