@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'VX_VERSION',        '1.0.3' );
+define( 'VX_VERSION',        '1.0.4' );
 define( 'VX_PLUGIN_DIR',     plugin_dir_path( __FILE__ ) );
 define( 'VX_PLUGIN_URL',     plugin_dir_url( __FILE__ ) );
 define( 'VX_REST_NAMESPACE', 'vitrinexo/v1' );
@@ -1362,6 +1362,14 @@ function vx_admin_ajustes_page(): void {
     </div>
     <?php
 }
+
+// También en front-end (init) para que las páginas nuevas se creen sin entrar al admin.
+add_action( 'init', function () {
+    if ( get_option( 'vx_pages_version' ) !== VX_VERSION ) {
+        vx_create_pages();
+        update_option( 'vx_pages_version', VX_VERSION );
+    }
+}, 5 );
 
 add_action( 'admin_init', function () {
     // Auto-create pages (runs once per version change or on first install)
