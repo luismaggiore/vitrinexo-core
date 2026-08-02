@@ -1535,8 +1535,8 @@ add_shortcode( 'vx_dashboard', function (): string {
         <div class="row g-2">
           <!-- Vitrinexo base — siempre visible -->
           <div class="col-12 col-sm-6 col-lg-3">
-            <a href="<?php echo esc_url( home_url( '/directorio/' ) ); ?>" class="text-decoration-none d-block">
-              <div class="card-vx d-flex align-items-center gap-3 comunidad-card">
+            <a href="<?php echo esc_url( home_url( '/directorio/' ) ); ?>" class="text-decoration-none d-block h-100">
+              <div class="card-vx h-100 d-flex align-items-center gap-3 comunidad-card">
                 <div class="comunidad-icon comunidad-icon--vx"><i class="ti ti-building"></i></div>
                 <div><div class="comunidad-name">Vitrinexo</div><div class="comunidad-status">Directorio principal · Activa</div></div>
               </div>
@@ -1551,23 +1551,25 @@ add_shortcode( 'vx_dashboard', function (): string {
               'senior' => [ 'Senior', 'Trayectoria verificada', 'comunidad-icon--senior', 'ti-award',        'comunidad-card--senior', 'Automática · 45+ años o 20+ de experiencia' ],
           ];
           foreach ( $coms_display as $com_id => [ $com_name, $com_desc, $icon_cls, $icon, $card_cls, $auto_hint ] ) :
-              $es_miembro = $user->is_in_community( $com_id );
+              $es_miembro    = $user->is_in_community( $com_id );
+              $es_automatica = ( '' !== $auto_hint );
+              // No mostramos comunidades a las que el miembro no puede unirse:
+              // las automáticas (Woman/Senior) solo aparecen si ya pertenece.
+              if ( $es_automatica && ! $es_miembro ) continue;
           ?>
           <div class="col-12 col-sm-6 col-lg-3">
             <?php if ( $es_miembro ) : ?>
-            <a href="<?php echo esc_url( home_url( '/comunidad-' . $com_id . '/' ) ); ?>" class="text-decoration-none d-block">
-              <div class="card-vx d-flex align-items-center gap-3 comunidad-card <?php echo esc_attr($card_cls); ?>">
+            <a href="<?php echo esc_url( home_url( '/comunidad-' . $com_id . '/' ) ); ?>" class="text-decoration-none d-block h-100">
+              <div class="card-vx h-100 d-flex align-items-center gap-3 comunidad-card <?php echo esc_attr($card_cls); ?>">
                 <div class="comunidad-icon <?php echo esc_attr($icon_cls); ?>"><i class="ti <?php echo esc_attr($icon); ?>"></i></div>
                 <div><div class="comunidad-name"><?php echo esc_html($com_name); ?></div><div class="comunidad-status"><?php echo esc_html($com_desc); ?> · Activa</div></div>
               </div>
             </a>
             <?php else : ?>
-            <div class="card-vx d-flex align-items-center gap-3 comunidad-card comunidad-card--inactive">
+            <div class="card-vx h-100 d-flex align-items-center gap-3 comunidad-card comunidad-card--inactive">
               <div class="comunidad-icon comunidad-icon--inactive"><i class="ti <?php echo esc_attr($icon); ?>"></i></div>
-              <div class="flex-grow-1"><div class="comunidad-name"><?php echo esc_html($com_name); ?></div><div class="comunidad-status"><?php echo $auto_hint ? esc_html($auto_hint) : 'No activa'; ?></div></div>
-              <?php if ( ! $auto_hint ) : ?>
+              <div class="flex-grow-1"><div class="comunidad-name"><?php echo esc_html($com_name); ?></div><div class="comunidad-status">No activa</div></div>
               <a href="<?php echo esc_url( home_url( '/editar-perfil/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm">Unirse</a>
-              <?php endif; ?>
             </div>
             <?php endif; ?>
           </div>
