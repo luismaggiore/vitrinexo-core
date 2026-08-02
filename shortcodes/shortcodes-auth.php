@@ -152,8 +152,8 @@ add_shortcode( 'vx_onboarding', function (): string {
       </div>
 
       <div class="mb-3">
-        <label class="form-label-vx">Bio profesional <span class="form-hint d-inline">(opcional · máx. 300 caracteres)</span></label>
-        <textarea id="ob2-bio" class="form-control-vx" rows="3" maxlength="300" placeholder="Ej: Especialista en marketing B2B con 8 años de experiencia en mercados internacionales..."><?php echo esc_textarea( $bio ); ?></textarea>
+        <label class="form-label-vx">Bio profesional <span class="form-hint d-inline">(opcional · máx. 1500 caracteres)</span></label>
+        <textarea id="ob2-bio" class="form-control-vx" rows="5" maxlength="1500" placeholder="Ej: Especialista en marketing B2B con 8 años de experiencia en mercados internacionales..."><?php echo esc_textarea( $bio ); ?></textarea>
       </div>
 
       <?php
@@ -3584,8 +3584,8 @@ add_shortcode( 'vx_editor_perfil', function (): string {
 
             <!-- Bio -->
             <div class="mb-4 pb-4 border-bottom-vx">
-              <label class="form-label-vx">Bio profesional</label>
-              <textarea name="bio" class="form-control-vx" rows="3" maxlength="300"><?php echo esc_textarea( $user->get_bio() ); ?></textarea>
+              <label class="form-label-vx">Bio profesional <span class="text-sm-muted">(máx. 1500 caracteres)</span></label>
+              <textarea name="bio" class="form-control-vx" rows="5" maxlength="1500"><?php echo esc_textarea( $user->get_bio() ); ?></textarea>
             </div>
 
             <!-- Ciudad + País -->
