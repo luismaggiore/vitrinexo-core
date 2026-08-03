@@ -3435,7 +3435,7 @@ add_shortcode( 'vx_perfil', function (): string {
     if ( $pubs->have_posts() ) :
     ?>
     <div class="card-vx mt-5">
-      <h2 class="section-title-sm mb-4"><i class="ti ti-layout-board me-2"></i>Publicaciones en el feed</h2>
+      <h2 class="section-title-sm mb-4"><i class="ti ti-layout-board me-2"></i>Publicaciones en Oportunidades</h2>
       <div class="vx-profile-feed">
         <?php while ( $pubs->have_posts() ) : $pubs->the_post();
           echo vx_render_pub_card( get_post(), (int) get_current_user_id(), true );
