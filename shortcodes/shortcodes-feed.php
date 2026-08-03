@@ -177,11 +177,11 @@ add_shortcode( 'vx_mis_publicaciones', function (): string {
         <div class="page-header-vx__inner">
           <div>
             <h1 class="page-header-vx__title">Mis publicaciones</h1>
-            <p class="page-header-vx__lead">Lo que has publicado en Oportunidades y los comentarios recibidos.</p>
+            <p class="page-header-vx__lead">Lo que has publicado en el feed y los comentarios recibidos.</p>
           </div>
           <div>
-            <a href="<?php echo esc_url( home_url( '/publicaciones/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm">
-              <i class="ti ti-arrow-left me-1"></i>Ir a Oportunidades
+            <a href="<?php echo esc_url( home_url( '/oportunidades/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm">
+              <i class="ti ti-arrow-left me-1"></i>Ir al feed
             </a>
           </div>
         </div>
@@ -200,8 +200,8 @@ add_shortcode( 'vx_mis_publicaciones', function (): string {
       <div class="empty-state-vx py-5 text-center">
         <div class="empty-state-vx__icon"><i class="ti ti-file-text"></i></div>
         <p class="empty-state-vx__title">Aún no has publicado nada</p>
-        <p class="empty-state-vx__desc">Ve a Oportunidades y comparte lo que ofreces o buscas.</p>
-        <a href="<?php echo esc_url( home_url( '/publicaciones/' ) ); ?>" class="btn-vx btn-primary-vx btn-vx-sm mt-3">Ir a Oportunidades</a>
+        <p class="empty-state-vx__desc">Ve al feed y comparte lo que ofreces o buscas.</p>
+        <a href="<?php echo esc_url( home_url( '/oportunidades/' ) ); ?>" class="btn-vx btn-primary-vx btn-vx-sm mt-3">Ir al feed</a>
       </div>
       <?php endif; ?>
 
@@ -222,7 +222,7 @@ add_shortcode( 'vx_feed', function (): string {
     $q         = sanitize_text_field( $_GET['q'] ?? '' );
     $tipo_fil  = sanitize_text_field( $_GET['tipo'] ?? '' );
     $per_page  = 15;
-    $base_url  = strtok( $_SERVER['REQUEST_URI'] ?? home_url( '/publicaciones/' ), '?' );
+    $base_url  = strtok( $_SERVER['REQUEST_URI'] ?? home_url( '/oportunidades/' ), '?' );
 
     $args = [
         'post_type'      => 'vx_publicacion',
@@ -257,7 +257,7 @@ add_shortcode( 'vx_feed', function (): string {
             <div class="d-flex align-items-center gap-2 mb-1">
               <span class="section-landing-label" style="margin:0">Comunidad</span>
             </div>
-            <h1 class="page-header-vx__title">Oportunidades</h1>
+            <h1 class="page-header-vx__title">Feed</h1>
             <p class="page-header-vx__lead">Lo que los miembros ofrecen y buscan en este momento.</p>
           </div>
           <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -319,7 +319,7 @@ add_shortcode( 'vx_feed', function (): string {
         <?php if ( $tipo_fil ) : ?><input type="hidden" name="tipo" value="<?php echo esc_attr( $tipo_fil ); ?>"><?php endif; ?>
         <div class="search-bar-vx mb-2">
           <i class="ti ti-search" style="color:var(--color-text-secondary);font-size:16px"></i>
-          <input type="text" name="q" value="<?php echo esc_attr( $q ); ?>" placeholder="Buscar oportunidades…">
+          <input type="text" name="q" value="<?php echo esc_attr( $q ); ?>" placeholder="Buscar en el feed…">
           <button type="submit" class="btn-vx btn-primary-vx btn-vx-sm">
             <i class="ti ti-search"></i> Buscar
           </button>
@@ -354,13 +354,13 @@ add_shortcode( 'vx_feed', function (): string {
       <div class="empty-state-vx py-5 text-center">
         <div class="empty-state-vx__icon"><i class="ti ti-layout-board"></i></div>
         <p class="empty-state-vx__title">
-          <?php echo $q ? 'Sin resultados para "' . esc_html( $q ) . '"' : 'Aún no hay oportunidades publicadas'; ?>
+          <?php echo $q ? 'Sin resultados para "' . esc_html( $q ) . '"' : 'El feed está vacío por ahora'; ?>
         </p>
         <p class="empty-state-vx__desc">
           <?php echo $q ? 'Prueba con otras palabras.' : 'Sé el primero en publicar lo que ofreces o buscas.'; ?>
         </p>
         <?php if ( $q ) : ?>
-        <a href="<?php echo esc_url( $base_url ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm mt-3">Ver todas las oportunidades</a>
+        <a href="<?php echo esc_url( $base_url ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm mt-3">Ver todo el feed</a>
         <?php endif; ?>
       </div>
       <?php endif; ?>
