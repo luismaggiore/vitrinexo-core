@@ -33,7 +33,7 @@ add_action( 'admin_init', function () {
         }
 
         wp_update_nav_menu_item( $menu->term_id, 0, [
-            'menu-item-title'     => 'Feed',
+            'menu-item-title'     => 'Oportunidades',
             'menu-item-object'    => 'page',
             'menu-item-object-id' => $page->ID,
             'menu-item-type'      => 'post_type',
