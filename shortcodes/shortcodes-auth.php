@@ -1032,6 +1032,7 @@ function vx_render_member_card( array $m, int $viewer_id = 0, ?array $only_offer
       </h5>
       <?php if ( $empresa ) : ?><p class="member-company"><?php echo esc_html( $empresa ); ?></p><?php endif; ?>
       <?php if ( $loc ) : ?><p class="member-company"><?php echo esc_html( $loc ); ?></p><?php endif; ?>
+      <?php if ( empty( $m['onboarding_completo'] ) ) : ?><p class="mb-0 mt-1"><span class="badge-vx badge-neutral" style="font-size:10px"><i class="ti ti-progress me-1"></i>Perfil en progreso</span></p><?php endif; ?>
     </div>
     <?php echo $tags_html; ?>
   </div>
