@@ -48,11 +48,11 @@ class VX_Admin_Emails
                 'default_body'    => "Hola {{nombre}},\n\nRevisamos tu artículo \"{{titulo}}\" y por ahora no fue aprobado para publicación. Puedes ajustarlo y volver a enviarlo.\n\n{{link}}\n\nSi tienes dudas, escríbenos a hola@vitrinexo.com.",
             ],
             'foto_recordatorio' => [
-                'label'   => 'Recordatorio de foto',
-                'desc'    => 'Se envía cada semana a los miembros activos que aún no han subido foto de perfil.',
+                'label'   => 'Recordatorio: completa tu perfil',
+                'desc'    => 'Se envía cada semana a los miembros activos con el perfil incompleto (sin terminar el onboarding o sin foto).',
                 'vars'    => '{{nombre}}, {{link}}',
-                'default_subject' => '{{nombre}}, tu perfil luce mejor con foto',
-                'default_body'    => "Hola {{nombre}},\n\nNotamos que aún no has subido una foto de perfil. Los perfiles con foto reciben muchas más conexiones y generan más confianza.\n\nSúbela en un minuto con el botón de abajo:\n\n{{link}}\n\nSi ya la subiste, ignora este mensaje.",
+                'default_subject' => '{{nombre}}, completa tu perfil en Vitrinexo',
+                'default_body'    => "Hola {{nombre}},\n\nTu perfil en Vitrinexo aún está incompleto. Completarlo —foto, lo que ofreces y lo que buscas— te ayuda a recibir más y mejores conexiones.\n\nComplétalo en un par de minutos con el botón de abajo:\n\n{{link}}\n\nSi ya lo completaste, ignora este mensaje.",
             ],
             'rechazo' => [
                 'label'   => 'Solicitud rechazada',
