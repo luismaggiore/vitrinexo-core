@@ -31,7 +31,6 @@ class VX_Search
             'meta_query' => [
                 'relation' => 'AND',
                 [ 'key' => VX_User_Meta::ESTADO,              'value' => 'activo' ],
-                [ 'key' => VX_User_Meta::ONBOARDING_COMPLETO, 'value' => '1' ],
             ],
         ] );
 

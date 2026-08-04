@@ -28,7 +28,6 @@ class VX_Directory
         $meta_query = [
             'relation' => 'AND',
             [ 'key' => VX_User_Meta::ESTADO,              'value' => 'activo' ],
-            [ 'key' => VX_User_Meta::ONBOARDING_COMPLETO, 'value' => '1' ],
         ];
 
         // Post-beta: excluir usuarios gratuitos que no son fundadores
@@ -185,7 +184,6 @@ class VX_Directory
             'number'     => -1,
             'meta_query' => [
                 [ 'key' => VX_User_Meta::ESTADO,              'value' => 'activo' ],
-                [ 'key' => VX_User_Meta::ONBOARDING_COMPLETO, 'value' => '1' ],
             ],
         ] );
 
