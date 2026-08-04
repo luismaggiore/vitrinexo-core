@@ -89,7 +89,7 @@ class VX_Mailer
             case 'aprobacion':
                 return 'Ingresar a Vitrinexo';
             case 'foto_recordatorio':
-                return 'Subir mi foto';
+                return 'Completar mi perfil';
             case 'blog_pendiente_admin':
                 return 'Ir a moderar';
             case 'blog_aprobado':

@@ -32,10 +32,12 @@ class VX_Foto_Reminder
             'number'     => -1,
             'meta_query' => [
                 'relation' => 'AND',
-                [ 'key' => 'vx_estado',              'value' => 'activo' ],
-                [ 'key' => 'vx_onboarding_completo', 'value' => '1' ],
+                [ 'key' => 'vx_estado', 'value' => 'activo' ],
                 [
+                    // Perfil incompleto: onboarding sin terminar O sin foto.
                     'relation' => 'OR',
+                    [ 'key' => 'vx_onboarding_completo', 'compare' => 'NOT EXISTS' ],
+                    [ 'key' => 'vx_onboarding_completo', 'value' => '1', 'compare' => '!=' ],
                     [ 'key' => 'vx_foto', 'compare' => 'NOT EXISTS' ],
                     [ 'key' => 'vx_foto', 'value' => '',  'compare' => '=' ],
                     [ 'key' => 'vx_foto', 'value' => '0', 'compare' => '=' ],
@@ -47,17 +49,18 @@ class VX_Foto_Reminder
             return;
         }
 
-        $link = home_url( '/editar-perfil/' );
-
         foreach ( $ids as $uid ) {
             $foto = (int) get_user_meta( $uid, 'vx_foto', true );
-            if ( $foto ) {
-                continue; // por si acaso ya tiene
+            $onb  = (bool) get_user_meta( $uid, 'vx_onboarding_completo', true );
+            if ( $onb && $foto ) {
+                continue; // perfil ya completo
             }
             $user = class_exists( 'VX_User' ) ? VX_User::get( $uid ) : null;
             if ( ! $user ) {
                 continue;
             }
+            // Onboarding pendiente -> a completarlo; si no, a editar (subir foto).
+            $link = $onb ? home_url( '/editar-perfil/' ) : home_url( '/onboarding/' );
             VX_Mailer::send(
                 $user->get_email(),
                 '', // el asunto lo define la plantilla editable
