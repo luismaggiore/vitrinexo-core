@@ -337,6 +337,7 @@ class VX_User
             'cargo'         => $empresa ? get_post_meta( $empresa->ID, 'vx_cargo', true ) : '',
             'is_founder'    => $this->is_founder(),
             'comunidades'   => $this->get_comunidades_activas(),
+            'onboarding_completo' => $this->is_onboarding_completo(),
         ];
     }
 
