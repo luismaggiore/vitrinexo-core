@@ -58,6 +58,16 @@ add_action( 'init', function () {
         'hierarchical'      => true,
         'rewrite'           => false,
     ] );
+
+    // Meta de orden de las categorías (editable vía REST; menor = primero).
+    register_term_meta( 'vx_faq_cat', 'vx_orden', [
+        'type'              => 'integer',
+        'single'            => true,
+        'default'           => 0,
+        'show_in_rest'      => true,
+        'sanitize_callback' => 'absint',
+        'auth_callback'     => function () { return current_user_can( 'manage_categories' ); },
+    ] );
 } );
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
