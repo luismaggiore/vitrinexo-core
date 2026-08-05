@@ -878,6 +878,7 @@ add_shortcode( 'vx_ayuda', function (): string {
           <p style="margin:0 0 6px;font-size:13px;color:var(--color-text-secondary)">WhatsApp</p>
           <p style="margin:0 0 20px;font-size:18px;font-weight:600;color:var(--color-navy)">+56 9 6319 3574</p>
           <a href="https://wa.me/<?php echo esc_attr( $wa_num ); ?>?text=<?php echo $wa_txt; ?>" target="_blank" rel="noopener" class="btn-vx btn-primary-vx btn-vx-md"><i class="ti ti-brand-whatsapp me-1"></i> Escribir por WhatsApp</a>
+          <div style="margin-top:16px"><a href="<?php echo esc_url( home_url( '/preguntas-frecuentes/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-md"><i class="ti ti-help-circle me-1"></i> Ver preguntas frecuentes</a></div>
         </div>
       </div>
     </section>
