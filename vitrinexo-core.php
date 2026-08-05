@@ -116,6 +116,7 @@ $vx_modules = [
     'shortcodes/shortcodes-feed.php',
     'shortcodes/shortcodes-flow.php',
     'shortcodes/shortcodes-fragments.php',
+    'shortcodes/shortcodes-faq.php',
 ];
 
 foreach ( $vx_modules as $file ) {
