@@ -1687,9 +1687,19 @@ add_shortcode( 'vx_directorio', function (): string {
     ?>
     <header class="pt-5">
       <div class="container py-5">
-        <h1 class="mt-2 mb-5 main-phrase text-center">
+        <h1 class="mt-2 mb-2 main-phrase text-center">
           Encuentra tu siguiente <strong>nexo</strong>
         </h1>
+        <p class="text-center mb-5" style="color:var(--color-text-secondary);font-weight:600">
+          <?php
+          $vx_total = (int) ( $result['total'] ?? 0 );
+          if ( $pais || $industria || $fundador || $busqueda ) {
+              echo esc_html( $vx_total . ( 1 === $vx_total ? ' miembro coincide' : ' miembros coinciden' ) . ' con tu búsqueda' );
+          } else {
+              echo esc_html( $vx_total . ( 1 === $vx_total ? ' miembro' : ' miembros' ) . ' en el directorio' );
+          }
+          ?>
+        </p>
 
         <!-- Búsqueda + filtros -->
         <form method="get" action="<?php echo esc_url( home_url( '/directorio/' ) ); ?>">
