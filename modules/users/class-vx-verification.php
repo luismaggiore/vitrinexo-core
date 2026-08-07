@@ -167,6 +167,12 @@ class VX_Verification
      */
     public static function notify_admin_pending( int $user_id ): void
     {
+        // Desactivado: este aviso enviaba "[Vitrinexo] Nueva cuenta pendiente de aprobación"
+        // con un enlace de wp-admin (nonce) que caducaba y nunca funcionaba. El aviso al
+        // administrador ahora lo cubre el correo "[Vitrinexo] Nuevo registro: …" con botones
+        // de aprobar/rechazar de un solo uso (ver rest/rest-auth.php).
+        return;
+
         $user        = VX_User::get( $user_id );
         $admin_email = get_option( 'admin_email' );
 
