@@ -233,7 +233,7 @@ add_shortcode( 'vx_onboarding', function (): string {
         <input type="hidden" id="logo-empresa-id" value="<?php echo esc_attr( $ob3_logo_id ?: '' ); ?>">
         <div>
           <p class="ob-upload-meta-title">Logo de la empresa</p>
-          <p class="ob-upload-meta-hint">Circular · Fondo blanco recomendado</p>
+          <p class="ob-upload-meta-hint">Circular · Usa una imagen cuadrada centrada · Fondo blanco recomendado</p>
           <button class="btn-vx btn-ghost-vx btn-vx-sm" type="button" onclick="document.getElementById('logo-input').click()">
             <i class="ti ti-upload me-1"></i>Subir logo
           </button>
@@ -3558,6 +3558,7 @@ add_shortcode( 'vx_editor_perfil', function (): string {
                 </label>
                 <input type="file" id="vx-foto-input" accept="image/jpeg,image/png,image/webp" class="d-none" data-upload-type="foto" data-upload-container="editor-foto-wrap">
                 <p style="font-size:11px;color:var(--color-text-secondary);margin:4px 0 0"><i class="ti ti-info-circle" style="font-size:10px"></i> Máx. 15 MB · JPG, PNG o WebP · Se convierte automáticamente a WebP</p>
+                <p style="font-size:11px;color:var(--color-primary);margin:2px 0 0"><i class="ti ti-crop" style="font-size:10px"></i> Usa una imagen cuadrada con tu foto centrada para que se vea bien en el círculo.</p>
                 <div class="vx-upload-progress d-none" style="margin-top:6px;min-width:180px">
                   <div style="height:3px;background:var(--color-border);border-radius:2px;overflow:hidden">
                     <div class="vx-progress-fill" style="height:100%;width:0%;background:var(--color-primary);transition:width 0.15s ease;border-radius:2px"></div>
@@ -3935,7 +3936,7 @@ add_shortcode( 'vx_editor_perfil', function (): string {
                   onchange="vxPreviewNewLogo(this)">
                 <div>
                   <p class="text-body-label" style="margin:0 0 2px">Logo de la empresa</p>
-                  <p class="text-sm-muted mb-0">Circular · Fondo blanco recomendado · PNG o JPG</p>
+                  <p class="text-sm-muted mb-0">Circular · Usa una imagen cuadrada centrada · Fondo blanco recomendado · PNG o JPG</p>
                   <button type="button" class="btn-vx btn-ghost-vx btn-vx-sm mt-2"
                     onclick="document.getElementById('vx-new-logo-input').click()">
                     <i class="ti ti-upload me-1"></i>Subir logo
