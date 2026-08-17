@@ -2407,6 +2407,7 @@ add_shortcode( 'vx_notificaciones', function (): string {
         'dinner_disponible'  => [ 'class' => 'notif-icon--dinner',  'icon' => '',               'css' => 'notif-item--dinner' ],
         'dinner_invitacion'  => [ 'class' => 'notif-icon--dinner',  'icon' => '',               'css' => 'notif-item--dinner' ],
         'dinner_asignado'    => [ 'class' => 'notif-icon--success', 'icon' => 'ti-circle-check','css' => 'notif-item--success' ],
+        'perfil_propuesta'   => [ 'class' => 'notif-icon--primary', 'icon' => 'ti-user-edit',   'css' => '' ],
         'default'            => [ 'class' => 'notif-icon--neutral', 'icon' => 'ti-bell',        'css' => '' ],
     ];
 
@@ -3497,6 +3498,8 @@ add_shortcode( 'vx_editor_perfil', function (): string {
     $paises          = vx_get_paises_latam();
     $industrias      = vx_get_industrias();
     $tags_preset     = vx_get_tags_preset();
+    $propuesta       = function_exists( 'vx_get_pending_profile_proposal' ) ? vx_get_pending_profile_proposal( $user_id ) : null;
+    $tiene_propuesta = null !== $propuesta;
 
     // Pre-compute sector tags per empresa for JS
     $sector_tags_map = [];
@@ -3533,6 +3536,42 @@ add_shortcode( 'vx_editor_perfil', function (): string {
         <span id="vx-alert-err-msg">Error al guardar.</span>
         <button type="button" onclick="document.getElementById('vx-alert-err').classList.add('d-none')" class="btn-alert-close">&times;</button>
       </div>
+
+      <?php $propuesta_error = isset( $_GET['vx_propuesta_error'] ) ? sanitize_key( wp_unslash( $_GET['vx_propuesta_error'] ) ) : ''; ?>
+      <?php if ( $propuesta_error ) : ?>
+      <div class="alert-vx alert-error mb-4">
+        <i class="ti ti-alert-circle" style="font-size:20px;flex-shrink:0"></i>
+        <span>
+          <?php if ( 'no_autorizado' === $propuesta_error ) : ?>
+          Esa propuesta no te pertenece.
+          <?php else : ?>
+          Ese link ya no es válido — puede que la propuesta ya haya sido respondida o reemplazada por una más nueva.
+          <?php endif; ?>
+        </span>
+      </div>
+      <?php endif; ?>
+
+      <?php if ( $tiene_propuesta ) : ?>
+      <div class="alert-vx alert-info mb-4" id="vx-propuesta-banner">
+        <div>
+          <strong>Un admin de Vitrinexo sugiere actualizar tu perfil:</strong>
+          <?php
+          $propuesta_campos = (array) ( $propuesta['campos'] ?? [] );
+          foreach ( VX_Profile_Fields::definitions() as $def ) :
+              if ( ! array_key_exists( $def['post_key'], $propuesta_campos ) ) continue;
+              $valor = $propuesta_campos[ $def['post_key'] ];
+              $texto = is_array( $valor ) ? implode( ', ', $valor ) : (string) $valor;
+              if ( '' === $texto ) continue;
+          ?>
+          <div><?php echo esc_html( $def['label'] ); ?>: <?php echo esc_html( $texto ); ?></div>
+          <?php endforeach; ?>
+        </div>
+        <div class="mt-2 d-flex gap-2">
+          <button type="button" class="btn-vx btn-primary-vx btn-vx-sm" onclick="vxResolverPropuesta('aceptar')">Aceptar</button>
+          <button type="button" class="btn-vx btn-danger-vx btn-vx-sm" onclick="vxResolverPropuesta('rechazar')">Rechazar</button>
+        </div>
+      </div>
+      <?php endif; ?>
 
       <form id="vx-editor-form" novalidate>
 

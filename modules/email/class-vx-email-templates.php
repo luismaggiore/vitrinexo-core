@@ -220,6 +220,45 @@ class VX_Email_Templates
     }
 
     /**
+     * Un admin propone actualizar campos del perfil (cualquiera de
+     * VX_Profile_Fields::definitions(), no solo tags).
+     * $data: nombre, user_id, token, campos ([post_key => valor])
+     * El link solo enruta a la página de confirmación logueada — no aplica nada por sí solo.
+     */
+    private static function tpl_perfil_propuesta( array $d ): string
+    {
+        $nombre  = esc_html( $d['nombre'] ?? '' );
+        $campos  = (array) ( $d['campos'] ?? [] );
+        $url_ver = esc_url( add_query_arg(
+            [ 'uid' => (int) ( $d['user_id'] ?? 0 ), 'token' => $d['token'] ?? '' ],
+            rest_url( VX_REST_NAMESPACE . '/perfil/propuesta/ver' )
+        ) );
+
+        $campos_html = '';
+        if ( class_exists( 'VX_Profile_Fields' ) ) {
+            foreach ( VX_Profile_Fields::definitions() as $def ) {
+                if ( ! array_key_exists( $def['post_key'], $campos ) ) continue;
+                $valor = $campos[ $def['post_key'] ];
+                $texto = is_array( $valor ) ? implode( ', ', $valor ) : (string) $valor;
+                if ( '' === $texto ) continue;
+                $campos_html .= '<p style="margin:0 0 8px;font-size:14px;color:#3d444e;"><strong>' . esc_html( $def['label'] ) . ':</strong> ' . esc_html( $texto ) . '</p>';
+            }
+        }
+
+        $content = self::h1( "$nombre, un admin sugiere actualizar tu perfil" )
+            . self::p( "Nuestro equipo revisó tu perfil y propone estos cambios para mejorar tu presencia en el directorio. Tú decides si los aceptas." )
+            . '<div style="background:#f8fafc;border-left:4px solid #2cced6;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;">'
+            . $campos_html
+            . '</div>'
+            . '<div style="text-align:center;margin:28px 0;">'
+            . self::btn( $url_ver, 'Ver propuesta y responder' )
+            . '</div>'
+            . self::p( '<small style="color:#8ea5b8;">No se aplicará ningún cambio hasta que tú lo apruebes desde tu cuenta.</small>' );
+
+        return self::wrapper( $content );
+    }
+
+    /**
      * Confirmación de conexión aceptada — enviada al emisor con datos del receptor.
      * $data: emisor_nombre, receptor_nombre, contacto (array con email, telefono, linkedin, preferido)
      */

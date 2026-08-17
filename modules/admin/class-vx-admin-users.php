@@ -883,10 +883,6 @@ document.addEventListener('DOMContentLoaded', function() {
     {
         $uid       = $user->ID;
         $g         = fn( $k ) => (string) get_user_meta( $uid, $k, true );
-        $tags      = function ( $k ) use ( $uid ) {
-            $v = get_user_meta( $uid, $k, true );
-            return is_array( $v ) ? implode( ', ', $v ) : (string) $v;
-        };
         $industria = $g( VX_User_Meta::INDUSTRIA );
 
         // Empresa: preferir el título de la empresa activa (CPT); si no, la meta inicial.
@@ -966,15 +962,70 @@ document.addEventListener('DOMContentLoaded', function() {
                 <th><label for="vx_seek_texto">Busca (texto)</label></th>
                 <td><textarea name="vx_seek_texto" id="vx_seek_texto" rows="4" class="large-text"><?php echo esc_textarea( $g( VX_User_Meta::SEEK_TEXTO ) ); ?></textarea></td>
             </tr>
+            <?php
+            $tags_preset_admin = function_exists( 'vx_get_tags_preset' ) ? vx_get_tags_preset() : [];
+            // Comparación case-insensitive: los tags aplicados vía propuesta quedan en
+            // minúsculas (VX_Tag_Helper::normalize), pero el preset se muestra con su
+            // capitalización "bonita" — sin esto, un tag ya aceptado nunca calzaría con
+            // su chip del preset y aparecería duplicado como "custom".
+            $render_tag_picker = function ( string $meta_key, string $field_name, string $modifier ) use ( $uid, $tags_preset_admin ) {
+                $actuales      = (array) get_user_meta( $uid, $meta_key, true );
+                $actuales_low  = array_map( 'mb_strtolower', $actuales );
+                $preset_low    = array_map( 'mb_strtolower', $tags_preset_admin );
+                ?>
+                <div class="vx-tag-selector vx-tag-selector--<?php echo esc_attr( $modifier ); ?>" data-hidden="<?php echo esc_attr( $field_name ); ?>_hidden">
+                    <?php foreach ( $tags_preset_admin as $tag ) :
+                        $sel = in_array( mb_strtolower( $tag ), $actuales_low, true );
+                    ?>
+                    <span class="vx-tag-chip <?php echo $sel ? 'vx-tag-chip--selected' : ''; ?>" onclick="vxAdminToggleTag(this)"><?php echo esc_html( $tag ); ?></span>
+                    <?php endforeach; ?>
+                    <?php foreach ( $actuales as $custom ) :
+                        if ( in_array( mb_strtolower( $custom ), $preset_low, true ) ) continue; // ya está como chip del preset
+                    ?>
+                    <span class="vx-tag-chip vx-tag-chip--selected" onclick="vxAdminToggleTag(this)"><?php echo esc_html( $custom ); ?></span>
+                    <?php endforeach; ?>
+                </div>
+                <input type="text" placeholder="Escribe otra etiqueta y presiona Enter" class="regular-text" style="margin-top:6px"
+                       onkeydown="vxAdminAddCustomTag(event)">
+                <input type="hidden" name="<?php echo esc_attr( $field_name ); ?>" id="<?php echo esc_attr( $field_name ); ?>_hidden"
+                       value="<?php echo esc_attr( implode( ', ', $actuales ) ); ?>">
+                <?php
+            };
+            ?>
             <tr>
-                <th><label for="vx_offer_tags">Tags que ofrece</label></th>
-                <td><input type="text" name="vx_offer_tags" id="vx_offer_tags" value="<?php echo esc_attr( $tags( VX_User_Meta::OFFER_TAGS ) ); ?>" class="large-text" />
-                <p class="description">Separa los tags con comas.</p></td>
+                <th>Tags que ofrece</th>
+                <td>
+                    <?php $render_tag_picker( VX_User_Meta::OFFER_TAGS, 'vx_offer_tags', 'offer' ); ?>
+                    <p class="description">Selecciona de la lista (son las mismas que ve el usuario) o agrega una nueva con Enter. Máximo 5 — si eliges más, solo se guardan los primeros 5.</p>
+                </td>
             </tr>
             <tr>
-                <th><label for="vx_seek_tags">Tags que busca</label></th>
-                <td><input type="text" name="vx_seek_tags" id="vx_seek_tags" value="<?php echo esc_attr( $tags( VX_User_Meta::SEEK_TAGS ) ); ?>" class="large-text" />
-                <p class="description">Separa los tags con comas.</p></td>
+                <th>Tags que busca</th>
+                <td>
+                    <?php $render_tag_picker( VX_User_Meta::SEEK_TAGS, 'vx_seek_tags', 'seek' ); ?>
+                    <p class="description">Selecciona de la lista (son las mismas que ve el usuario) o agrega una nueva con Enter. Máximo 5 — si eliges más, solo se guardan los primeros 5.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Propuesta al usuario</th>
+                <td>
+                    <?php $propuesta = function_exists( 'vx_get_pending_profile_proposal' ) ? vx_get_pending_profile_proposal( $uid ) : null; ?>
+                    <?php if ( $propuesta ) : ?>
+                    <p class="description" style="color:#b45309">
+                        Ya hay una propuesta pendiente enviada el
+                        <?php echo esc_html( date_i18n( 'd/m/Y H:i', (int) $propuesta['created_at'] ) ); ?>,
+                        esperando respuesta del usuario. Al enviar otra, se reemplaza.
+                    </p>
+                    <?php endif; ?>
+                    <input type="hidden" name="vx_perfil_admin_accion" id="vx_perfil_admin_accion" value="">
+                    <button type="button" class="button" onclick="vxAdminEnviarPropuesta(this)">
+                        Enviar propuesta de actualización de datos
+                    </button>
+                    <p class="description">
+                        Envía como propuesta <strong>todos los campos de esta pantalla que hayas cambiado</strong> (nombre, empresa, cargo, ciudad, país, industria, teléfono, LinkedIn, bio, tags): el usuario debe aceptarla antes de que se apliquen a su perfil.
+                        "Estado Vitrinexo" nunca pasa por aquí, siempre se guarda directo.
+                    </p>
+                </td>
             </tr>
             <tr>
                 <th><label for="vx_estado">Estado Vitrinexo</label></th>
@@ -988,18 +1039,63 @@ document.addEventListener('DOMContentLoaded', function() {
                 </td>
             </tr>
         </table>
-        <?php
-    }
-
-    /** Antepone https:// si la URL no trae esquema. */
-    private static function vx_normalize_url( string $url ): string
-    {
-        $url = trim( $url );
-        if ( $url === '' ) return '';
-        if ( ! preg_match( '#^https?://#i', $url ) ) {
-            $url = 'https://' . ltrim( $url, '/' );
+        <style>
+        .vx-tag-chip {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; margin: 0 6px 6px 0;
+            border-radius: 4px; border: 1.5px solid #d1d5db;
+            background: #fff; font-size: 12px; font-weight: 500;
+            color: #4b5563; cursor: pointer; user-select: none;
         }
-        return esc_url_raw( $url );
+        .vx-tag-chip:hover { border-color: #00aeb8; color: #00aeb8; }
+        .vx-tag-selector--offer .vx-tag-chip--selected { border-color: #16a34a; background: #dcfce7; color: #166534; }
+        .vx-tag-selector--seek  .vx-tag-chip--selected { border-color: #db2777; background: #fce7f3; color: #831843; }
+        </style>
+        <script>
+        function vxAdminToggleTag( el ) {
+            el.classList.toggle( 'vx-tag-chip--selected' );
+            vxAdminSyncHidden( el.closest( '.vx-tag-selector' ) );
+        }
+        function vxAdminAddCustomTag( e ) {
+            if ( e.key !== 'Enter' ) return;
+            e.preventDefault();
+            var input     = e.target;
+            var value     = input.value.trim();
+            if ( ! value ) return;
+            var container = input.previousElementSibling;
+            var existe = Array.prototype.some.call( container.querySelectorAll( '.vx-tag-chip' ), function ( c ) {
+                return c.textContent.trim().toLowerCase() === value.toLowerCase();
+            } );
+            if ( ! existe ) {
+                var span = document.createElement( 'span' );
+                span.className = 'vx-tag-chip vx-tag-chip--selected';
+                span.textContent = value;
+                span.onclick = function () { vxAdminToggleTag( span ); };
+                container.appendChild( span );
+            }
+            input.value = '';
+            vxAdminSyncHidden( container );
+        }
+        function vxAdminSyncHidden( container ) {
+            var hidden = document.getElementById( container.dataset.hidden );
+            if ( ! hidden ) return;
+            var seleccionados = Array.prototype.map.call(
+                container.querySelectorAll( '.vx-tag-chip--selected' ),
+                function ( c ) { return c.textContent.trim(); }
+            );
+            hidden.value = seleccionados.join( ', ' );
+        }
+        // Botón type="button" a propósito: si fuera type="submit" sería el primer
+        // submit del form nativo de WP y capturaría el Enter de cualquier campo
+        // de texto anterior (nombre, ciudad, etc.), enviando una propuesta sin querer.
+        function vxAdminEnviarPropuesta( btn ) {
+            var form = btn.form || btn.closest( 'form' );
+            var accion = document.getElementById( 'vx_perfil_admin_accion' );
+            if ( accion ) accion.value = 'proponer';
+            if ( form.requestSubmit ) form.requestSubmit(); else form.submit();
+        }
+        </script>
+        <?php
     }
 
     public static function save_profile_fields( int $user_id ): void
@@ -1011,66 +1107,75 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // ── Campos de texto simples ───────────────────────────────────────────
-        $text_keys = [
-            VX_User_Meta::CARGO, VX_User_Meta::CIUDAD, VX_User_Meta::PAIS,
-            VX_User_Meta::TELEFONO, VX_User_Meta::INDUSTRIA, VX_User_Meta::ESTADO,
+        // Todos los campos "de contenido del perfil" (nombre, empresa, cargo,
+        // ciudad, país, industria, teléfono, linkedin, bio, tags/textos) pasan
+        // por VX_Profile_Fields — única función que sanitiza y única función
+        // que aplica, reusada tanto por el guardado directo como por aceptar
+        // una propuesta (evita que ambos caminos diverjan, como pasó con tags).
+        $campos_posteados = VX_Profile_Fields::parse_posted( $_POST );
+        $es_propuesta      = ( ( $_POST['vx_perfil_admin_accion'] ?? '' ) === 'proponer' );
+
+        if ( $es_propuesta ) {
+            // Solo lo que realmente cambió respecto a lo que el usuario tiene hoy —
+            // si no, el aviso/email mostraría los 14 campos aunque el admin haya
+            // tocado solo uno (el form siempre postea el valor actual de todos).
+            $cambiados = VX_Profile_Fields::diff( $user_id, $campos_posteados );
+            if ( $cambiados ) {
+                self::create_profile_proposal( $user_id, $cambiados );
+            }
+        } else {
+            VX_Profile_Fields::apply( $user_id, $campos_posteados );
+            // Guardado directo: si había una propuesta pendiente sin resolver,
+            // queda obsoleta — si no se invalida, el usuario podría aceptarla
+            // más tarde y revertir silenciosamente este cambio directo más reciente.
+            if ( vx_get_pending_profile_proposal( $user_id ) ) {
+                delete_user_meta( $user_id, VX_User_Meta::PROFILE_PROPOSAL );
+            }
+        }
+
+        // "Estado Vitrinexo" queda fuera de VX_Profile_Fields a propósito: es un
+        // control de cuenta administrativo, no contenido del perfil del usuario,
+        // así que siempre se guarda directo, incluso al "Enviar propuesta".
+        if ( isset( $_POST[ VX_User_Meta::ESTADO ] ) ) {
+            update_user_meta( $user_id, VX_User_Meta::ESTADO, sanitize_text_field( wp_unslash( $_POST[ VX_User_Meta::ESTADO ] ) ) );
+        }
+    }
+
+    /**
+     * Guarda los campos de perfil cambiados como una propuesta pendiente (en
+     * vez de aplicarlos directo) y avisa al usuario por notificación interna +
+     * email. El usuario debe aceptarla para que se apliquen a su perfil real.
+     *
+     * @param int   $user_id
+     * @param array $campos    [post_key => valor], ya sanitizado y diffed — ver VX_Profile_Fields.
+     */
+    private static function create_profile_proposal( int $user_id, array $campos ): void
+    {
+        $proposal = [
+            'admin_id'   => get_current_user_id(),
+            'campos'     => $campos,
+            'token'      => VX_Token_Helper::generate(),
+            'created_at' => time(),
+            'estado'     => 'pendiente',
         ];
-        foreach ( $text_keys as $key ) {
-            if ( isset( $_POST[ $key ] ) ) {
-                update_user_meta( $user_id, $key, sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) );
-            }
+
+        update_user_meta( $user_id, VX_User_Meta::PROFILE_PROPOSAL, $proposal );
+
+        $vx_user = class_exists( 'VX_User' ) ? VX_User::get( $user_id ) : null;
+        if ( $vx_user && $vx_user->get_email() ) {
+            VX_Mailer::send(
+                $vx_user->get_email(),
+                'Un admin de Vitrinexo propone actualizar tu perfil',
+                'perfil_propuesta',
+                [
+                    'nombre'   => $vx_user->get_nombre(),
+                    'user_id'  => $user_id,
+                    'token'    => $proposal['token'],
+                    'campos'   => $campos,
+                ]
+            );
         }
 
-        // ── LinkedIn (autocompletar https://) ─────────────────────────────────
-        if ( isset( $_POST[ VX_User_Meta::LINKEDIN ] ) ) {
-            update_user_meta( $user_id, VX_User_Meta::LINKEDIN, self::vx_normalize_url( wp_unslash( $_POST[ VX_User_Meta::LINKEDIN ] ) ) );
-        }
-
-        // ── Áreas de texto ────────────────────────────────────────────────────
-        $area_keys = [ VX_User_Meta::BIO, VX_User_Meta::OFFER_TEXTO, VX_User_Meta::SEEK_TEXTO ];
-        foreach ( $area_keys as $key ) {
-            if ( isset( $_POST[ $key ] ) ) {
-                update_user_meta( $user_id, $key, sanitize_textarea_field( wp_unslash( $_POST[ $key ] ) ) );
-            }
-        }
-
-        // ── Tags (coma-separados → array) ────────────────────────────────────
-        foreach ( [ VX_User_Meta::OFFER_TAGS, VX_User_Meta::SEEK_TAGS ] as $key ) {
-            if ( isset( $_POST[ $key ] ) ) {
-                $raw  = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
-                $list = array_values( array_filter( array_map( 'trim', explode( ',', $raw ) ) ) );
-                update_user_meta( $user_id, $key, $list );
-            }
-        }
-
-        // ── Empresa: meta + título del CPT de empresa activa ──────────────────
-        if ( isset( $_POST['vx_empresa_inicial'] ) ) {
-            $empresa = sanitize_text_field( wp_unslash( $_POST['vx_empresa_inicial'] ) );
-            update_user_meta( $user_id, 'vx_empresa_inicial', $empresa );
-            if ( $empresa !== '' && class_exists( 'VX_User' ) ) {
-                $vx = VX_User::get( $user_id );
-                $emp = $vx ? $vx->get_empresa_activa() : null;
-                if ( $emp && $emp->post_title !== $empresa ) {
-                    wp_update_post( [ 'ID' => $emp->ID, 'post_title' => $empresa ] );
-                }
-            }
-        }
-
-        // ── Nombre / Apellido: meta + display_name + slug ─────────────────────
-        $nombre   = isset( $_POST['vx_nombre'] )   ? trim( sanitize_text_field( wp_unslash( $_POST['vx_nombre'] ) ) )   : null;
-        $apellido = isset( $_POST['vx_apellido'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['vx_apellido'] ) ) ) : null;
-        if ( null !== $nombre && $nombre !== '' )   update_user_meta( $user_id, VX_User_Meta::NOMBRE, $nombre );
-        if ( null !== $apellido && $apellido !== '' ) update_user_meta( $user_id, VX_User_Meta::APELLIDO, $apellido );
-        if ( $nombre || $apellido ) {
-            $n = (string) get_user_meta( $user_id, VX_User_Meta::NOMBRE, true );
-            $a = (string) get_user_meta( $user_id, VX_User_Meta::APELLIDO, true );
-            if ( $n !== '' ) {
-                wp_update_user( [ 'ID' => $user_id, 'display_name' => trim( $n . ' ' . $a ) ] );
-                if ( class_exists( 'VX_Slug_Helper' ) ) {
-                    update_user_meta( $user_id, VX_User_Meta::PERFIL_SLUG, VX_Slug_Helper::generate( $n, $a, $user_id ) );
-                }
-            }
-        }
+        do_action( 'vx_profile_proposal_created', $user_id, $proposal );
     }
 }

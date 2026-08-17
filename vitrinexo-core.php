@@ -33,6 +33,7 @@ $vx_modules = [
     'helpers/helper-domains.php',
     'helpers/helper-tokens.php',
     'helpers/helper-tags.php',
+    'helpers/helper-profile-fields.php',
     'helpers/helper-pagination.php',
     'helpers/helper-slugs.php',
     'helpers/dial-codes.php',
@@ -101,6 +102,7 @@ $vx_modules = [
     'rest/rest-upload.php',
     'rest/rest-feed.php',
     'rest/rest-blog.php',
+    'rest/rest-profile-proposal.php',
 
     // Admin
     'modules/admin/class-vx-admin-emails.php',

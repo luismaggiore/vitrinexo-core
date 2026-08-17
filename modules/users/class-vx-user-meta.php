@@ -56,6 +56,9 @@ class VX_User_Meta
     const OFFER_TEXTO = 'vx_offer_texto';
     const SEEK_TEXTO  = 'vx_seek_texto';
 
+    // Propuesta de cambio de perfil (admin -> usuario, requiere consentimiento)
+    const PROFILE_PROPOSAL = 'vx_profile_proposal';
+
     // Género (masculino | femenino | otro | no_contesta)
     const GENERO = 'vx_genero';
     const FECHA_NACIMIENTO = 'vx_fecha_nacimiento';
@@ -130,6 +133,7 @@ class VX_User_Meta
         $array_keys = [
             self::OFFER_TAGS, self::SEEK_TAGS, self::PROFILE_TAGS,
             self::DINNERS_ASIGNADO, self::DINNERS_INTERESADO, self::FAVORITOS,
+            self::PROFILE_PROPOSAL,
         ];
 
         foreach ( $array_keys as $key ) {

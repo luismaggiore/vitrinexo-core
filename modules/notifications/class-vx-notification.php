@@ -31,7 +31,7 @@ class VX_Notification
         $tipos_validos = [
             'conexion_nueva', 'conexion_aceptada', 'match_nuevo',
             'dinner_disponible', 'dinner_asignado', 'dinner_invitacion',
-            'visita_perfil', 'favorito', 'comentario_pub',
+            'visita_perfil', 'favorito', 'comentario_pub', 'perfil_propuesta',
         ];
 
         if ( ! in_array( $tipo, $tipos_validos, true ) ) {
@@ -48,6 +48,7 @@ class VX_Notification
             'visita_perfil'     => 'Alguien visitó tu perfil',
             'favorito'          => 'Alguien te guardó en favoritos',
             'comentario_pub'    => 'Alguien comentó en tu publicación',
+            'perfil_propuesta'  => 'Un admin propone actualizar tu perfil',
         ];
 
         $post_id = wp_insert_post( [

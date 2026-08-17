@@ -20,6 +20,7 @@ class VX_Notification_Triggers
         add_action( 'vx_dinner_available',     [ self::class, 'on_dinner_available' ],     10, 1 );
         add_action( 'vx_dinner_assigned',      [ self::class, 'on_dinner_assigned' ],      10, 2 );
         add_action( 'vx_pub_comentario',       [ self::class, 'on_pub_comentario' ],       10, 2 );
+        add_action( 'vx_profile_proposal_created', [ self::class, 'on_profile_proposal_created' ], 10, 2 );
     }
 
     /**
@@ -166,5 +167,22 @@ class VX_Notification_Triggers
                 [ 'dinner_id' => $dinner_id, 'ciudad' => $ciudad ]
             );
         }
+    }
+
+    /**
+     * Un admin propuso cambios de tags al perfil de un usuario → notif al usuario.
+     * El email se envía por separado desde VX_Admin_Users::create_profile_proposal().
+     *
+     * @param int   $user_id
+     * @param array $proposal
+     */
+    public static function on_profile_proposal_created( int $user_id, array $proposal ): void
+    {
+        VX_Notification::create(
+            $user_id,
+            'perfil_propuesta',
+            home_url( '/editar-perfil/' ),
+            (int) ( $proposal['admin_id'] ?? 0 )
+        );
     }
 }
