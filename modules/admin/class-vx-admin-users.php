@@ -849,60 +849,228 @@ document.addEventListener('DOMContentLoaded', function() {
 
     public static function render_profile_fields_new(): void
     {
+        wp_nonce_field( 'vx_perfil_admin', 'vx_perfil_admin_nonce' );
         ?>
         <h2>Datos Vitrinexo</h2>
         <table class="form-table" role="presentation">
         <?php
         $fields = [
+            [ 'key' => 'vx_nombre',           'label' => 'Nombre',    'type' => 'text' ],
+            [ 'key' => 'vx_apellido',         'label' => 'Apellido',  'type' => 'text' ],
             [ 'key' => 'vx_empresa_inicial',  'label' => 'Empresa',   'type' => 'text' ],
             [ 'key' => VX_User_Meta::CARGO,    'label' => 'Cargo',     'type' => 'text' ],
-            [ 'key' => VX_User_Meta::LINKEDIN, 'label' => 'LinkedIn',  'type' => 'url'  ],
+            [ 'key' => VX_User_Meta::CIUDAD,   'label' => 'Ciudad',    'type' => 'text' ],
             [ 'key' => VX_User_Meta::PAIS,     'label' => 'País',      'type' => 'text' ],
             [ 'key' => VX_User_Meta::TELEFONO, 'label' => 'Teléfono',  'type' => 'tel'  ],
-            [ 'key' => VX_User_Meta::ESTADO,   'label' => 'Estado',    'type' => 'text' ],
+            [ 'key' => VX_User_Meta::LINKEDIN, 'label' => 'LinkedIn',  'type' => 'url'  ],
         ];
         foreach ( $fields as $f ) : ?>
         <tr>
             <th><label for="vx_new_<?php echo esc_attr( $f['key'] ); ?>"><?php echo esc_html( $f['label'] ); ?></label></th>
-            <td><input type="<?php echo esc_attr( $f['type'] ); ?>" name="vx_<?php echo esc_attr( $f['key'] ); ?>" id="vx_new_<?php echo esc_attr( $f['key'] ); ?>" value="" class="regular-text" /></td>
+            <td><input type="<?php echo esc_attr( $f['type'] ); ?>" name="<?php echo esc_attr( $f['key'] ); ?>" id="vx_new_<?php echo esc_attr( $f['key'] ); ?>" value="" class="regular-text" /></td>
         </tr>
         <?php endforeach; ?>
         </table>
         <?php
     }
 
+    /**
+     * Sección editable "Perfil Vitrinexo" en la pantalla de usuario del admin.
+     * Permite a un administrador mantener actualizado el perfil de cualquier miembro
+     * (Bio, Ofrece, Busca, Ciudad, Industria, tags, etc.) sin que el miembro deba entrar.
+     */
     public static function render_profile_fields( WP_User $user ): void
     {
-        $fields = [
-            [ 'key' => 'vx_empresa_inicial', 'label' => 'Empresa',  'type' => 'text' ],
-            [ 'key' => VX_User_Meta::CARGO,   'label' => 'Cargo',    'type' => 'text' ],
-            [ 'key' => VX_User_Meta::LINKEDIN,'label' => 'LinkedIn', 'type' => 'url'  ],
-            [ 'key' => VX_User_Meta::PAIS,    'label' => 'País',     'type' => 'text' ],
-            [ 'key' => VX_User_Meta::ESTADO,  'label' => 'Estado Vitrinexo', 'type' => 'text' ],
-        ];
+        $uid       = $user->ID;
+        $g         = fn( $k ) => (string) get_user_meta( $uid, $k, true );
+        $tags      = function ( $k ) use ( $uid ) {
+            $v = get_user_meta( $uid, $k, true );
+            return is_array( $v ) ? implode( ', ', $v ) : (string) $v;
+        };
+        $industria = $g( VX_User_Meta::INDUSTRIA );
+
+        // Empresa: preferir el título de la empresa activa (CPT); si no, la meta inicial.
+        $empresa_val = $g( 'vx_empresa_inicial' );
+        $vx_user     = class_exists( 'VX_User' ) ? VX_User::get( $uid ) : null;
+        if ( $vx_user ) {
+            $emp = $vx_user->get_empresa_activa();
+            if ( $emp ) { $empresa_val = $emp->post_title; }
+        }
+
+        wp_nonce_field( 'vx_perfil_admin', 'vx_perfil_admin_nonce' );
         ?>
-        <h2>Datos Vitrinexo</h2>
+        <h2>Perfil Vitrinexo <span style="font-weight:400;font-size:13px;color:#646970">— editable por administradores</span></h2>
+        <p class="description" style="margin-bottom:8px">Actualiza aquí el perfil del miembro. Los cambios se reflejan en el directorio y su perfil público.</p>
         <table class="form-table" role="presentation">
-        <?php foreach ( $fields as $f ) : $val = esc_attr( get_user_meta( $user->ID, $f['key'], true ) ); ?>
-        <tr>
-            <th><label for="vx_<?php echo esc_attr( $f['key'] ); ?>"><?php echo esc_html( $f['label'] ); ?></label></th>
-            <td><input type="<?php echo esc_attr( $f['type'] ); ?>" name="vx_<?php echo esc_attr( $f['key'] ); ?>" id="vx_<?php echo esc_attr( $f['key'] ); ?>" value="<?php echo $val; ?>" class="regular-text" /></td>
-        </tr>
-        <?php endforeach; ?>
+            <tr>
+                <th><label for="vx_nombre">Nombre</label></th>
+                <td><input type="text" name="vx_nombre" id="vx_nombre" value="<?php echo esc_attr( $g( 'vx_nombre' ) ); ?>" class="regular-text" /></td>
+            </tr>
+            <tr>
+                <th><label for="vx_apellido">Apellido</label></th>
+                <td><input type="text" name="vx_apellido" id="vx_apellido" value="<?php echo esc_attr( $g( 'vx_apellido' ) ); ?>" class="regular-text" /></td>
+            </tr>
+            <tr>
+                <th><label for="vx_empresa_inicial">Empresa</label></th>
+                <td><input type="text" name="vx_empresa_inicial" id="vx_empresa_inicial" value="<?php echo esc_attr( $empresa_val ); ?>" class="regular-text" />
+                <p class="description">Nombre de la empresa que se muestra en el perfil.</p></td>
+            </tr>
+            <tr>
+                <th><label for="vx_cargo_inicial">Cargo</label></th>
+                <td><input type="text" name="vx_cargo_inicial" id="vx_cargo_inicial" value="<?php echo esc_attr( $g( VX_User_Meta::CARGO ) ); ?>" class="regular-text" /></td>
+            </tr>
+            <tr>
+                <th><label for="vx_ciudad">Ciudad</label></th>
+                <td><input type="text" name="vx_ciudad" id="vx_ciudad" value="<?php echo esc_attr( $g( VX_User_Meta::CIUDAD ) ); ?>" class="regular-text" /></td>
+            </tr>
+            <tr>
+                <th><label for="vx_pais">País</label></th>
+                <td><input type="text" name="vx_pais" id="vx_pais" value="<?php echo esc_attr( $g( VX_User_Meta::PAIS ) ); ?>" class="regular-text" /></td>
+            </tr>
+            <tr>
+                <th><label for="vx_industria">Industria</label></th>
+                <td>
+                    <?php if ( function_exists( 'vx_get_industrias' ) ) :
+                        $inds = vx_get_industrias(); ?>
+                    <select name="vx_industria" id="vx_industria" class="regular-text">
+                        <option value="">— Selecciona —</option>
+                        <?php foreach ( $inds as $ind ) : ?>
+                        <option value="<?php echo esc_attr( $ind ); ?>" <?php selected( $industria, $ind ); ?>><?php echo esc_html( $ind ); ?></option>
+                        <?php endforeach; ?>
+                        <?php if ( $industria && ! in_array( $industria, $inds, true ) ) : ?>
+                        <option value="<?php echo esc_attr( $industria ); ?>" selected><?php echo esc_html( $industria ); ?></option>
+                        <?php endif; ?>
+                    </select>
+                    <?php else : ?>
+                    <input type="text" name="vx_industria" id="vx_industria" value="<?php echo esc_attr( $industria ); ?>" class="regular-text" />
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="vx_telefono">Teléfono</label></th>
+                <td><input type="tel" name="vx_telefono" id="vx_telefono" value="<?php echo esc_attr( $g( VX_User_Meta::TELEFONO ) ); ?>" class="regular-text" /></td>
+            </tr>
+            <tr>
+                <th><label for="vx_linkedin">LinkedIn</label></th>
+                <td><input type="url" name="vx_linkedin" id="vx_linkedin" value="<?php echo esc_attr( $g( VX_User_Meta::LINKEDIN ) ); ?>" class="regular-text" /></td>
+            </tr>
+            <tr>
+                <th><label for="vx_bio">Bio profesional</label></th>
+                <td><textarea name="vx_bio" id="vx_bio" rows="4" class="large-text"><?php echo esc_textarea( $g( VX_User_Meta::BIO ) ); ?></textarea></td>
+            </tr>
+            <tr>
+                <th><label for="vx_offer_texto">Ofrece (texto)</label></th>
+                <td><textarea name="vx_offer_texto" id="vx_offer_texto" rows="4" class="large-text"><?php echo esc_textarea( $g( VX_User_Meta::OFFER_TEXTO ) ); ?></textarea></td>
+            </tr>
+            <tr>
+                <th><label for="vx_seek_texto">Busca (texto)</label></th>
+                <td><textarea name="vx_seek_texto" id="vx_seek_texto" rows="4" class="large-text"><?php echo esc_textarea( $g( VX_User_Meta::SEEK_TEXTO ) ); ?></textarea></td>
+            </tr>
+            <tr>
+                <th><label for="vx_offer_tags">Tags que ofrece</label></th>
+                <td><input type="text" name="vx_offer_tags" id="vx_offer_tags" value="<?php echo esc_attr( $tags( VX_User_Meta::OFFER_TAGS ) ); ?>" class="large-text" />
+                <p class="description">Separa los tags con comas.</p></td>
+            </tr>
+            <tr>
+                <th><label for="vx_seek_tags">Tags que busca</label></th>
+                <td><input type="text" name="vx_seek_tags" id="vx_seek_tags" value="<?php echo esc_attr( $tags( VX_User_Meta::SEEK_TAGS ) ); ?>" class="large-text" />
+                <p class="description">Separa los tags con comas.</p></td>
+            </tr>
+            <tr>
+                <th><label for="vx_estado">Estado Vitrinexo</label></th>
+                <td>
+                    <?php $estado = $g( VX_User_Meta::ESTADO ); ?>
+                    <select name="vx_estado" id="vx_estado">
+                        <?php foreach ( [ 'activo' => 'Activo', 'pendiente' => 'Pendiente', 'rechazado' => 'Rechazado' ] as $ev => $el ) : ?>
+                        <option value="<?php echo esc_attr( $ev ); ?>" <?php selected( $estado, $ev ); ?>><?php echo esc_html( $el ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+            </tr>
         </table>
         <?php
+    }
+
+    /** Antepone https:// si la URL no trae esquema. */
+    private static function vx_normalize_url( string $url ): string
+    {
+        $url = trim( $url );
+        if ( $url === '' ) return '';
+        if ( ! preg_match( '#^https?://#i', $url ) ) {
+            $url = 'https://' . ltrim( $url, '/' );
+        }
+        return esc_url_raw( $url );
     }
 
     public static function save_profile_fields( int $user_id ): void
     {
         if ( ! current_user_can( 'edit_user', $user_id ) ) return;
-        $keys = [
-            'vx_empresa_inicial', VX_User_Meta::CARGO, VX_User_Meta::LINKEDIN,
-            VX_User_Meta::PAIS, VX_User_Meta::ESTADO,
+        // Solo procesa si nuestra sección fue enviada (nonce propio).
+        if ( ! isset( $_POST['vx_perfil_admin_nonce'] )
+            || ! wp_verify_nonce( sanitize_key( $_POST['vx_perfil_admin_nonce'] ), 'vx_perfil_admin' ) ) {
+            return;
+        }
+
+        // ── Campos de texto simples ───────────────────────────────────────────
+        $text_keys = [
+            VX_User_Meta::CARGO, VX_User_Meta::CIUDAD, VX_User_Meta::PAIS,
+            VX_User_Meta::TELEFONO, VX_User_Meta::INDUSTRIA, VX_User_Meta::ESTADO,
         ];
-        foreach ( $keys as $key ) {
-            $posted = sanitize_text_field( wp_unslash( $_POST[ 'vx_' . $key ] ?? '' ) );
-            update_user_meta( $user_id, $key, $posted );
+        foreach ( $text_keys as $key ) {
+            if ( isset( $_POST[ $key ] ) ) {
+                update_user_meta( $user_id, $key, sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) );
+            }
+        }
+
+        // ── LinkedIn (autocompletar https://) ─────────────────────────────────
+        if ( isset( $_POST[ VX_User_Meta::LINKEDIN ] ) ) {
+            update_user_meta( $user_id, VX_User_Meta::LINKEDIN, self::vx_normalize_url( wp_unslash( $_POST[ VX_User_Meta::LINKEDIN ] ) ) );
+        }
+
+        // ── Áreas de texto ────────────────────────────────────────────────────
+        $area_keys = [ VX_User_Meta::BIO, VX_User_Meta::OFFER_TEXTO, VX_User_Meta::SEEK_TEXTO ];
+        foreach ( $area_keys as $key ) {
+            if ( isset( $_POST[ $key ] ) ) {
+                update_user_meta( $user_id, $key, sanitize_textarea_field( wp_unslash( $_POST[ $key ] ) ) );
+            }
+        }
+
+        // ── Tags (coma-separados → array) ────────────────────────────────────
+        foreach ( [ VX_User_Meta::OFFER_TAGS, VX_User_Meta::SEEK_TAGS ] as $key ) {
+            if ( isset( $_POST[ $key ] ) ) {
+                $raw  = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
+                $list = array_values( array_filter( array_map( 'trim', explode( ',', $raw ) ) ) );
+                update_user_meta( $user_id, $key, $list );
+            }
+        }
+
+        // ── Empresa: meta + título del CPT de empresa activa ──────────────────
+        if ( isset( $_POST['vx_empresa_inicial'] ) ) {
+            $empresa = sanitize_text_field( wp_unslash( $_POST['vx_empresa_inicial'] ) );
+            update_user_meta( $user_id, 'vx_empresa_inicial', $empresa );
+            if ( $empresa !== '' && class_exists( 'VX_User' ) ) {
+                $vx = VX_User::get( $user_id );
+                $emp = $vx ? $vx->get_empresa_activa() : null;
+                if ( $emp && $emp->post_title !== $empresa ) {
+                    wp_update_post( [ 'ID' => $emp->ID, 'post_title' => $empresa ] );
+                }
+            }
+        }
+
+        // ── Nombre / Apellido: meta + display_name + slug ─────────────────────
+        $nombre   = isset( $_POST['vx_nombre'] )   ? trim( sanitize_text_field( wp_unslash( $_POST['vx_nombre'] ) ) )   : null;
+        $apellido = isset( $_POST['vx_apellido'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['vx_apellido'] ) ) ) : null;
+        if ( null !== $nombre && $nombre !== '' )   update_user_meta( $user_id, VX_User_Meta::NOMBRE, $nombre );
+        if ( null !== $apellido && $apellido !== '' ) update_user_meta( $user_id, VX_User_Meta::APELLIDO, $apellido );
+        if ( $nombre || $apellido ) {
+            $n = (string) get_user_meta( $user_id, VX_User_Meta::NOMBRE, true );
+            $a = (string) get_user_meta( $user_id, VX_User_Meta::APELLIDO, true );
+            if ( $n !== '' ) {
+                wp_update_user( [ 'ID' => $user_id, 'display_name' => trim( $n . ' ' . $a ) ] );
+                if ( class_exists( 'VX_Slug_Helper' ) ) {
+                    update_user_meta( $user_id, VX_User_Meta::PERFIL_SLUG, VX_Slug_Helper::generate( $n, $a, $user_id ) );
+                }
+            }
         }
     }
 }
