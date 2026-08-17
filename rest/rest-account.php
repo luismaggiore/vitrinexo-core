@@ -202,6 +202,18 @@ function vx_rest_empresa_crear( WP_REST_Request $request ): WP_REST_Response
     return new WP_REST_Response( [ 'success' => true, 'empresa_id' => $post_id ], 200 );
 }
 
+if ( ! function_exists( 'vx_url_with_scheme' ) ) {
+    /** Antepone https:// a una URL si no trae esquema (http/https). '' queda ''. */
+    function vx_url_with_scheme( string $url ): string {
+        $url = trim( $url );
+        if ( $url === '' ) return '';
+        if ( ! preg_match( '#^https?://#i', $url ) ) {
+            $url = 'https://' . ltrim( $url, '/' );
+        }
+        return $url;
+    }
+}
+
 function vx_rest_perfil_guardar( WP_REST_Request $request ): WP_REST_Response
 {
     $user_id = get_current_user_id();
@@ -322,7 +334,13 @@ function vx_rest_perfil_guardar( WP_REST_Request $request ): WP_REST_Response
             if ( ! $emp_id ) continue;
 
             $post = get_post( $emp_id );
-            if ( ! $post || 'vx_empresa' !== $post->post_type || (int) $post->post_author !== $user_id ) continue;
+            if ( ! $post || 'vx_empresa' !== $post->post_type ) continue;
+            // Propiedad: el vínculo canónico es la meta vx_user_id (así se listan las
+            // empresas del miembro). Antes solo se validaba post_author, por lo que las
+            // empresas creadas por un admin o por importación no se guardaban ("no persiste").
+            $owner_ok = ( (int) get_post_meta( $emp_id, 'vx_user_id', true ) === $user_id )
+                || ( (int) $post->post_author === $user_id );
+            if ( ! $owner_ok ) continue;
 
             if ( isset( $emp['nombre'] ) && $emp['nombre'] !== '' ) {
                 wp_update_post( [ 'ID' => $emp_id, 'post_title' => sanitize_text_field( $emp['nombre'] ) ] );
@@ -331,12 +349,13 @@ function vx_rest_perfil_guardar( WP_REST_Request $request ): WP_REST_Response
             if ( isset( $emp['descripcion'] ) )         update_post_meta( $emp_id, 'vx_descripcion',         sanitize_textarea_field( $emp['descripcion'] ) );
             if ( isset( $emp['descripcion_cliente'] ) ) update_post_meta( $emp_id, 'vx_descripcion_cliente', sanitize_textarea_field( $emp['descripcion_cliente'] ) );
             if ( isset( $emp['sector'] ) )              update_post_meta( $emp_id, 'vx_sector',              sanitize_text_field( $emp['sector'] ) );
-            if ( isset( $emp['web'] ) )                 update_post_meta( $emp_id, 'vx_web',                 esc_url_raw( $emp['web'] ) );
+            if ( isset( $emp['web'] ) )                 update_post_meta( $emp_id, 'vx_web',                 esc_url_raw( vx_url_with_scheme( $emp['web'] ) ) );
             if ( isset( $emp['linkedin'] ) ) {
-                if ( $emp['linkedin'] !== '' && ! vx_is_linkedin_url( $emp['linkedin'] ) ) {
+                $lk = $emp['linkedin'] !== '' ? vx_url_with_scheme( $emp['linkedin'] ) : '';
+                if ( $lk !== '' && ! vx_is_linkedin_url( $lk ) ) {
                     return new WP_REST_Response( [ 'success' => false, 'error' => 'linkedin_invalido', 'message' => 'El LinkedIn de la empresa debe ser una URL de linkedin.com.' ], 400 );
                 }
-                update_post_meta( $emp_id, 'vx_linkedin', esc_url_raw( $emp['linkedin'] ) );
+                update_post_meta( $emp_id, 'vx_linkedin', esc_url_raw( $lk ) );
             }
             if ( isset( $emp['industria'] ) ) {
                 $ind = sanitize_text_field( $emp['industria'] );
