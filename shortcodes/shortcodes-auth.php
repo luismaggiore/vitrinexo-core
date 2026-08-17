@@ -4245,22 +4245,35 @@ add_shortcode( 'vx_editor_perfil', function (): string {
       window.vxPreviewLogo = function ( input, empId ) {
         if ( ! input.files || ! input.files[0] ) return;
         var file = input.files[0];
-        // Preview optimista
-        const reader = new FileReader();
-        reader.onload = function ( e ) {
+        var progressEl = document.getElementById( 'vx-logo-progress-' + empId );
+        function preview( src ) {
           const img = document.getElementById( 'vx-logo-img-' + empId );
           const ph  = document.getElementById( 'vx-logo-placeholder-' + empId );
-          if ( img ) { img.src = e.target.result; img.style.display = ''; }
+          if ( img ) { img.src = src; img.style.display = ''; }
           if ( ph )  { ph.style.display = 'none'; }
-        };
-        reader.readAsDataURL( file );
-        // Upload con progreso
-        var progressEl = document.getElementById( 'vx-logo-progress-' + empId );
-        if ( typeof window.vxUploadXHR === 'function' ) {
-          window.vxUploadXHR( file, 'logo', empId, progressEl,
-            function(){}, // el servidor guarda el meta directamente
-            function( msg ) { if ( typeof vxShowError === 'function' ) vxShowError( msg ); }
-          );
+        }
+        function upload( f ) {
+          if ( typeof window.vxUploadXHR === 'function' ) {
+            window.vxUploadXHR( f, 'logo', empId, progressEl,
+              function(){},
+              function( msg ) { if ( typeof vxShowError === 'function' ) vxShowError( msg ); }
+            );
+          }
+        }
+        if ( typeof window.vxCropSquare === 'function' ) {
+          window.vxCropSquare( file ).then( function ( blob ) {
+            var cropped = new File( [ blob ], 'logo.webp', { type: 'image/webp' } );
+            try { preview( URL.createObjectURL( blob ) ); } catch ( e ) {}
+            input.value = '';
+            upload( cropped );
+          } ).catch( function ( err ) {
+            if ( err && err.reason === 'cancel' ) { input.value = ''; return; }
+            var r = new FileReader(); r.onload = function ( e ) { preview( e.target.result ); }; r.readAsDataURL( file );
+            upload( file );
+          } );
+        } else {
+          var r = new FileReader(); r.onload = function ( e ) { preview( e.target.result ); }; r.readAsDataURL( file );
+          upload( file );
         }
       };
 
@@ -4483,14 +4496,25 @@ add_shortcode( 'vx_editor_perfil', function (): string {
 
       window.vxPreviewNewLogo = function ( input ) {
         if ( ! input.files || ! input.files[0] ) return;
-        const reader = new FileReader();
-        reader.onload = function ( e ) {
+        var file = input.files[0];
+        function preview( src ) {
           const img = document.getElementById( 'vx-new-logo-img' );
           const ph  = document.getElementById( 'vx-new-logo-placeholder' );
-          if ( img ) { img.src = e.target.result; img.style.display = ''; }
+          if ( img ) { img.src = src; img.style.display = ''; }
           if ( ph )  { ph.style.display = 'none'; }
-        };
-        reader.readAsDataURL( input.files[0] );
+        }
+        if ( typeof window.vxCropSquare === 'function' ) {
+          window.vxCropSquare( file ).then( function ( blob ) {
+            var cropped = new File( [ blob ], 'logo.webp', { type: 'image/webp' } );
+            try { var dt = new DataTransfer(); dt.items.add( cropped ); input.files = dt.files; } catch ( e ) {}
+            try { preview( URL.createObjectURL( blob ) ); } catch ( e ) {}
+          } ).catch( function ( err ) {
+            if ( err && err.reason === 'cancel' ) { input.value = ''; return; }
+            var r = new FileReader(); r.onload = function ( e ) { preview( e.target.result ); }; r.readAsDataURL( file );
+          } );
+        } else {
+          var r = new FileReader(); r.onload = function ( e ) { preview( e.target.result ); }; r.readAsDataURL( file );
+        }
       };
 
       window.vxPreviewNewBanner = function ( input ) {
