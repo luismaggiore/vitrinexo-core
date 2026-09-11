@@ -1,0 +1,102 @@
+# Vitrinexo — Plugin Core
+
+## El proyecto
+
+Vitrinexo es una plataforma B2B de directorio de servicios profesionales. Empresa independiente. **Nunca mencionar Maggiore Marketing** en ningún contenido público. **No restringir el alcance geográfico** a Latinoamérica — la visión incluye países de habla hispana, Brasil, Estados Unidos y Europa.
+
+**Sitio:** https://vitrinexo.com  
+**Admin WP:** https://vitrinexo.com/wp-admin  
+**Par de repositorios:** `luismaggiore/vitrinexo-core` (este) y `luismaggiore/vitrinexo-theme`
+
+## Reglas no negociables
+
+- Siempre **Vitrinexo** — nunca "VitriNexo"
+- Programa: **Miembro Pionero / Miembros Pioneros**
+- Siempre **"distintivo"** — nunca "badge"
+- Sin guiones largos (—) en copy
+- Español chileno: "tienes", "puedes" — nunca voseo argentino/uruguayo
+
+## Stack
+
+- WordPress 7.0, PHP, Bootstrap 5.3.3, Tabler Icons 3.19.0, fuente Switzer Variable
+- Colores: `#00aeb8` (teal), `#1a2335` (navy)
+- REST namespace: `vitrinexo/v1`
+- Email: FluentSMTP + Resend desde `hola@vitrinexo.com`
+
+## Estructura del plugin
+
+```
+vitrinexo-core/
+├── vitrinexo-core.php               ← archivo principal, hooks, vx_get_planes()
+├── rest/
+│   └── rest-auth.php                ← /registrar, /aprobar-usuario, /rechazar-usuario, /stats/inscritos
+├── modules/
+│   ├── admin/
+│   │   ├── class-vx-admin-users.php     ← tabla usuarios con columnas custom + hover-to-edit
+│   │   ├── class-vx-admin-emails.php    ← panel Vitrinexo → Emails (5 plantillas editables)
+│   │   └── class-vx-admin-membership.php
+│   ├── email/
+│   │   ├── class-vx-mailer.php          ← wrapper wp_mail
+│   │   └── class-vx-email-templates.php ← templates HTML + tpl_notificacion_admin()
+│   └── users/
+│       ├── class-vx-user-meta.php       ← constantes de meta keys
+│       └── class-vx-verification.php    ← activate_account(): pionero auto + vencimiento 90 días
+└── shortcodes/
+    └── shortcodes-public.php            ← landing page + formulario de registro
+```
+
+## Deploy
+
+Push a `main` → GitHub Actions → rsync SSH → Hostinger.
+
+```yaml
+# Secrets requeridos en el repo
+SSH_HOST: 195.200.3.42
+SSH_PORT: 65002
+SSH_USERNAME: u969893599
+SSH_PRIVATE_KEY: <clave Ed25519 privada>
+SSH_TARGET: /home/u969893599/public_html/wp-content/plugins/vitrinexo-core
+```
+
+El workflow tiene **retry automático** (espera 90s si el primer intento falla). No usar `sshpass` — la autenticación es por clave SSH.
+
+## Flujo de registro
+
+1. Formulario en `/#afiliado-original` → POST `/wp-json/vitrinexo/v1/registrar`
+2. Se crea usuario WP + CPT `vx_empresa`
+3. Email institucional → verificación automática; email genérico → pendiente manual
+4. Notificación a admins con botones Aprobar/Rechazar (tokens de un solo uso, editables en Vitrinexo → Emails)
+5. Al aprobar → `VX_Verification::activate_account()`:
+   - `vx_estado = 'activo'`
+   - Si activos ≤ 100 → `vx_es_fundador = 1` (Pionero automático)
+   - Vencimiento = hoy + 90 días
+
+## Panel admin (users.php)
+
+Columnas: Nombre de usuario, Nombre, Empresa, Cargo, Teléfono, Correo, Estado, Registro (solo lectura), Plan (dropdown en hover), Vencimiento (date input en hover), Pionero.
+
+- Los administradores muestran "—" en Plan/Vencimiento/Pionero
+- Plan y Vencimiento usan `window.location` con nonce en URL (no `<form>`) para no interferir con el bulk delete de WordPress
+
+## Planes
+
+Configurables en Vitrinexo → Planes (`vx_get_planes()`). Defaults: Gratuito, Miembro Pionero, Mensual, Anual, Preferencial.
+
+## Lecciones técnicas
+
+- Heredoc (`<< 'EOF'`) dentro de `run:` en GitHub Actions YAML causa errores de parseo → usar base64
+- `wp eval-file` requiere `<?php` al inicio del archivo
+- `admin_menu` debe registrarse desde `init`, no desde `admin_init`
+- Formularios inline en tablas de WP admin no pueden usar `<form>` anidado con el bulk form → usar JS navigation
+
+## Comunidades
+
+- **LGBTQ+** — comunidad LGBTQ+
+- **Woman** — mujeres líderes
+- **Senior** — ejecutivos con trayectoria
+- **Vitrinexo 4Dinner** — cenas de networking (4 personas, miércoles 8pm)
+
+## Pendientes
+
+- Integración de pagos con Stripe
+- Contenido de la sección 4Dinner
