@@ -5347,7 +5347,7 @@ add_shortcode( 'vx_mis_eventos', function (): string {
                     </div>
                     <!-- Fecha destacada -->
                     <div class="text-center" style="background:#fff;border:2px solid #fde68a;border-radius:var(--radius-md);padding:.75rem 1.25rem;min-width:90px">
-                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#b45309"><?php echo esc_html( strtoupper( date_i18n( 'M', $pd_fecha ) ) ); ?></div>
+                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:var(--ls-sobretitulo-xs);color:#b45309"><?php echo esc_html( strtoupper( date_i18n( 'M', $pd_fecha ) ) ); ?></div>
                         <div style="font-size:2.2rem;font-weight:800;line-height:1;color:#78350f"><?php echo esc_html( date_i18n( 'j', $pd_fecha ) ); ?></div>
                         <div style="font-size:11px;color:#92400e"><?php echo esc_html( strtoupper( date_i18n( 'D', $pd_fecha ) ) ); ?></div>
                     </div>

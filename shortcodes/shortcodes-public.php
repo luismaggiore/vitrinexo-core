@@ -504,7 +504,7 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
             <div class="d-flex align-items-center gap-2 mb-3">
               <span class="badge-hero-4dinner">Evento presencial</span>
             </div>
-            <h1 style="font-size:clamp(2.2rem,5vw,3.5rem);font-weight:400;letter-spacing:-0.04em;color:#78350f;line-height:1.1;margin-bottom:1rem">
+            <h1 style="font-size:clamp(2.2rem,5vw,3.5rem);font-weight:400;letter-spacing:var(--ls-hero);color:#78350f;line-height:1.1;margin-bottom:1rem">
               4 personas.<br>1 mesa.<br><em style="font-style:italic">1 conversación real.</em>
             </h1>
             <p style="font-size:1rem;color:#92400e;line-height:1.7;max-width:480px;margin-bottom:2rem">
@@ -555,7 +555,7 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
       <div class="row g-5 align-items-center" style="margin-bottom:5rem">
         <div class="col-12 col-lg-5">
           <span class="section-landing-label">La idea detrás</span>
-          <h2 style="font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;letter-spacing:-0.04em;color:var(--color-text-primary);margin:.5rem 0 1rem;line-height:1.2">
+          <h2 style="font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;letter-spacing:var(--ls-h2);color:var(--color-text-primary);margin:.5rem 0 1rem;line-height:1.2">
             El networking que sí funciona es el que se parece a una cena con amigos
           </h2>
           <p class="text-lead-muted mb-3">Las conferencias, los happy hours y los eventos masivos generan tarjetas de presentación. Las cenas íntimas generan relaciones reales.</p>
@@ -576,7 +576,7 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
       <div class="mb-5" id="como-funciona" style="scroll-margin-top:80px">
         <div class="text-center mb-4">
           <span class="section-landing-label">El proceso</span>
-          <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);font-weight:400;letter-spacing:-0.04em;color:var(--color-text-primary);margin:.5rem 0">¿Cómo funciona?</h2>
+          <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);font-weight:400;letter-spacing:var(--ls-h2);color:var(--color-text-primary);margin:.5rem 0">¿Cómo funciona?</h2>
         </div>
         <div class="row g-3 justify-content-center">
           <div class="col-12 col-md-6 col-lg-3">
@@ -616,7 +616,7 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
         <div class="d-flex align-items-center justify-content-between mb-3">
           <div>
             <span class="section-landing-label">Agenda</span>
-            <h2 style="font-size:1.5rem;font-weight:400;letter-spacing:-0.03em;color:var(--color-text-primary);margin:.25rem 0">Próximas cenas</h2>
+            <h2 style="font-size:1.5rem;font-weight:400;letter-spacing:var(--ls-h3);color:var(--color-text-primary);margin:.25rem 0">Próximas cenas</h2>
           </div>
           <a href="<?php echo esc_url( $registro_url ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm link-primary-color">
             Ver todas al registrarte <i class="ti ti-arrow-right ms-1"></i>
@@ -655,7 +655,7 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
 
       <!-- CTA FINAL -->
       <div class="text-center py-5">
-        <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);font-weight:400;letter-spacing:-0.04em;margin-bottom:1rem">¿Listo para tu primera cena?</h2>
+        <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);font-weight:400;letter-spacing:var(--ls-h2);margin-bottom:1rem">¿Listo para tu primera cena?</h2>
         <p class="text-lead-muted mb-4">Crea tu cuenta en <span class="vx-name">Vitrinexo</span>, activa 4Dinner en tu perfil y el equipo te asigna a la próxima mesa disponible en tu ciudad.</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
           <a href="<?php echo esc_url( $registro_url ); ?>" class="btn-vx btn-primary-vx btn-vx-lg">
