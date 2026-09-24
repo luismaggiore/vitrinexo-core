@@ -88,19 +88,25 @@ function vx_get_dial_codes(): array {
             'iso'  => $c[0],
             'name' => $c[1],
             'dial' => $c[2],
-            'flag' => vx_iso_to_flag( $c[0] ),
+            'flag' => '',
         ];
     }
     return $out;
 }
 
-/** Convierte un código ISO-2 (ej: "CL") en su emoji de bandera. */
+/**
+ * El código ISO-2 tal cual, sin bandera.
+ *
+ * Antes esto devolvía el emoji de bandera armado desde el código ISO, y por eso
+ * no se veía en el código: se construía al renderizar. La marca no usa emojis,
+ * y además la bandera solo se dibuja en macOS y iOS; en Windows el navegador
+ * muestra las dos letras dentro de dos cajas, que se lee como un error.
+ *
+ * Se deja la función porque la lista la sigue llamando, y devolver vacío es más
+ * barato que recorrer cada lugar que la use.
+ */
 function vx_iso_to_flag( string $iso ): string {
-    $iso = strtoupper( trim( $iso ) );
-    if ( strlen( $iso ) !== 2 ) return '';
-    $a = 0x1F1E6 + ( ord( $iso[0] ) - ord( 'A' ) );
-    $b = 0x1F1E6 + ( ord( $iso[1] ) - ord( 'A' ) );
-    return mb_convert_encoding( '&#' . $a . ';&#' . $b . ';', 'UTF-8', 'HTML-ENTITIES' );
+    return '';
 }
 
 /**
@@ -118,7 +124,7 @@ function vx_dial_code_select( string $id, string $selected = '+56', array $attrs
     }
     $html = '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $id ) . '" class="form-control-vx"' . $attr_str . '>';
     foreach ( $codes as $c ) {
-        $label = $c['flag'] . ' ' . $c['name'] . ' (' . $c['dial'] . ')';
+        $label = $c['name'] . ' (' . $c['dial'] . ')';
         $sel   = ( $c['dial'] === $selected ) ? ' selected' : '';
         // value único por iso+dial para evitar colisiones de códigos repetidos (ej: +1)
         $html .= '<option value="' . esc_attr( $c['dial'] ) . '"' . $sel . '>' . esc_html( $label ) . '</option>';
