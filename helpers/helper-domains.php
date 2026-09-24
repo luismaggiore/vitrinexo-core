@@ -42,7 +42,7 @@ class VX_Domain_Helper
         $parts = explode( '@', $email );
 
         if ( count( $parts ) !== 2 || empty( $parts[1] ) ) {
-            return true; // email inválido → tratar como genérico
+            return true; // email inválido · tratar como genérico
         }
 
         $domain = $parts[1];

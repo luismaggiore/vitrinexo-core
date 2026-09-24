@@ -176,7 +176,7 @@ class VX_Admin_Users
                 if ( ! $expiry_date ) {
                     $label = '-'; $color = '#9ca3af';
                 } elseif ( $diff < 0 ) {
-                    $label = '⚠ ' . date_i18n( 'd/m/Y', $expiry_ts ); $color = '#dc2626';
+                    $label = '' . date_i18n( 'd/m/Y', $expiry_ts ); $color = '#dc2626';
                 } elseif ( $diff < 7 * DAY_IN_SECONDS ) {
                     $label = date_i18n( 'd/m/Y', $expiry_ts ); $color = '#f59e0b';
                 } else {
@@ -197,12 +197,12 @@ class VX_Admin_Users
                 $es_fundador = (bool) get_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
                 if ( $es_fundador ) {
                     $rm_url = wp_nonce_url( admin_url( 'users.php?action=vx_quitar_pionero&user_id=' . $user_id ), 'vx_quitar_pionero_' . $user_id );
-                    return '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap">⭐ Pionero</span><br>'
-                         . '<a href="' . esc_url( $rm_url ) . '" style="font-size:10px;color:#dc2626;margin-top:3px;display:block" onclick="return confirm(\'¿Quitar distintivo Pionero?\')">✕ Quitar</a>';
+                    return '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap">Pionero</span><br>'
+                         . '<a href="' . esc_url( $rm_url ) . '" style="font-size:10px;color:#dc2626;margin-top:3px;display:block" onclick="return confirm(\'¿Quitar distintivo Pionero?\')">Quitar</a>';
                 }
                 $add_url = wp_nonce_url( admin_url( 'users.php?action=vx_dar_pionero&user_id=' . $user_id ), 'vx_dar_pionero_' . $user_id );
                 return '<span style="color:#9ca3af;font-size:12px">-</span><br>'
-                     . '<a href="' . esc_url( $add_url ) . '" style="font-size:10px;color:#d97706;margin-top:3px;display:block">⭐ Dar</a>';
+                     . '<a href="' . esc_url( $add_url ) . '" style="font-size:10px;color:#d97706;margin-top:3px;display:block">Dar</a>';
 
             case 'vx_plan':
                 $es_fundador = (bool) get_user_meta( $user_id, VX_User_Meta::ES_FUNDADOR, true );
@@ -212,7 +212,7 @@ class VX_Admin_Users
 
                 // Distintivo Pionero
                 $html = $es_fundador
-                    ? '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-bottom:4px;display:inline-block">⭐ Pionero</span><br>'
+                    ? '<span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-bottom:4px;display:inline-block">Pionero</span><br>'
                     : '';
 
                 // Nombre del plan
@@ -235,16 +235,16 @@ class VX_Admin_Users
                 $html .= '<input type="hidden" name="user_id" value="' . $user_id . '">';
                 $html .= wp_nonce_field( 'vx_set_vencimiento_' . $user_id, '_wpnonce', true, false );
                 $html .= '<input type="date" name="vencimiento" value="' . esc_attr( $expiry_date ) . '" style="font-size:11px;padding:2px 4px;border:1px solid #d1d5db;border-radius:4px;color:#374151">';
-                $html .= '<button type="submit" class="button button-small" style="font-size:11px;padding:1px 6px">✓</button>';
+                $html .= '<button type="submit" class="button button-small" style="font-size:11px;padding:1px 6px">Guardar</button>';
                 $html .= '</form>';
 
                 // Toggle distintivo Pionero
                 if ( $es_fundador ) {
                     $rm_url = wp_nonce_url( admin_url( 'users.php?action=vx_quitar_pionero&user_id=' . $user_id ), 'vx_quitar_pionero_' . $user_id );
-                    $html .= '<a href="' . esc_url( $rm_url ) . '" style="font-size:10px;color:#dc2626;display:block;margin-top:3px" onclick="return confirm(\'¿Quitar distintivo Pionero?\')">✕ Quitar distintivo</a>';
+                    $html .= '<a href="' . esc_url( $rm_url ) . '" style="font-size:10px;color:#dc2626;display:block;margin-top:3px" onclick="return confirm(\'¿Quitar distintivo Pionero?\')">Quitar distintivo</a>';
                 } else {
                     $add_url = wp_nonce_url( admin_url( 'users.php?action=vx_dar_pionero&user_id=' . $user_id ), 'vx_dar_pionero_' . $user_id );
-                    $html .= '<a href="' . esc_url( $add_url ) . '" style="font-size:10px;color:#d97706;display:block;margin-top:3px">⭐ Dar distintivo</a>';
+                    $html .= '<a href="' . esc_url( $add_url ) . '" style="font-size:10px;color:#d97706;display:block;margin-top:3px">Dar distintivo</a>';
                 }
 
                 return $html;
@@ -578,7 +578,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if ( ! empty( $_GET['vx_normalize_done'] ) ) {
             $n = (int) $_GET['vx_normalize_done'];
-            echo '<div class="notice notice-success is-dismissible"><p>✅ Ciudades normalizadas: <strong>' . $n . '</strong> usuario' . ( $n !== 1 ? 's' : '' ) . ' actualizados.</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>Ciudades normalizadas: <strong>' . $n . '</strong> usuario' . ( $n !== 1 ? 's' : '' ) . ' actualizados.</p></div>';
             return;
         }
 
@@ -588,7 +588,7 @@ document.addEventListener('DOMContentLoaded', function() {
         );
         echo '<div class="notice notice-info"><p>'
            . '<strong>Vitrinexo:</strong> Estandarizar ciudades de usuarios al listado canónico. '
-           . '<a href="' . esc_url( $url ) . '" class="button button-small" onclick="return confirm(\'¿Normalizar ciudades de todos los miembros? Se intentará mapear valores libres (ej: Providencia → Santiago). Los que no tengan match quedarán sin cambios.\')">🗺 Normalizar ciudades ahora</a>'
+           . '<a href="' . esc_url( $url ) . '" class="button button-small" onclick="return confirm(\'¿Normalizar ciudades de todos los miembros? Se intentará mapear valores libres (ej: Providencia · Santiago). Los que no tengan match quedarán sin cambios.\')">Normalizar ciudades ahora</a>'
            . '</p></div>';
     }
 
@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if ( ! empty( $_GET['vx_stats_done'] ) ) {
             $r = json_decode( base64_decode( sanitize_text_field( $_GET['vx_stats_done'] ) ), true );
             if ( $r ) {
-                echo '<div class="notice notice-success is-dismissible"><p>✅ Stats migradas: <strong>'
+                echo '<div class="notice notice-success is-dismissible"><p>Stats migradas: <strong>'
                    . (int)($r['global']) . '</strong> conexiones efectivas · <strong>'
                    . (int)($r['sol_recibidas']) . '</strong> solicitudes totales. Total global actual: <strong>'
                    . ( class_exists('VX_Stats') ? VX_Stats::get_total_conexiones() : '?' )
@@ -623,7 +623,7 @@ document.addEventListener('DOMContentLoaded', function() {
            . '<strong>Vitrinexo Stats:</strong> '
            . 'Conexiones totales registradas: <strong>' . $total . '</strong>. '
            . 'Si acabas de activar el sistema de stats, migra los datos históricos: '
-           . '<a href="' . esc_url( $url ) . '" class="button button-small" onclick="return confirm(\'¿Migrar estadísticas históricas desde las conexiones existentes?\')">📊 Migrar stats históricas</a>'
+           . '<a href="' . esc_url( $url ) . '" class="button button-small" onclick="return confirm(\'¿Migrar estadísticas históricas desde las conexiones existentes?\')">Migrar stats históricas</a>'
            . '</p></div>';
     }
 
@@ -701,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         echo '<div class="notice notice-info"><p>'
            . '<strong>Vitrinexo:</strong> '
-           . '<a href="' . esc_url( $url ) . '" class="button button-primary button-small">⬇ Exportar todos los miembros (CSV)</a> '
+           . '<a href="' . esc_url( $url ) . '" class="button button-primary button-small">Exportar todos los miembros (CSV)</a> '
            . '<span style="color:#6b7280;font-size:12px;margin-left:8px">Incluye tags, industria, ciudad, empresa, stats de conexiones y más.</span>'
            . '</p></div>';
     }

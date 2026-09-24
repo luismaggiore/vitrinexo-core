@@ -208,8 +208,8 @@ class VX_Stats
             ARRAY_A
         );
 
-        $sol_recibidas_map = []; // receptor_id → count
-        $conexiones_map    = []; // user_id → count
+        $sol_recibidas_map = []; // receptor_id · count
+        $conexiones_map    = []; // user_id · count
         $global            = 0;
 
         foreach ( $conexiones as $row ) {

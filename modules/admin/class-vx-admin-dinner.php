@@ -38,7 +38,7 @@ class VX_Admin_Dinner
     {
         if ( empty( $_GET['vx_dinner_conflict'] ) ) return;
         if ( get_post_type() !== 'vx_dinner' ) return;
-        echo '<div class="notice notice-warning is-dismissible"><p><strong>⚠ Aviso:</strong> Ya existe otro 4Dinner con estado <em>abierto</em> o <em>confirmado</em> en la misma ciudad. Revisa si deseas mantener ambos activos.</p></div>';
+        echo '<div class="notice notice-warning is-dismissible"><p><strong>Aviso:</strong> Ya existe otro 4Dinner con estado <em>abierto</em> o <em>confirmado</em> en la misma ciudad. Revisa si deseas mantener ambos activos.</p></div>';
     }
 
     public static function enqueue_scripts( string $hook ): void
@@ -88,7 +88,7 @@ class VX_Admin_Dinner
             case 'vx_cupos':
                 $asignados = (array) get_post_meta( $post_id, VX_Dinner_Meta::ASIGNADOS, true );
                 $n = count( $asignados );
-                echo $n . ' asistente' . ( $n !== 1 ? 's' : '' ) . ( $n >= 4 ? ' ✓' : '' );
+                echo $n . ' asistente' . ( $n !== 1 ? 's' : '' ) . ( $n >= 4 ? ' (mesa completa)' : '' );
                 break;
 
             case 'vx_estado':
@@ -109,7 +109,7 @@ class VX_Admin_Dinner
                     admin_url( 'admin.php?action=vx_dinner_export_csv&dinner_id=' . $post_id ),
                     'vx_dinner_export_csv_' . $post_id
                 );
-                echo '<a href="' . esc_url( $csv_url ) . '" class="button button-small">⬇ CSV</a>';
+                echo '<a href="' . esc_url( $csv_url ) . '" class="button button-small">CSV</a>';
                 break;
         }
     }
@@ -282,12 +282,12 @@ class VX_Admin_Dinner
         $sin_mesa_uids = array_values( array_diff( $asignados, $en_mesa ) );
 
         if ( ! empty( $_GET['vx_mesas_guardadas'] ) ) {
-            echo '<div class="notice notice-success inline" style="margin:0 0 12px"><p>✓ Mesas guardadas correctamente.</p></div>';
+            echo '<div class="notice notice-success inline" style="margin:0 0 12px"><p>Mesas guardadas correctamente.</p></div>';
         }
         if ( isset( $_GET['vx_mesas_notificadas'] ) ) {
             $n = (int) $_GET['vx_mesas_notificadas'];
             if ( $n > 0 ) {
-                echo '<div class="notice notice-success inline" style="margin:0 0 12px"><p>📣 Notificaciones enviadas a ' . $n . ' asistente' . ( $n !== 1 ? 's' : '' ) . '.</p></div>';
+                echo '<div class="notice notice-success inline" style="margin:0 0 12px"><p>Notificaciones enviadas a ' . $n . ' asistente' . ( $n !== 1 ? 's' : '' ) . '.</p></div>';
             } else {
                 echo '<div class="notice notice-warning inline" style="margin:0 0 12px"><p>No hay asistentes con mesa asignada para notificar.</p></div>';
             }
@@ -353,7 +353,7 @@ class VX_Admin_Dinner
                 <span class="vx-seat-count"><?php echo $n; ?> persona<?php echo $n !== 1 ? 's' : ''; ?></span>
                 <button type="button" onclick="vxBorrarMesa(this)"
                         style="margin-left:auto;border:none;background:none;cursor:pointer;color:#dc2626;font-size:12px;padding:2px 6px;line-height:1">
-                  ✕ Eliminar
+                  Eliminar
                 </button>
               </div>
               <div class="vx-drop-zone" ondragover="vxOver(event)" ondragleave="vxLeave(event)" ondrop="vxDrop(event)">
@@ -378,11 +378,11 @@ class VX_Admin_Dinner
           <!-- Acciones — sin form anidado (el meta box ya está dentro del form del post) -->
           <div style="display:flex;gap:8px;align-items:center;padding-top:4px;flex-wrap:wrap">
             <button type="button" class="button" onclick="vxAgregarMesa()">+ Agregar mesa</button>
-            <button type="button" class="button button-primary" onclick="vxGuardar()">💾 Guardar mesas</button>
+            <button type="button" class="button button-primary" onclick="vxGuardar()">Guardar mesas</button>
             <button type="button" class="button" onclick="vxNotificarMesas()"
                     style="border-color:#f59e0b;color:#92400e;background:#fffbeb"
                     title="Envía un email a cada asistente con el nombre de su mesa y los datos del evento">
-              📣 Notificar mesas
+              Notificar mesas
             </button>
           </div>
 
@@ -458,7 +458,7 @@ class VX_Admin_Dinner
               '<div class="vx-mesa-head">' +
                 '<input type="text" class="vx-mesa-name" value="Mesa ' + mesaSeq + '">' +
                 '<span class="vx-seat-count">0 personas</span>' +
-                '<button type="button" onclick="vxBorrarMesa(this)" style="margin-left:auto;border:none;background:none;cursor:pointer;color:#dc2626;font-size:12px;padding:2px 6px;line-height:1">✕ Eliminar</button>' +
+                '<button type="button" onclick="vxBorrarMesa(this)" style="margin-left:auto;border:none;background:none;cursor:pointer;color:#dc2626;font-size:12px;padding:2px 6px;line-height:1">Eliminar</button>' +
               '</div>' +
               '<div class="vx-drop-zone" ondragover="vxOver(event)" ondragleave="vxLeave(event)" ondrop="vxDrop(event)">' +
                 '<span class="vx-empty-hint">Arrastra personas aquí</span>' +
@@ -584,8 +584,8 @@ class VX_Admin_Dinner
         // ── Asignados ──
         $n_asig = count( $asignados );
         $status_label = $n_asig >= 4
-            ? '✅ ' . $n_asig . ' asistente' . ( $n_asig !== 1 ? 's' : '' ) . ' · CENA CONFIRMADA'
-            : '⏳ ' . $n_asig . ' asistente' . ( $n_asig !== 1 ? 's' : '' ) . ' (mín. 4 para confirmar)';
+            ? '' . $n_asig . ' asistente' . ( $n_asig !== 1 ? 's' : '' ) . ' · CENA CONFIRMADA'
+            : '' . $n_asig . ' asistente' . ( $n_asig !== 1 ? 's' : '' ) . ' (mín. 4 para confirmar)';
 
         $csv_url = wp_nonce_url(
             admin_url( 'admin.php?action=vx_dinner_export_csv&dinner_id=' . $post->ID ),
@@ -596,7 +596,7 @@ class VX_Admin_Dinner
         echo '<h4 style="margin:0">' . esc_html( $status_label ) . '</h4>';
         if ( $asignados ) {
             echo '<a href="' . esc_url( $csv_url ) . '" class="button" style="display:inline-flex;align-items:center;gap:5px">'
-               . '<span>⬇</span> Descargar CSV confirmados'
+               . 'Descargar CSV confirmados'
                . '</a>';
         }
         echo '</div>';
@@ -618,7 +618,7 @@ class VX_Admin_Dinner
                 echo '<td>' . esc_html( $emp ? $emp->post_title : '-' ) . '</td>';
                 echo '<td>' . ( $u->get_email() ? '<a href="mailto:' . esc_attr( $u->get_email() ) . '">' . esc_html( $u->get_email() ) . '</a>' : '-' ) . '</td>';
                 echo '<td>' . ( $u->get_telefono() ? '<a href="tel:' . esc_attr( $u->get_telefono() ) . '">' . esc_html( $u->get_telefono() ) . '</a>' : '-' ) . '</td>';
-                echo '<td><a href="' . esc_url( $rm_url ) . '" style="color:#dc2626" onclick="return confirm(\'¿Desasignar?\')">✕ Quitar</a></td>';
+                echo '<td><a href="' . esc_url( $rm_url ) . '" style="color:#dc2626" onclick="return confirm(\'¿Desasignar?\')">Quitar</a></td>';
                 echo '</tr>';
             }
             echo '</tbody></table>';
@@ -636,7 +636,7 @@ class VX_Admin_Dinner
             foreach ( $pendientes as $inv ) {
                 $u  = VX_User::get( $inv['user_id'] );
                 $nombre = $u ? esc_html( $u->get_nombre_completo() ) : '#' . $inv['user_id'];
-                $tipo_label = 'invitacion' === $inv['tipo'] ? '📨 Invitación' : '✋ Interés';
+                $tipo_label = 'invitacion' === $inv['tipo'] ? 'Invitación' : 'Interés';
 
                 $asig_url = wp_nonce_url( admin_url( 'admin.php?action=vx_dinner_asig_interes&invite_id=' . $inv['id'] . '&dinner_id=' . $post->ID ), 'vx_dinner_asig_interes_' . $inv['id'] );
                 $rech_url = wp_nonce_url( admin_url( 'admin.php?action=vx_dinner_rechaz_interes&invite_id=' . $inv['id'] . '&dinner_id=' . $post->ID ), 'vx_dinner_rechaz_interes_' . $inv['id'] );
@@ -646,8 +646,8 @@ class VX_Admin_Dinner
                 echo '<td>' . $tipo_label . '</td>';
                 echo '<td>' . ( $inv['mensaje'] ? esc_html( wp_trim_words( $inv['mensaje'], 10 ) ) : '-' ) . '</td>';
                 echo '<td>' . date_i18n( 'd/m/Y', $inv['fecha'] ) . '</td>';
-                echo '<td><a href="' . esc_url( $asig_url ) . '" class="button button-primary button-small" onclick="return confirm(\'¿Asignar?\')">✓</a> ';
-                echo '<a href="' . esc_url( $rech_url ) . '" class="button button-small" style="color:#dc2626" onclick="return confirm(\'¿Rechazar?\')">✕</a></td>';
+                echo '<td><a href="' . esc_url( $asig_url ) . '" class="button button-primary button-small" onclick="return confirm(\'¿Asignar?\')">Asignar</a> ';
+                echo '<a href="' . esc_url( $rech_url ) . '" class="button button-small" style="color:#dc2626" onclick="return confirm(\'¿Rechazar?\')">Rechazar</a></td>';
                 echo '</tr>';
             }
             echo '</tbody></table>';
@@ -664,8 +664,8 @@ class VX_Admin_Dinner
                 $u   = VX_User::get( $inv['user_id'] );
                 $nom = $u ? esc_html( $u->get_nombre_completo() ) : '#' . $inv['user_id'];
                 $badge = 'aceptado' === $inv['estado']
-                    ? '<span style="color:#16a34a">✓ Aceptado</span>'
-                    : '<span style="color:#dc2626">✕ Rechazado</span>';
+                    ? '<span style="color:#16a34a">Aceptado</span>'
+                    : '<span style="color:#dc2626">Rechazado</span>';
                 echo '<li>' . $nom . ' · ' . $badge . '</li>';
             }
             echo '</ul></details>';
@@ -707,7 +707,7 @@ class VX_Admin_Dinner
             </select>
 
             <input type="text" id="vx-busq-nombre" placeholder="Buscar por nombre o email..." style="width:100%;margin-bottom:8px">
-            <button type="button" class="button" id="vx-busq-btn" onclick="vxBuscarMiembros()" style="width:100%">🔍 Buscar</button>
+            <button type="button" class="button" id="vx-busq-btn" onclick="vxBuscarMiembros()" style="width:100%">Buscar</button>
           </div>
 
           <!-- Resultados -->
@@ -760,10 +760,10 @@ class VX_Admin_Dinner
                   (m.industria ? '<div style="font-size:11px;color:#2563eb">' + m.industria + '</div>' : '') +
                 '</div>' +
                 '<div style="display:flex;gap:4px;flex-shrink:0">' +
-                  '<a href="' + m.perfil_admin_url + '" target="_blank" class="button button-small" title="Ver perfil">👁</a>' +
+                  '<a href="' + m.perfil_admin_url + '" target="_blank" class="button button-small" title="Ver perfil">Ver</a>' +
                   (alreadyAsigned
-                    ? '<span class="button button-small" style="opacity:.5" title="Ya asignado">✓</span>'
-                    : '<button class="button button-primary button-small" onclick="vxInvitar(' + m.id + ', this)" title="Invitar">✉ Invitar</button>'
+                    ? '<span class="button button-small" style="opacity:.5" title="Ya asignado">Asignado</span>'
+                    : '<button class="button button-primary button-small" onclick="vxInvitar(' + m.id + ', this)" title="Invitar">Invitar</button>'
                   ) +
                 '</div>';
               lista.appendChild( row );
@@ -782,7 +782,7 @@ class VX_Admin_Dinner
             beforeSend:  function(xhr){ xhr.setRequestHeader('X-WP-Nonce', vxBusqNonce); },
             data:        JSON.stringify({ user_id: userId }),
             success: function(res) {
-              if ( res.success ) { btn.textContent = '✓ Enviado'; btn.style.background='#16a34a'; }
+              if ( res.success ) { btn.textContent = 'Enviado'; btn.style.background='#16a34a'; }
               else { btn.textContent = res.message || 'Error'; btn.disabled = false; }
             },
             error: function(xhr) {

@@ -932,7 +932,7 @@ function vx_normalizar_ciudad( string $ciudad_libre, string $pais ): string {
         if ( mb_strlen( $libre_norm, 'UTF-8' ) >= 4 && str_contains( mb_strtolower( $c, 'UTF-8' ), $libre_norm ) ) return $c;
     }
 
-    return $ciudad_libre; // sin match → devolver original
+    return $ciudad_libre; // sin match · devolver original
 }
 
 /**
@@ -1162,7 +1162,7 @@ function vx_render_contact_links( VX_User $user, string $contacto_preferido = 'e
         $html .= '<div class="contact-reveal-row">'
                . '<span class="contact-reveal-value"><i class="ti ti-mail"></i> ' . esc_html( $email ) . $badge . '</span>'
                . '<span class="contact-reveal-actions">'
-               . '<button type="button" class="contact-action-btn" onclick="navigator.clipboard.writeText(' . esc_attr( wp_json_encode( $email ) ) . ');this.textContent=\'✓\';setTimeout(()=>this.textContent=\'Copiar\',1500)" title="Copiar correo">Copiar</button>'
+               . '<button type="button" class="contact-action-btn" onclick="navigator.clipboard.writeText(' . esc_attr( wp_json_encode( $email ) ) . ');this.textContent=\'Copiado\';setTimeout(()=>this.textContent=\'Copiar\',1500)" title="Copiar correo">Copiar</button>'
                . '<a href="mailto:' . esc_attr( $email ) . '" class="contact-action-btn" title="Enviar email">Email</a>'
                . '</span>'
                . '</div>';
@@ -1176,7 +1176,7 @@ function vx_render_contact_links( VX_User $user, string $contacto_preferido = 'e
         $html   .= '<div class="contact-reveal-row">'
                . '<span class="contact-reveal-value"><i class="ti ti-phone"></i> ' . esc_html( $tel ) . $badge . '</span>'
                . '<span class="contact-reveal-actions">'
-               . '<button type="button" class="contact-action-btn" onclick="navigator.clipboard.writeText(' . esc_attr( wp_json_encode( $tel ) ) . ');this.textContent=\'✓\';setTimeout(()=>this.textContent=\'Copiar\',1500)" title="Copiar número">Copiar</button>'
+               . '<button type="button" class="contact-action-btn" onclick="navigator.clipboard.writeText(' . esc_attr( wp_json_encode( $tel ) ) . ');this.textContent=\'Copiado\';setTimeout(()=>this.textContent=\'Copiar\',1500)" title="Copiar número">Copiar</button>'
                . '<a href="' . esc_url( $wa_url ) . '" class="contact-action-btn contact-action-btn--wa" target="_blank" rel="noopener" title="Abrir WhatsApp"><i class="ti ti-brand-whatsapp"></i> WhatsApp</a>'
                . '</span>'
                . '</div>';
@@ -1347,7 +1347,7 @@ add_shortcode( 'vx_dashboard', function (): string {
         <div class="banner-4dinner__deco banner-4dinner__deco--1"></div>
         <div class="banner-4dinner__deco banner-4dinner__deco--2"></div>
         <div class="banner-4dinner__body">
-          <div class="banner-4dinner__icon text-white">🍽</div>
+          <div class="banner-4dinner__icon text-white"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i></div>
           <div>
             <div class="banner-4dinner__eyebrow">Próximo evento</div>
             <div class="banner-4dinner__title">Habrá un <strong>4Dinner</strong> cerca tuyo</div>
@@ -2475,7 +2475,7 @@ add_shortcode( 'vx_notificaciones', function (): string {
           <?php if ( $use_card_link ) : ?><a href="<?php echo esc_url( $notif['link'] ); ?>" class="text-decoration-none"><?php endif; ?>
           <div class="<?php echo esc_attr( $classes ); ?>">
             <div class="notif-icon <?php echo esc_attr( $icon_cfg['class'] ); ?>">
-              <?php if ( 'dinner' === $tipo ) : ?>🍽<?php else : ?><i class="ti <?php echo esc_attr( $icon_cfg['icon'] ); ?>"></i><?php endif; ?>
+              <?php if ( 'dinner' === $tipo ) : ?><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i><?php else : ?><i class="ti <?php echo esc_attr( $icon_cfg['icon'] ); ?>"></i><?php endif; ?>
             </div>
             <div class="notif-body">
               <p class="notif-text">
@@ -2706,7 +2706,7 @@ add_shortcode( 'vx_configuracion', function (): string {
               <h2 class="section-title-sm mb-3">Tu membresía actual</h2>
               <div class="d-flex align-items-center gap-3 flex-wrap mb-3">
                 <?php if ( $es_fundador ) : ?>
-                <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:4px 12px;font-weight:700;font-size:14px">⭐ Miembro Pionero</span>
+                <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:4px 12px;font-weight:700;font-size:14px">Miembro Pionero</span>
                 <?php endif; ?>
                 <span class="badge-vx <?php echo $is_vencido ? 'badge-neutral' : 'badge-primary'; ?>" style="font-size:13px">
                   <?php echo esc_html( ucfirst( $plan_actual ) ); ?>
@@ -2748,7 +2748,7 @@ add_shortcode( 'vx_configuracion', function (): string {
               <div class="col-12 col-md-4">
                 <div class="card-vx <?php echo $destacado ? 'border-left-primary' : ''; ?> h-100">
                   <?php if ( $destacado ) : ?>
-                  <span class="badge-vx badge-primary mb-2" style="font-size:11px">⭐ Tu precio especial</span>
+                  <span class="badge-vx badge-primary mb-2" style="font-size:11px">Tu precio especial</span>
                   <?php endif; ?>
                   <?php if ( isset( $plan['ahorro'] ) && $plan['ahorro'] > 0 ) : ?>
                   <span class="badge-vx badge-neutral mb-2" style="font-size:11px">Ahorra <?php echo $plan['ahorro']; ?> <?php echo $plan['moneda']; ?></span>
@@ -2999,7 +2999,7 @@ add_shortcode( 'vx_configuracion', function (): string {
             body: JSON.stringify({email_nuevo: email, password_actual: pass})})
           .then(r=>r.json()).then(d=>{
             if (d.success) {
-              msgEl.textContent = '✓ Enlace de confirmación enviado a ' + email + '. Revisa tu bandeja y haz clic para aplicar el cambio.';
+              msgEl.textContent = 'Enlace de confirmación enviado a ' + email + '. Revisa tu bandeja y haz clic para aplicar el cambio.';
               msgEl.className = 'mt-2 small text-success';
             } else {
               var e2 = d.data?.message || d.error || 'Error.';
@@ -4847,7 +4847,7 @@ add_shortcode( 'vx_4dinner', function (): string {
                         <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                             <h3 class="fw-semibold" style="font-size:15px;margin:0">4Dinner <?php echo esc_html( $dinner->get_ciudad() ); ?></h3>
                             <?php if ( $user_asig ) : ?>
-                                <span class="badge-vx badge-success">✓ Confirmado</span>
+                                <span class="badge-vx badge-success">Confirmado</span>
                             <?php elseif ( $completo ) : ?>
                                 <span class="badge-vx badge-neutral">Completo</span>
                             <?php elseif ( $deadline_passed && ! $user_asig ) : ?>
@@ -4900,7 +4900,7 @@ add_shortcode( 'vx_4dinner', function (): string {
                             <span class="text-sm-muted">
                                 <?php echo count( $asignados ); ?> confirmado<?php echo count( $asignados ) !== 1 ? 's' : ''; ?>
                                 <?php if ( count( $asignados ) >= 4 ) : ?>
-                                <span class="badge-vx badge-success" style="font-size:10px;margin-left:4px">✓ Cena confirmada</span>
+                                <span class="badge-vx badge-success" style="font-size:10px;margin-left:4px">Cena confirmada</span>
                                 <?php endif; ?>
                             </span>
                         </div>
@@ -5022,7 +5022,7 @@ add_shortcode( 'vx_4dinner', function (): string {
                                     var formArea = document.getElementById('dinner-interes-btn').closest('.card-vx');
                                     if(formArea){
                                         formArea.innerHTML = '<div class="text-center py-4">'
-                                            + '<div style="font-size:48px;margin-bottom:12px">🍽</div>'
+                                            + '<div style="font-size:48px;margin-bottom:12px"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i></div>'
                                             + '<h3 style="color:var(--color-green-700);margin-bottom:8px">¡Interés registrado!</h3>'
                                             + '<p style="color:var(--color-text-secondary);max-width:440px;margin:0 auto 16px">Tu solicitud fue recibida. El equipo de Vitrinexo te asignará a la próxima mesa disponible en tu ciudad.</p>'
                                             + '<div class="alert-vx alert-info d-inline-flex gap-2 align-items-start text-start" style="max-width:440px">'
@@ -5336,7 +5336,7 @@ add_shortcode( 'vx_mis_eventos', function (): string {
                 <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge-vx badge-success" style="font-size:11px">✓ Estás confirmado</span>
+                            <span class="badge-vx badge-success" style="font-size:11px">Estás confirmado</span>
                             <?php if ( 'confirmado' === $pd_estado ) : ?>
                             <span class="badge-vx" style="background:#fde68a;color:#92400e;font-size:11px">Cena confirmada</span>
                             <?php endif; ?>
@@ -5489,7 +5489,7 @@ add_shortcode( 'vx_mis_eventos', function (): string {
                 <div style="background:#fef9ee;border-bottom:1px solid #fde68a;padding:1rem 1.25rem;">
                     <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
                         <div>
-                            <span class="badge-vx badge-success mb-1" style="font-size:11px">✓ Asistí</span>
+                            <span class="badge-vx badge-success mb-1" style="font-size:11px">Asistí</span>
                             <h3 class="mb-0 fw-semibold" style="font-size:1rem;color:#78350f">
                                 <?php echo esc_html( $dinner->get_title() ); ?>
                             </h3>

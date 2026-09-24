@@ -229,7 +229,7 @@ class VX_Cron
 
                 VX_Mailer::send(
                     $user->get_email(),
-                    '🍽 Mañana es tu 4Dinner en ' . $dinner->get_ciudad() . ' · Recordatorio',
+                    'Mañana es tu 4Dinner en ' . $dinner->get_ciudad() . ' · Recordatorio',
                     'dinner_recordatorio',
                     [
                         'nombre'      => $user->get_nombre(),
@@ -422,7 +422,7 @@ class VX_Cron
         foreach ( $umbrales as $u ) {
             if ( $days_left <= $u ) { $found = $u; break; }
         }
-        if ( null === $found ) return; // más de 30 días → no avisar aún
+        if ( null === $found ) return; // más de 30 días · no avisar aún
 
         // Leer avisos ya enviados
         $enviados = json_decode( (string) get_user_meta( $user_id, VX_Membership_Meta::AVISOS_ENVIADOS, true ) ?: '{}', true );

@@ -50,7 +50,7 @@ add_shortcode( 'vx_blog_nuevo', function (): string {
         </form>
 
         <div id="vx-blog-success" class="card-vx text-center" style="display:none;padding:32px">
-          <div style="font-size:44px">✅</div>
+          <div style="font-size:44px;color:var(--color-success)"><i class="ti ti-circle-check-filled" aria-hidden="true"></i></div>
           <h3 style="margin:8px 0">¡Artículo enviado!</h3>
           <p class="cta-card__desc">Un administrador lo revisará y te avisaremos por correo cuando se publique.</p>
           <a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>" class="btn-vx btn-ghost-vx btn-vx-sm">Volver al blog</a>
@@ -137,7 +137,7 @@ add_shortcode( 'vx_blog_moderacion', function (): string {
               <p style="margin:0 0 8px;font-size:12px;color:var(--color-text-secondary)">Por <?php echo esc_html( $autor ? $autor->display_name : '—' ); ?> · <?php echo esc_html( get_the_date( '', $p ) ); ?></p>
               <p style="margin:0 0 12px;font-size:13px;color:var(--color-text-secondary)"><?php echo esc_html( wp_trim_words( wp_strip_all_tags( $p->post_content ), 30 ) ); ?></p>
               <div class="d-flex gap-2">
-                <button class="btn-vx btn-primary-vx btn-vx-sm vxb-aprobar">✓ Aprobar</button>
+                <button class="btn-vx btn-primary-vx btn-vx-sm vxb-aprobar">Aprobar</button>
                 <button class="btn-vx btn-ghost-vx btn-vx-sm vxb-rechazar">Rechazar</button>
                 <a href="<?php echo esc_url( get_preview_post_link( $p ) ); ?>" target="_blank" rel="noopener" class="btn-vx btn-ghost-vx btn-vx-sm">Ver</a>
               </div>

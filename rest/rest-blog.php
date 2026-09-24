@@ -172,7 +172,7 @@ add_filter( 'comments_open', function ( $open, $post_id ) {
 
 add_filter( 'pre_comment_approved', function ( $approved, $commentdata ) {
     if ( ! empty( $commentdata['user_id'] ) ) {
-        return 1; // Miembro logeado → aprobado directo.
+        return 1; // Miembro logeado · aprobado directo.
     }
     return $approved;
 }, 10, 2 );

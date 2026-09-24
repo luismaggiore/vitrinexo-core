@@ -340,7 +340,7 @@ add_shortcode( 'vx_landing', function (): string {
                         </form>
                     </div>
                     <div class="founder-form-success" id="founderFormSuccess">
-                        <h3>⏳ ¡Tu perfil está siendo validado!</h3>
+                        <h3>¡Tu perfil está siendo validado!</h3>
                         <p>Revisa tu bandeja de entrada.<br>Te escribiremos pronto.</p>
                     </div>
                 </div>
@@ -602,7 +602,7 @@ add_shortcode( 'vx_landing_4dinner', function (): string {
           </div>
           <div class="col-12 col-md-6 col-lg-3">
             <div class="card-vx text-center h-100">
-              <div class="step-circle step-circle--golden">🍽</div>
+              <div class="step-circle step-circle--golden"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i></div>
               <div class="card-title-sm">Cenas el miércoles</div>
               <p class="text-sm-muted mb-0" style="line-height:1.6">Llegas, te sientas y la conversación ocurre sola. Sin moderador, sin agenda.</p>
             </div>

@@ -39,7 +39,7 @@ add_action( 'admin_init', function () {
             'menu-item-type'      => 'post_type',
             'menu-item-status'    => 'publish',
         ] );
-        $added[] = $menu->name . ' ✓';
+        $added[] = $menu->name . ' (agregado)';
     }
 
     wp_die( '<h1 style="font-family:sans-serif">Feed añadido a los menús</h1><ul style="font-family:sans-serif">' . implode( '', array_map( fn($s) => '<li>' . esc_html($s) . '</li>', $added ) ) . '</ul><p><a href="/wp-admin/">Volver al admin</a></p>' );

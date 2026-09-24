@@ -44,7 +44,7 @@ class VX_Connection_Flow
 
         $post_id = wp_insert_post( [
             'post_type'   => 'vx_conexion',
-            'post_title'  => 'Conexión: ' . $emisor->get_nombre_completo() . ' → ' . $receptor->get_nombre_completo(),
+            'post_title'  => 'Conexión: ' . $emisor->get_nombre_completo() . ' · ' . $receptor->get_nombre_completo(),
             'post_status' => 'publish',
         ] );
 

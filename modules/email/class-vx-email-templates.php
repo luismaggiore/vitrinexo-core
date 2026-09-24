@@ -163,9 +163,9 @@ class VX_Email_Templates
         $nombre = esc_html( $d['nombre'] ?? 'hola' );
 
         $steps = [
-            [ '👤', 'Completa tu perfil', 'Agrega tu foto, bio y empresa para causar buena impresión.' ],
-            [ '🏷️', 'Define tus tags', 'Qué ofreces y qué buscas: son la clave del sistema de matches.' ],
-            [ '🔍', 'Explora el directorio', 'Más de 300 profesionales B2B hispanohablantes te esperan.' ],
+            [ '1', 'Completa tu perfil', 'Agrega tu foto, bio y empresa para causar buena impresión.' ],
+            [ '2', 'Define tus tags', 'Qué ofreces y qué buscas: son la clave del sistema de matches.' ],
+            [ '3', 'Explora el directorio', 'Mira quién ya está adentro y a quién te conviene escribirle.' ],
         ];
 
         $steps_html = '<table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;">';
@@ -202,7 +202,7 @@ class VX_Email_Templates
         $url_rechazar = esc_url( add_query_arg( 'token', $d['token_rechazar'] ?? '', rest_url( VX_REST_NAMESPACE . '/conexiones/rechazar' ) ) );
 
         $ver_perfil = $perfil_url
-            ? '<p style="margin:16px 0 0;font-size:14px;"><a href="' . $perfil_url . '" style="color:#2cced6;text-decoration:none;font-weight:600;">Ver el perfil de ' . $emisor . ' →</a></p>'
+            ? '<p style="margin:16px 0 0;font-size:14px;"><a href="' . $perfil_url . '" style="color:#2cced6;text-decoration:none;font-weight:600;">Ver el perfil de ' . $emisor . '</a></p>'
             : '';
 
         $content = self::h1( "$receptor, tienes una solicitud de conexión" )
@@ -211,7 +211,7 @@ class VX_Email_Templates
             . '<p style="margin:0;font-size:14px;color:#3d444e;font-style:italic;">"' . $pitch . '"</p></div>'
             . '<p style="font-size:13px;color:#8ea5b8;margin:0 0 24px;">Sus datos de contacto se revelarán <strong>solo si aceptas</strong>. Puedes revisar su perfil público antes de decidir.</p>'
             . '<table cellpadding="0" cellspacing="0"><tr>'
-            . '<td style="padding-right:12px;">' . self::btn( $url_aceptar, '✓ Aceptar', '#2ead6e' ) . '</td>'
+            . '<td style="padding-right:12px;">' . self::btn( $url_aceptar, 'Aceptar', '#2ead6e' ) . '</td>'
             . '<td><a href="' . $url_rechazar . '" style="display:inline-block;color:#8ea5b8;text-decoration:none;padding:13px 24px;border:1.5px solid #d7e4ef;border-radius:999px;font-size:14px;">Rechazar</a></td>'
             . '</tr></table>'
             . $ver_perfil;
@@ -278,13 +278,13 @@ class VX_Email_Templates
 
         $links = '';
         if ( ! empty( $contacto['email'] ) ) {
-            $links .= '<a href="mailto:' . esc_attr( $contacto['email'] ) . '" style="display:inline-block;margin:4px;padding:8px 16px;background:#f0faf5;border:1.5px solid #2ead6e;border-radius:999px;font-size:13px;color:#2ead6e;text-decoration:none;">✉ ' . esc_html( $contacto['email'] ) . '</a>';
+            $links .= '<a href="mailto:' . esc_attr( $contacto['email'] ) . '" style="display:inline-block;margin:4px;padding:8px 16px;background:#f0faf5;border:1.5px solid #2ead6e;border-radius:999px;font-size:13px;color:#2ead6e;text-decoration:none;">' . esc_html( $contacto['email'] ) . '</a>';
         }
         if ( ! empty( $contacto['linkedin'] ) ) {
             $links .= '<a href="' . esc_url( $contacto['linkedin'] ) . '" style="display:inline-block;margin:4px;padding:8px 16px;background:#eef4ff;border:1.5px solid #5100ff;border-radius:999px;font-size:13px;color:#5100ff;text-decoration:none;">in LinkedIn</a>';
         }
         if ( ! empty( $contacto['telefono'] ) ) {
-            $links .= '<a href="tel:' . esc_attr( str_replace( ' ', '', $contacto['telefono'] ) ) . '" style="display:inline-block;margin:4px;padding:8px 16px;background:#f8fafc;border:1.5px solid #d7e4ef;border-radius:999px;font-size:13px;color:#3d444e;text-decoration:none;">📞 ' . esc_html( $contacto['telefono'] ) . '</a>';
+            $links .= '<a href="tel:' . esc_attr( str_replace( ' ', '', $contacto['telefono'] ) ) . '" style="display:inline-block;margin:4px;padding:8px 16px;background:#f8fafc;border:1.5px solid #d7e4ef;border-radius:999px;font-size:13px;color:#3d444e;text-decoration:none;">' . esc_html( $contacto['telefono'] ) . '</a>';
         }
 
         $content = self::h1( "¡$receptor aceptó tu conexión!" )
@@ -318,7 +318,7 @@ class VX_Email_Templates
             . '<div style="background:#f8fafc;border-left:4px solid #2cced6;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;">'
             . '<p style="margin:0;font-size:14px;color:#3d444e;font-style:italic;">"' . $pitch . '"</p></div>'
             . '<table cellpadding="0" cellspacing="0"><tr>'
-            . '<td style="padding-right:12px;">' . self::btn( $url_aceptar, '✓ Aceptar', '#2ead6e' ) . '</td>'
+            . '<td style="padding-right:12px;">' . self::btn( $url_aceptar, 'Aceptar', '#2ead6e' ) . '</td>'
             . '<td><a href="' . $url_rechazar . '" style="display:inline-block;color:#8ea5b8;text-decoration:none;padding:13px 24px;border:1.5px solid #d7e4ef;border-radius:999px;font-size:14px;">Rechazar</a></td>'
             . '</tr></table>';
 
@@ -406,13 +406,13 @@ class VX_Email_Templates
         $url             = esc_url( $d['validaciones_url'] ?? admin_url( 'admin.php?page=vx-validaciones' ) );
         $total           = $n_cuentas + $n_senior;
 
-        $content = self::h1( '⏳ ' . $total . ' validación' . ( $total !== 1 ? 'es' : '' ) . ' pendiente' . ( $total !== 1 ? 's' : '' ) );
+        $content = self::h1( '' . $total . ' validación' . ( $total !== 1 ? 'es' : '' ) . ' pendiente' . ( $total !== 1 ? 's' : '' ) );
         $content .= self::p( 'Hay usuarios esperando revisión en Vitrinexo. Puedes gestionarlos desde el panel de Validaciones.' );
 
         // ── Sección cuentas pendientes ─────────────────────────────────────────
         if ( $n_cuentas > 0 ) {
             $content .= '<p style="font-size:13px;font-weight:700;color:#b45309;margin:20px 0 8px;text-transform:uppercase;letter-spacing:.5px;">'
-                . '📧 Cuentas por aprobar (' . $n_cuentas . ')</p>';
+                . 'Cuentas por aprobar (' . $n_cuentas . ')</p>';
 
             $content .= '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:16px;">';
             $content .= '<tr style="background:#f8fafc;">'
@@ -434,7 +434,7 @@ class VX_Email_Templates
         // ── Sección solicitudes Senior ─────────────────────────────────────────
         if ( $n_senior > 0 ) {
             $content .= '<p style="font-size:13px;font-weight:700;color:#4c1d95;margin:20px 0 8px;text-transform:uppercase;letter-spacing:.5px;">'
-                . '🏆 Solicitudes Senior (' . $n_senior . ')</p>';
+                . 'Solicitudes Senior (' . $n_senior . ')</p>';
 
             $content .= '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:16px;">';
             $content .= '<tr style="background:#f8fafc;">'
@@ -515,9 +515,9 @@ class VX_Email_Templates
         $fundador  = ! empty( $d['es_fundador'] );
 
         $urgencia  = match ( true ) {
-            $days <= 1  => '🔴 ¡Último día!',
-            $days <= 7  => '🟡 Esta semana',
-            default     => '📅 En ' . $days . ' días',
+            $days <= 1  => '¡Último día!',
+            $days <= 7  => 'Esta semana',
+            default     => 'En ' . $days . ' días',
         };
 
         $cta_text  = $fundador
@@ -550,7 +550,7 @@ class VX_Email_Templates
         $fecha     = esc_html( $d['fecha_vencimiento'] ?? '' );
         $fundador  = ! empty( $d['es_fundador'] );
 
-        $badge     = $fundador ? ' <span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700;">⭐ Pionero</span>' : '';
+        $badge     = $fundador ? ' <span style="background:#fef3c7;color:#92400e;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700;">Pionero</span>' : '';
 
         $content = self::h1( "¡Tu plan $plan está activo, $nombre!" )
             . self::p( 'Bienvenido de vuelta. Tienes acceso completo a Vitrinexo' . ( $fecha ? ' hasta el <strong>' . $fecha . '</strong>' : ' sin fecha de vencimiento' ) . '.' . $badge )
@@ -576,13 +576,13 @@ class VX_Email_Templates
             . self::p( 'El equipo de Vitrinexo te ha reservado un cupo en la próxima cena. Aquí los detalles:' )
             . '<div style="background:#1a2335;border-radius:12px;padding:20px;margin:20px 0;color:#fff;">'
             . '<p style="margin:0 0 4px;font-size:12px;color:#8ea5b8;text-transform:uppercase;letter-spacing:.5px;">Tu invitación</p>'
-            . '<p style="margin:0 0 16px;font-size:20px;font-weight:700;">🍽 4Dinner ' . esc_html( $dinner['ciudad'] ?? '' ) . '</p>'
-            . '<p style="margin:0 0 6px;font-size:14px;color:#cdd7e2;">📅 ' . $fecha_str . ' · 8:00 PM</p>'
-            . '<p style="margin:0;font-size:14px;color:#cdd7e2;">📍 ' . esc_html( ( $dinner['restaurante'] ?? '' ) . ( ! empty( $dinner['direccion'] ) ? ' · ' . $dinner['direccion'] : '' ) ) . '</p>'
+            . '<p style="margin:0 0 16px;font-size:20px;font-weight:700;">4Dinner ' . esc_html( $dinner['ciudad'] ?? '' ) . '</p>'
+            . '<p style="margin:0 0 6px;font-size:14px;color:#cdd7e2;">Fecha: ' . $fecha_str . ' · 8:00 PM</p>'
+            . '<p style="margin:0;font-size:14px;color:#cdd7e2;">Lugar: ' . esc_html( ( $dinner['restaurante'] ?? '' ) . ( ! empty( $dinner['direccion'] ) ? ' · ' . $dinner['direccion'] : '' ) ) . '</p>'
             . '</div>'
             . self::p( '4 personas, 1 mesa, sin agenda formal. Solo una conversación real entre miembros verificados de Vitrinexo.' )
             . '<div style="text-align:center;margin:28px 0;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">'
-            . self::btn( $d['url_aceptar'] ?? '#', '✓ Acepto la invitación', '#2cced6' )
+            . self::btn( $d['url_aceptar'] ?? '#', 'Acepto la invitación', '#2cced6' )
             . '&nbsp;'
             . '<a href="' . esc_url( $d['url_rechazar'] ?? '#' ) . '" style="display:inline-block;background:#f1f5f9;color:#475569;text-decoration:none;padding:13px 28px;border-radius:999px;font-size:14px;font-weight:600;">No puedo asistir</a>'
             . '</div>'
@@ -657,13 +657,13 @@ class VX_Email_Templates
               . '</div>'
             : '';
 
-        $content = self::h1( "🍽 ¡$nombre, tu 4Dinner es $fecha_str!" )
+        $content = self::h1( "¡$nombre, tu 4Dinner es $fecha_str!" )
             . self::p( 'Solo quedan <strong>24 horas</strong>. Aquí un recordatorio de los detalles:' )
             . '<div style="background:#1a2335;border-radius:12px;padding:20px;margin:20px 0;color:#fff;">'
             . '<p style="margin:0 0 4px;font-size:12px;color:#8ea5b8;text-transform:uppercase;letter-spacing:.5px;">Tu cena</p>'
             . '<p style="margin:0 0 14px;font-size:20px;font-weight:700;">4Dinner ' . esc_html( $dinner['ciudad'] ?? '' ) . '</p>'
-            . '<p style="margin:0 0 6px;font-size:14px;color:#cdd7e2;">📅 ' . $fecha_str . ' · 8:00 PM</p>'
-            . '<p style="margin:0;font-size:14px;color:#cdd7e2;">📍 ' . esc_html( ( $dinner['restaurante'] ?? '' ) . ( ! empty( $dinner['direccion'] ) ? ' · ' . $dinner['direccion'] : '' ) ) . '</p>'
+            . '<p style="margin:0 0 6px;font-size:14px;color:#cdd7e2;">Fecha: ' . $fecha_str . ' · 8:00 PM</p>'
+            . '<p style="margin:0;font-size:14px;color:#cdd7e2;">Lugar: ' . esc_html( ( $dinner['restaurante'] ?? '' ) . ( ! empty( $dinner['direccion'] ) ? ' · ' . $dinner['direccion'] : '' ) ) . '</p>'
             . '</div>'
             . $mesa_html
             . '<div style="background:#f0fdf4;border-radius:8px;padding:14px 16px;margin:20px 0;">'
@@ -687,7 +687,7 @@ class VX_Email_Templates
         $mesa_nombre = esc_html( $d['mesa_nombre'] ?? '' );
         $fecha_str   = ! empty( $dinner['fecha'] ) ? date_i18n( 'l j \d\e F', (int) $dinner['fecha'] ) : '';
 
-        $content = self::h1( "🍽 ¡$nombre, ya tienes mesa asignada!" )
+        $content = self::h1( "¡$nombre, ya tienes mesa asignada!" )
             . self::p( 'El equipo ya armó las mesas para el 4Dinner de <strong>' . esc_html( $dinner['ciudad'] ?? '' ) . '</strong>. Esta es tu asignación:' )
             . '<div style="background:#eff6ff;border-radius:12px;padding:20px;margin:20px 0;border-left:4px solid #3b82f6;text-align:center;">'
             . '<p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.5px;">Tu mesa</p>'
@@ -695,8 +695,8 @@ class VX_Email_Templates
             . '</div>'
             . '<div style="background:#1a2335;border-radius:12px;padding:20px;margin:20px 0;color:#fff;">'
             . '<p style="margin:0 0 4px;font-size:12px;color:#8ea5b8;text-transform:uppercase;letter-spacing:.5px;">Detalles del evento</p>'
-            . ( $fecha_str ? '<p style="margin:0 0 6px;font-size:14px;color:#cdd7e2;">📅 ' . $fecha_str . ' · 8:00 PM</p>' : '' )
-            . '<p style="margin:0;font-size:14px;color:#cdd7e2;">📍 ' . esc_html( ( $dinner['restaurante'] ?? '' ) . ( ! empty( $dinner['direccion'] ) ? ' · ' . $dinner['direccion'] : '' ) ) . '</p>'
+            . ( $fecha_str ? '<p style="margin:0 0 6px;font-size:14px;color:#cdd7e2;">Fecha: ' . $fecha_str . ' · 8:00 PM</p>' : '' )
+            . '<p style="margin:0;font-size:14px;color:#cdd7e2;">Lugar: ' . esc_html( ( $dinner['restaurante'] ?? '' ) . ( ! empty( $dinner['direccion'] ) ? ' · ' . $dinner['direccion'] : '' ) ) . '</p>'
             . '</div>'
             . '<div style="background:#f0fdf4;border-radius:8px;padding:14px 16px;margin:20px 0;">'
             . '<p style="margin:0;font-size:13px;color:#166534;"><strong>Recuerda:</strong> cada quien paga su consumo. Sin agenda formal, la conversación fluye sola.</p>'
@@ -719,7 +719,6 @@ class VX_Email_Templates
         $content = self::h1( "¡$nombre, eres parte de Vitrinexo Senior!" )
             . self::p( 'Tu solicitud para unirte a la comunidad <strong>Vitrinexo Senior</strong> fue aprobada. Ahora tienes acceso al directorio vertical de ejecutivos con trayectoria consolidada.' )
             . '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">'
-            . '<div style="font-size:36px;margin-bottom:8px;">🏆</div>'
             . '<p style="margin:0;font-size:18px;font-weight:700;color:#78350f;">Distintivo Senior activado</p>'
             . '<p style="margin:6px 0 0;font-size:13px;color:#92400e;">Tu distintivo es visible en tu ficha de Vitrinexo.</p>'
             . '</div>'
@@ -761,7 +760,7 @@ class VX_Email_Templates
         $fecha        = esc_html( $d['fecha_intento'] ?? '' );
         $url          = esc_url( $d['url_actualizar'] ?? home_url( '/configuracion/?tab=plan' ) );
 
-        $content = self::h1( "⚠ No pudimos procesar tu pago, $nombre" )
+        $content = self::h1( "No pudimos procesar tu pago, $nombre" )
             . self::p( "El cobro de tu plan <strong>$plan</strong>" . ( $fecha ? " del $fecha" : '' ) . " no pudo completarse. Tu acceso a Vitrinexo podría suspenderse pronto si no se regulariza." )
             . '<div style="background:#fff5f5;border:1px solid #fecaca;border-radius:12px;padding:18px 20px;margin:20px 0;">'
             . '<p style="margin:0;font-size:14px;color:#dc2626;font-weight:600;">Posibles causas:</p>'
@@ -803,9 +802,9 @@ class VX_Email_Templates
         $content = self::h1( "¡Tu mesa para el 4Dinner está confirmada, $nombre!" )
             . '<div style="background:#1a2335;border-radius:12px;padding:20px;margin:20px 0;color:#fff;">'
             . '<p style="margin:0 0 4px;font-size:12px;color:#8ea5b8;text-transform:uppercase;letter-spacing:.5px;">Tu mesa</p>'
-            . '<p style="margin:0 0 16px;font-size:20px;font-weight:700;">🍽 4Dinner ' . esc_html( $dinner['ciudad'] ?? '' ) . '</p>'
-            . '<p style="margin:0 0 6px;font-size:14px;color:#cdd7e2;">📅 ' . $fecha_str . ' · 8:00 PM</p>'
-            . '<p style="margin:0;font-size:14px;color:#cdd7e2;">📍 ' . esc_html( $dinner['restaurante'] ?? '' ) . ' · ' . esc_html( $dinner['direccion'] ?? '' ) . '</p>'
+            . '<p style="margin:0 0 16px;font-size:20px;font-weight:700;">4Dinner ' . esc_html( $dinner['ciudad'] ?? '' ) . '</p>'
+            . '<p style="margin:0 0 6px;font-size:14px;color:#cdd7e2;">Fecha: ' . $fecha_str . ' · 8:00 PM</p>'
+            . '<p style="margin:0;font-size:14px;color:#cdd7e2;">Lugar: ' . esc_html( $dinner['restaurante'] ?? '' ) . ' · ' . esc_html( $dinner['direccion'] ?? '' ) . '</p>'
             . '</div>'
             . '<p style="font-size:14px;font-weight:600;color:#1a2335;margin:20px 0 8px;">Tus comensales:</p>'
             . $comensales_html
@@ -850,8 +849,8 @@ class VX_Email_Templates
         $content = '<p style="color:#5e6b7a;margin:0 0 24px">' . $intro . '</p>'
             . '<table style="width:100%;border-collapse:collapse;margin:0 0 32px">' . $rows . '</table>'
             . '<div style="margin:0 0 24px">'
-            . '<a href="' . $url_aprobar . '" style="display:inline-block;background:#00aeb8;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;margin-right:12px">✓ Aprobar</a>'
-            . '<a href="' . $url_rechazar . '" style="display:inline-block;background:#ff4d82;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px">✗ Rechazar</a>'
+            . '<a href="' . $url_aprobar . '" style="display:inline-block;background:#00aeb8;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;margin-right:12px">Aprobar</a>'
+            . '<a href="' . $url_rechazar . '" style="display:inline-block;background:#ff4d82;color:#fff;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px">Rechazar</a>'
             . '</div>'
             . '<p style="color:#9ca3af;font-size:12px;margin:0">Estos botones son de un solo uso. Una vez utilizados no podrán volver a usarse.</p>';
 

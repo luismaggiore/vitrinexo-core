@@ -145,7 +145,7 @@ class VX_Dinner_Invite
         $post_id = wp_insert_post( [
             'post_type'   => 'vx_dinner_invite',
             'post_status' => 'publish',
-            'post_title'  => 'Interés: ' . $user->get_nombre_completo() . ' → 4Dinner ' . $dinner->get_ciudad(),
+            'post_title'  => 'Interés: ' . $user->get_nombre_completo() . ' · 4Dinner ' . $dinner->get_ciudad(),
         ] );
 
         if ( is_wp_error( $post_id ) ) return null;
@@ -198,7 +198,7 @@ class VX_Dinner_Invite
         $post_id = wp_insert_post( [
             'post_type'   => 'vx_dinner_invite',
             'post_status' => 'publish',
-            'post_title'  => 'Invitación: ' . $user->get_nombre_completo() . ' → 4Dinner ' . $dinner->get_ciudad(),
+            'post_title'  => 'Invitación: ' . $user->get_nombre_completo() . ' · 4Dinner ' . $dinner->get_ciudad(),
         ] );
 
         if ( is_wp_error( $post_id ) ) return $post_id;
